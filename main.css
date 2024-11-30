@@ -1,7 +1,7 @@
 body {
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+    font-family: 'sans-serif-700', sans-serif;
+    background-color: #000;
     color: #f0f0f0;
 }
 
@@ -16,11 +16,32 @@ h1 {
     font-size: 2.5em;
 }
 
-main {
-    padding: 2em;
+main, .buttons, .platforms {
     text-align: center;
+    margin: 2em 0;
 }
 
-p {
-    font-size: 1.2em;
+.buttons button {
+    margin: 0 1em;
+    padding: 0.5em 1.5em;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.platforms img {
+    width: 30px;
+    margin: 0 10px;
+}
+
+#animation {
+    width: 100px;
+    height: 100px;
+    margin: 2em auto;
+    background-color: #fff;
+    animation: rotate 5s infinite linear;
+}
+
+@keyframes rotate {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
 }
