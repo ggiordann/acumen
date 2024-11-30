@@ -64,29 +64,42 @@ main, .buttons, .platforms {
 }
 
 #animation {
-    width: 200px;
-    height: 200px;
+    width: 300px;
+    height: 300px;
     margin: 2em auto;
     position: relative;
 }
 
-#animation div {
-    width: 20px;
-    height: 20px;
-    background-color: #fff;
+#animation .sun {
+    width: 50px;
+    height: 50px;
+    background-color: #ffcc00;
+    border-radius: 50%;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform-origin: -100px;
-    border-radius: 50%;
-    animation: orbit 10s infinite linear;
+    transform: translate(-50%, -50%);
 }
 
-#animation div:nth-child(1) { transform: rotate(0deg); }
-#animation div:nth-child(2) { transform: rotate(120deg); }
-#animation div:nth-child(3) { transform: rotate(240deg); }
+#animation .planet {
+    width: 20px;
+    height: 20px;
+    background-color: #00f;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: -150px;
+    animation: orbit 8s infinite linear;
+}
+
+#animation .planet:nth-child(2) {
+    background-color: #f00;
+    transform-origin: -100px;
+    animation-duration: 5s;
+}
 
 @keyframes orbit {
-    from { transform: rotate(0deg) translateX(100px); }
-    to { transform: rotate(360deg) translateX(100px); }
+    from { transform: rotate(0deg) translateX(150px); }
+    to { transform: rotate(360deg) translateX(150px); }
 }

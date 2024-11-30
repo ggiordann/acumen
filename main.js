@@ -1,7 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const animation = document.getElementById('animation');
-    for (let i = 0; i < 3; i++) {
-        const orb = document.createElement('div');
-        animation.appendChild(orb);
+    
+    const sun = document.createElement('div');
+    sun.className = 'sun';
+    animation.appendChild(sun);
+
+    for (let i = 0; i < 2; i++) {
+        const planet = document.createElement('div');
+        planet.className = 'planet';
+        animation.appendChild(planet);
     }
 });
