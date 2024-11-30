@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const animation = document.getElementById('animation');
-    // Simple 3D rotation animation
-    animation.style.transformStyle = 'preserve-3d';
+    for (let i = 0; i < 3; i++) {
+        const orb = document.createElement('div');
+        animation.appendChild(orb);
+    }
 });

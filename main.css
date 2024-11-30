@@ -5,15 +5,44 @@ body {
     color: #f0f0f0;
 }
 
-header, footer {
+header {
+    position: sticky;
+    top: 0;
     background-color: #333;
-    text-align: center;
-    padding: 1em 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1em;
+    z-index: 1000;
 }
 
-h1 {
-    margin: 0;
-    font-size: 2.5em;
+header .logo {
+    font-size: 1.5em;
+    color: #f0f0f0;
+}
+
+header nav a {
+    margin: 0 1em;
+    color: #f0f0f0;
+    text-decoration: none;
+}
+
+.auth-buttons button {
+    margin-left: 1em;
+    padding: 0.5em 1em;
+    border-radius: 20px;
+    background-color: #555;
+    color: #f0f0f0;
+    border: none;
+    cursor: pointer;
+}
+
+.highlight {
+    font-weight: bold;
+    font-size: 1.5em;
+    background: linear-gradient(to right, #1e3c72, #2a5298);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 main, .buttons, .platforms {
@@ -21,11 +50,12 @@ main, .buttons, .platforms {
     margin: 2em 0;
 }
 
-.buttons button {
+.buttons button, .auth-buttons button {
     margin: 0 1em;
     padding: 0.5em 1.5em;
     font-size: 1em;
     cursor: pointer;
+    border-radius: 20px;
 }
 
 .platforms img {
@@ -34,14 +64,29 @@ main, .buttons, .platforms {
 }
 
 #animation {
-    width: 100px;
-    height: 100px;
+    width: 200px;
+    height: 200px;
     margin: 2em auto;
-    background-color: #fff;
-    animation: rotate 5s infinite linear;
+    position: relative;
 }
 
-@keyframes rotate {
-    from { transform: rotateY(0deg); }
-    to { transform: rotateY(360deg); }
+#animation div {
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: -100px;
+    border-radius: 50%;
+    animation: orbit 10s infinite linear;
+}
+
+#animation div:nth-child(1) { transform: rotate(0deg); }
+#animation div:nth-child(2) { transform: rotate(120deg); }
+#animation div:nth-child(3) { transform: rotate(240deg); }
+
+@keyframes orbit {
+    from { transform: rotate(0deg) translateX(100px); }
+    to { transform: rotate(360deg) translateX(100px); }
 }
