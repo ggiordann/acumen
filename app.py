@@ -12,7 +12,8 @@ def encode_image(image_file):
     return base64.b64encode(image_file.getvalue()).decode("utf-8")
 
 
-st.set_page_config(page_title="Scientific Image Analyst", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="Scientific Image Analyst", layout="centered", initial_sidebar_state="collapsed", page_icon=None)
+st.experimental_set_query_params(host="localhost")
 # Streamlit page setup
 st.title("🧪 Scientific Image Analyst: `GPT-4 Turbo with Vision` 👀")
 
