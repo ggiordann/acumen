@@ -4,7 +4,6 @@
 
 import streamlit as st
 import base64
-import databutton as db
 
 from openai import OpenAI
 
@@ -18,8 +17,8 @@ st.set_page_config(page_title="Scientific Image Analyst", layout="centered", ini
 st.title("🧪 Scientific Image Analyst: `GPT-4 Turbo with Vision` 👀")
 
 
-# Retrieve the OpenAI API Key from secrets
-api_key = db.secrets.get(name="OPENAI_API_KEY")
+# Retrieve the OpenAI API Key from Streamlit secrets
+api_key = st.secrets["OPENAI_API_KEY"]
 
 # Initialize the OpenAI client with the API key
 client = OpenAI(api_key=api_key)
