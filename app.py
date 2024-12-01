@@ -12,10 +12,10 @@ def encode_image(image_file):
     return base64.b64encode(image_file.getvalue()).decode("utf-8")
 
 
-st.set_page_config(page_title="Scientific Image Analyst", layout="centered", initial_sidebar_state="collapsed", page_icon=None)
+st.set_page_config(page_title="Acumen", layout="centered", initial_sidebar_state="collapsed", page_icon=None)
 # st.query_params is not callable, remove or replace with correct usage if needed
 # Streamlit page setup
-st.title("🧪 Scientific Image Analyst: `GPT-4 Turbo with Vision` 👀")
+st.title("Acumen")
 
 
 # Retrieve the OpenAI API Key from Streamlit secrets
@@ -30,7 +30,7 @@ uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png", "jpeg"])
 if uploaded_file:
     # Display the uploaded image
     with st.expander("Image", expanded = True):
-        st.image(uploaded_file, caption=uploaded_file.name, use_column_width=True)
+        st.image(uploaded_file, caption=uploaded_file.name, use_container_width=True)
 
 # Toggle for showing additional details input
 show_details = st.toggle("Add details about the image", value=False)
@@ -43,7 +43,7 @@ if show_details:
     )
 
 # Button to trigger the analysis
-analyze_button = st.button("Analyse the Scientific Image", type="secondary")
+analyze_button = st.button("Generate Description and Estimate Price", type="secondary")
 
 # Check if an image has been uploaded, if the API key is available, and if the button has been pressed
 if uploaded_file is not None and api_key and analyze_button:
@@ -94,7 +94,7 @@ if uploaded_file is not None and api_key and analyze_button:
             full_response = ""
             message_placeholder = st.empty()
             for completion in client.chat.completions.create(
-                model="gpt-4-vision-preview", messages=messages, 
+                model="gpt-4o", messages=messages, 
                 max_tokens=1200, stream=True
             ):
                 # Check if there is content to display
