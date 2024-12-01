@@ -54,13 +54,10 @@ if uploaded_file is not None and api_key and analyze_button:
     
         # Optimized prompt for additional clarity and detail
         prompt_text = (
-            "You are a highly knowledgeable scientific image analysis expert. "
-            "Your task is to examine the following image in detail. "
-            "Provide a comprehensive, factual, and scientifically accurate explanation of what the image depicts. "
-            "Highlight key elements and their significance, and present your analysis in clear, well-structured markdown format. "
-            "If applicable, include any relevant scientific terminology to enhance the explanation. "
-            "Assume the reader has a basic understanding of scientific concepts."
-            "Create a detailed image caption in bold explaining in short."
+            "Default: Based on the uploaded image, create an estimated price in AUD and generate a description for an advertisement on Facebook Marketplace. "
+            "If additional context is provided, use their specified currency and platform for the advertisement. "
+            "Take the item's condition into account if specified, and adjust the price estimate and description accordingly. "
+            "Provide a clear, concise, and attractive description that highlights the key features of the item and appeals to potential buyers."
         )
     
         if show_details and additional_details:
