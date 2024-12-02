@@ -3,9 +3,11 @@
 # Blog -> 
 
 import streamlit as st
+import st_static_export as sse
 import base64
-
 from openai import OpenAI
+
+static_html = sse.StreamlitStaticExport()
 
 # Function to encode the image to base64
 def encode_image(image_file):
@@ -42,8 +44,32 @@ if show_details:
         disabled=not show_details
     )
 
+currency = st.selectbox(
+    "What currency do you wish to sell your item in?",
+    ("USD", "AUD", "GBP", "EUR", "CAD")
+)
+
+condition = st.selectbox(
+    "What is the condition of your item?",
+    ("For Parts", "Refurbished", "Acceptable", "Good", "Very Good", "Like New", "Brand New"),
+)
+
+# Use st.multiselect for multiple selectable options
+platforms = st.multiselect(
+    'Select the platforms you wish to use:',
+    ['Facebook Marketplace', 'Depop', 'Gumtree', 'StockX']
+)
+
+
+# add to prompt
+
 # Button to trigger the analysis
 analyze_button = st.button("Generate Description and Estimate Price", type="secondary")
+
+
+realplatforms = ""
+for i in range(len(realplatforms)):
+    realplatforms += platforms[i] + " "
 
 # Check if an image has been uploaded, if the API key is available, and if the button has been pressed
 if uploaded_file is not None and api_key and analyze_button:
@@ -54,9 +80,8 @@ if uploaded_file is not None and api_key and analyze_button:
     
         # Optimized prompt for additional clarity and detail
         prompt_text = (
-            "Default: Based on the uploaded image, create an estimated price in AUD and generate a description for an advertisement on Facebook Marketplace. "
-            "If additional context is provided, use their specified currency and platform for the advertisement. "
-            "Take the item's condition into account if specified, and adjust the price estimate and description accordingly. "
+            "Default: Based on the uploaded image, create an estimated price in " + currency + "and generate a description for an advertisement for " + realplatforms +
+            "Take the item's condition into account. It is in" + condition + "condition and adjust the price estimate and description accordingly. "
             "Provide a clear, concise, and attractive description that highlights the key features of the item and appeals to potential buyers."
         )
     
@@ -113,3 +138,5 @@ else:
         st.warning("Please upload an image.")
     if not api_key:
         st.warning("Please enter your OpenAI API key.")
+        
+static_html.save()
