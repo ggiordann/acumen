@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fileUploader').addEventListener('change', function(event) {
         const file = event.target.files[0];
@@ -75,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer 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`
+                            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
                         },
                         body: JSON.stringify(payload)
                     });
