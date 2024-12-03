@@ -9,8 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.onload = function(e) {
                 const img = document.createElement('img');
                 img.src = e.target.result;
+                console.log('Image source set:', img.src);
                 document.getElementById('imagePreview').innerHTML = '';
                 document.getElementById('imagePreview').appendChild(img);
+                console.log('Image appended to preview');
             };
             reader.readAsDataURL(file);
         }
