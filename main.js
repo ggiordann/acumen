@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             img.onload = async function() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                const maxSize = 500; // Set a maximum size for the image
+                const maxSize = 300; // Reduce the maximum size for the image
 
                 let width = img.width;
                 let height = img.height;
