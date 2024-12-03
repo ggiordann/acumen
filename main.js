@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const resizedBase64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+                const resizedBase64Image = canvas.toDataURL('image/jpeg', 0.5).split(',')[1]; // Reduce image quality to 50%
 
                 const payload = {
                     model: "gpt-4",
