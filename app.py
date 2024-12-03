@@ -3,11 +3,8 @@
 # Blog -> 
 
 import streamlit as st
-import st_static_export as sse
 import base64
 from openai import OpenAI
-
-static_html = sse.StreamlitStaticExport()
 
 # Function to encode the image to base64
 def encode_image(image_file):
@@ -138,5 +135,3 @@ else:
         st.warning("Please upload an image.")
     if not api_key:
         st.warning("Please enter your OpenAI API key.")
-        
-static_html.save()
