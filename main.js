@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             img.onload = async function() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                const maxSize = 300; // Reduce the maximum size for the image
+                const maxSize = 200; // Further reduce the maximum size for the image
 
                 let width = img.width;
                 let height = img.height;
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const resizedBase64Image = canvas.toDataURL('image/jpeg', 0.5).split(',')[1]; // Reduce image quality to 50%
+                const resizedBase64Image = canvas.toDataURL('image/jpeg', 0.3).split(',')[1]; // Further reduce image quality to 30%
 
                 const payload = {
                     model: "gpt-4",
