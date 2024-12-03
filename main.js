@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     max_tokens: 100
                 };
 
-                const { API_KEY } = require('./config.js');
+                
 
                 try {
                     const response = await fetch('https://api.openai.com/v1/chat/completions', {
