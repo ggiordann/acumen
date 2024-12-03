@@ -1,4 +1,4 @@
-import { API_KEY } from './config.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fileUploader').addEventListener('change', function(event) {
         const file = event.target.files[0];
@@ -70,6 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     ],
                     max_tokens: 100
                 };
+
+                import { API_KEY } from './config.js';
 
                 try {
                     const response = await fetch('https://api.openai.com/v1/chat/completions', {
