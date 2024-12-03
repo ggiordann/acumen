@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
+                console.log('File loaded:', file.name);
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 console.log('Image source set:', img.src);
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const img = new Image();
             img.src = e.target.result;
             img.onload = async function() {
+                console.log('Image loaded for processing:', img.src);
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const maxSize = 200; // Further reduce the maximum size for the image
@@ -60,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const resizedBase64Image = canvas.toDataURL('image/jpeg', 0.3).split(',')[1]; // Further reduce image quality to 30%
 
+                console.log('Canvas resized image:', canvas.toDataURL('image/jpeg', 0.3).substring(0, 30) + '...');
                 const payload = {
                     model: "gpt-4",
                     messages: [
@@ -78,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
 
                 try {
+                    console.log('Sending API request with payload:', payload);
                     const response = await fetch('https://api.openai.com/v1/chat/completions', {
                         method: 'POST',
                         headers: {
