@@ -8,13 +8,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>Acumen</h1>
-        <div class="file-upload-container">
-            <label for="fileUploader" class="custom-file-upload">Choose File</label>
-            <span class="upload-types">Accepted: image/*</span>
-            <input type="file" id="fileUploader" accept="image/*">
+    <h1>jQuery Image Upload 
+        <small>with preview</small>
+    </h1>
+    <div class="avatar-upload">
+        <div class="avatar-edit">
+            <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" />
+            <label for="imageUpload"></label>
         </div>
-        <div id="imagePreview"></div>
+        <div class="avatar-preview">
+            <div id="imagePreview" style="background-image: url(http://i.pravatar.cc/500?img=7);">
+            </div>
+        </div>
+    </div>
         <button id="analyzeButton">Generate Description and Estimate Price</button>
         <div id="response"></div>
     </div>
