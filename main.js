@@ -1,21 +1,20 @@
 
 import { API_KEY } from './config.js';
 
-function readURL(input) {
-    if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('imagePreview').style.backgroundImage = 'url(' + e.target.result + ')';
-        document.getElementById('imagePreview').style.display = 'none';
-        document.getElementById('imagePreview').style.display = 'block';
-    }
-    reader.readAsDataURL(input.files[0]);
-    }
-}
-
-$("#imageUpload").change(function() {
-    readURL(this);
-});
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('fileUploader').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                document.getElementById('imagePreview').innerHTML = '';
+                document.getElementById('imagePreview').appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 
     document.getElementById('analyzeButton').addEventListener('click', async function() {
         const responseDiv = document.getElementById('response');
@@ -105,3 +104,4 @@ $("#imageUpload").change(function() {
 
         reader.readAsDataURL(file);
     });
+});
