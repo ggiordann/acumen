@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // WE ARE REDUCING THE SIZE TO REDUCE AMOUNT OF TOKENS!!
+
         const reader = new FileReader();
         reader.onload = async function(e) {
             const img = new Image();
