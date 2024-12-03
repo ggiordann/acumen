@@ -1,4 +1,4 @@
 .env
 .aider*
 secrets.toml
-/main.js
+/config.js

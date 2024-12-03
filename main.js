@@ -1,6 +1,4 @@
-require('dotenv').config();
-console.log('OpenAI API Key:', process.env.OPENAI_API_KEY); // Log the API key to verify it's loaded
-
+import { API_KEY } from './config.js';
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fileUploader').addEventListener('change', function(event) {
         const file = event.target.files[0];
@@ -78,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+                            'Authorization': `Bearer ${API_KEY}`
                         },
                         body: JSON.stringify(payload)
                     });
