@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer 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`
+                        'Authorization': `Bearer API_KEY`
                     },
                     body: JSON.stringify(payload)
                 });
