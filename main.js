@@ -6,9 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
             reader.onload = function(e) {
-                $('#imagePreview').css('background-image', 'url(' + e.target.result + ')');
-                $('#imagePreview').hide();
-                $('#imagePreview').fadeIn(650);
+                const imagePreview = document.getElementById('imagePreview');
+                imagePreview.style.backgroundImage = 'url(' + e.target.result + ')';
+                imagePreview.style.display = 'none';
+                setTimeout(() => {
+                    imagePreview.style.display = 'block';
+                }, 650);
             }
             reader.readAsDataURL(input.files[0]);
         }
