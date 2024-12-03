@@ -105,4 +105,3 @@ $("#imageUpload").change(function() {
 
         reader.readAsDataURL(file);
     });
-});
