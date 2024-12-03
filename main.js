@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('OpenAI API Key:', process.env.OPENAI_API_KEY); // Log the API key to verify it's loaded
 
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fileUploader').addEventListener('change', function(event) {
