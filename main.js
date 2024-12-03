@@ -39,12 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     {
                         role: "user",
-                        content: {
-                            type: "image",
-                            image: {
-                                base64: base64Image
-                            }
-                        }
+                        content: `data:image/png;base64,${base64Image}`
                     }
                 ],
                 max_tokens: 500
