@@ -19,9 +19,38 @@ body {
 
 h1 {
     margin-bottom: 20px;
+    background: linear-gradient(to right, #1e3c72, #2a5298);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
-input[type="file"] {
+.file-upload-container {
+    display: flex;
+    align-items: center;
     margin-bottom: 20px;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    background-color: #1e3c72;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-right: 10px;
+}
+
+.custom-file-upload:hover {
+    background-color: #2a5298;
+}
+
+.upload-types {
+    color: #f0f0f0;
+    font-size: 0.9em;
 }
 button {
     background-color: #1e3c72;
