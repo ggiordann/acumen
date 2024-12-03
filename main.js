@@ -34,29 +34,27 @@ document.getElementById('analyzeButton').addEventListener('click', async functio
             messages: [
                 {
                     role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: prompt
-                        },
-                        {
-                            type: "image_url",
-                            image_url: {
-                                url: `data:image/jpeg;base64,${base64Image}`
-                            }
+                    content: prompt
+                },
+                {
+                    role: "user",
+                    content: {
+                        type: "image",
+                        image: {
+                            base64: base64Image
                         }
-                    ]
+                    }
                 }
             ],
             max_tokens: 500
         };
 
         try {
-            const response = await fetch('YOUR_API_ENDPOINT', {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer YOUR_API_KEY`
+                    'Authorization': `Bearer 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`
                 },
                 body: JSON.stringify(payload)
             });
