@@ -14,7 +14,7 @@ const App = () => {
 
     const surprise = () => {
       const randomValue = surpriseOptions[Math.floor(Math.random() * surpriseOptions.length)]
-      setValue()
+      setValue(randomValue)
     }
 
     const uploadImage = async (e) => {
