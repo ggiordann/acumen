@@ -80,7 +80,7 @@ const App = () => {
             <p className="extra-info">
               <span>
                 <label htmlFor="files"> upload an image </label>
-                <input onChange={uploadImage} id="files" accept="image/*" type="file" hidden/>
+                <input onChange={uploadImage} id="files" accept="image/*" type="file"/> <br></br>
               </span>
               to ask questions about
             </p>
