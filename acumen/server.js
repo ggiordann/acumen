@@ -34,23 +34,28 @@ app.post('/upload', (req, res) => {
 })
 
 app.post('/openai', async (req, res) => {
-    const prompt = req.body.message
-    console.log(prompt)
-    const imageAsBase64 = fs.readFileSync(filePath, 'base64')
-    const response = await openai.chat.completions.create({
-        model: "gpt4o",
-        messages: [
-            {
-                role: "user",
-                content: [
-                    { type: "text", text: prompt },
-                    { type: "image_url", image_url: `data:image/jpeg;base64,${imageAsBase64}` }
-                ]
-            }
-        ]
-    })
-    console.log(response)
-    res.json(response)
+    try {
+        const prompt = req.body.message
+        console.log(prompt)
+        const imageAsBase64 = fs.readFileSync(filePath, 'base64')
+        const response = await openai.chat.completions.create({
+            model: "gpt4o",
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        { type: "text", text: prompt },
+                        { type: "image_url", image_url: {
+                            url: `data:image/jpeg;base64,${imageAsBase64}`
+                        }},
+                    ]
+                }
+            ]
+        })
+        console.log(response.choices[0])
+    } catch (err) {
+        console.error(err)
+    }   
 })
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))

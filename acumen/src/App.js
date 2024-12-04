@@ -27,14 +27,8 @@ const App = () => {
           method: 'POST',
           body: formData
         }
-        const response = await fetch('http://localhost:8000/upload', options)
-        if (!response.ok) {
-          setError("Failed to upload image")
-          return
-        }
-        const data = await response.json()
-        setResponse(data.message)
-        setError("") // Clear any previous error
+        const response = await fetch ('http://localhost:8000/upload', options)
+        const data = response.json()
         console.log(data)
       } catch (err) {
         console.log(err)
@@ -61,6 +55,7 @@ const App = () => {
           }
         }
         const response = await fetch("http://localhost:8000/openai", options) // HTTPS??!?!?!?
+        
       } catch (err) {
         console.log(err)
         setError("Something didn't work! Please try again.")
@@ -97,7 +92,7 @@ const App = () => {
                 onChange={e => setValue(e.target.value)}
               />
               {(!response && !error) && <button onClick={analyseImage}>Ask me</button>}
-              {(response || error) && <button onClick={clear}>Clear</button>}
+              {(response || error) && <button onClick={analyseImage}>Clear</button>}
             </div>
             {error && <p>{error}</p>}
             {response && <p className="answer">{response}</p>}
