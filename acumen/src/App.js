@@ -29,7 +29,7 @@ const App = () => {
         }
         const response = await fetch ('http://localhost:8000/upload', options)
         const data = await response.json()
-        setResponse(data.message || "Image uploaded successfully.")
+        setResponse(data.message)
         console.log(data)
       } catch (err) {
         console.log(err)
