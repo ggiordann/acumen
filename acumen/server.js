@@ -7,6 +7,9 @@ app.use(express.json())
 require('dotenv').config()
 const fs = require('fs')
 const multer = require('multer')
+const OpenAI = require('openai')
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY })
 
 const storage = multer.diskStorage({
     destination: ( req, file, cb ) => {
@@ -27,14 +30,28 @@ app.post('/upload', (req, res) => {
             return res.status(500).json(err)
         }
         filePath = req.file.path
-        return res.status(200).json({ message: "Image uploaded successfully." })
-        return res.status(200).json({ message: "Image uploaded successfully." })
     })
 })
 
-app.post('/openai', (req, res) => {
+app.post('/openai', async (req, res) => {
     const prompt = req.body.message
     console.log(prompt)
+    const imageAsBase64 = fs.readFileSync(filePath, 'base64')
+    const response = await openai.chat.completions.create({
+        model: "gpt4o",
+        messages: [
+            {
+                role: "user",
+                content: {
+                    { type: "text", text: prompt },
+                    { type: "image_url", image_url: {
+                        url: `data:image/jpeg;base64,${imageAsBase64}`
+                        }},
+                }
+            }
+        ]
+    })
 })
+console.log(response)
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
