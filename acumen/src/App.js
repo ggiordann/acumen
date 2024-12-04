@@ -28,7 +28,8 @@ const App = () => {
           body: formData
         }
         const response = await fetch ('http://localhost:8000/upload', options)
-        const data = response.json()
+        const data = await response.json()
+        setResponse(data.message || "Image uploaded successfully.")
         console.log(data)
       } catch (err) {
         console.log(err)
@@ -91,7 +92,7 @@ const App = () => {
                 onChange={e => setValue(e.target.value)}
               />
               {(!response && !error) && <button onClick={analyseImage}>Ask me</button>}
-              {(response || error) && <button onClick={analyseImage}>Clear</button>}
+              {(response || error) && <button onClick={clear}>Clear</button>}
             </div>
             {error && <p>{error}</p>}
             {response && <p className="answer">{response}</p>}
