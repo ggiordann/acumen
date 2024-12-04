@@ -28,7 +28,7 @@ Acumen is a web application designed to help users create listings and manage th
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/ggiordann/acumen.git
+   git clone https://github.com/ggiordann/acumen/tree/main/acumen
    cd acumen
    ```
 

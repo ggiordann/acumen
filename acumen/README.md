@@ -1,70 +1,77 @@
-# Getting Started with Create React App
+# Acumen
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Acumen is a web application designed to help users create listings and manage them across multiple platforms. It features a visually appealing interface with animations and interactive elements. The application allows users to upload images and generate descriptions and price estimates using OpenAI's API.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Interactive Animation**: The application includes a dynamic animation of a sun and planets, enhancing the visual appeal.
+- **Responsive Design**: The layout is responsive and adapts to different screen sizes, ensuring a seamless user experience.
+- **Express.js Backend**: Acumen uses Express.js for its backend, handling image uploads and interactions with OpenAI's API.
+- **User Authentication**: Includes buttons for user login and signup, facilitating user management.
 
-### `npm start`
+## Technologies Used
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **HTML/CSS/JavaScript**: For the frontend interface and animations.
+- **Express.js**: For the backend and handling user interactions.
+- **React**: For building the interactive frontend.
+- **Multer**: For handling file uploads.
+- **OpenAI API**: To generate descriptions and price estimates for uploaded images.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js and npm installed on your machine.
+- An OpenAI API key.
 
-### `npm run build`
+### Installation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ggiordann/acumen/tree/main/acumen
+   cd acumen
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. Install the dependencies:
+   ```bash
+   npm install
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Create a `.env` file in the root directory and add your OpenAI API key:
+   ```
+   OPENAI_KEY=your_openai_api_key
+   ```
 
-### `npm run eject`
+4. Start the server:
+   ```bash
+   node acumen/server.js
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+5. Open a new terminal and start the React app:
+   ```bash
+   cd acumen
+   npm start
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+6. Open your web browser and go to `http://localhost:3000` to access the application.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Contributing
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix:
+   ```bash
+   git checkout -b feature-name
+   ```
+3. Make your changes and commit them with a descriptive message:
+   ```bash
+   git commit -m "Add feature: description of feature"
+   ```
+4. Push your changes to your fork:
+   ```bash
+   git push origin feature-name
+   ```
+5. Open a pull request on the main repository.
 
-## Learn More
+## License
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License.
