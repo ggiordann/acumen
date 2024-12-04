@@ -42,16 +42,15 @@ app.post('/openai', async (req, res) => {
         messages: [
             {
                 role: "user",
-                content: {
+                content: [
                     { type: "text", text: prompt },
-                    { type: "image_url", image_url: {
-                        url: `data:image/jpeg;base64,${imageAsBase64}`
-                        }},
-                }
+                    { type: "image_url", image_url: `data:image/jpeg;base64,${imageAsBase64}` }
+                ]
             }
         ]
     })
+    console.log(response)
+    res.json(response)
 })
-console.log(response)
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
