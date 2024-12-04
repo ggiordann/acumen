@@ -28,6 +28,7 @@ app.post('/upload', (req, res) => {
         }
         filePath = req.file.path
         return res.status(200).json({ message: "Image uploaded successfully." })
+        return res.status(200).json({ message: "Image uploaded successfully." })
     })
 })
 

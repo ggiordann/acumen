@@ -29,7 +29,8 @@ const App = () => {
         }
         const response = await fetch('http://localhost:8000/upload', options)
         if (!response.ok) {
-          throw new Error('Failed to upload image')
+          setError("Failed to upload image")
+          return
         }
         const data = await response.json()
         setResponse(data.message)
