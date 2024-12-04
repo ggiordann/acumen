@@ -27,9 +27,13 @@ const App = () => {
           method: 'POST',
           body: formData
         }
-        const response = await fetch ('http://localhost:8000/upload', options)
+        const response = await fetch('http://localhost:8000/upload', options)
+        if (!response.ok) {
+          throw new Error('Failed to upload image')
+        }
         const data = await response.json()
         setResponse(data.message)
+        setError("") // Clear any previous error
         console.log(data)
       } catch (err) {
         console.log(err)
