@@ -42,7 +42,7 @@ app.post('/openai', async (req, res) => {
         }
         const imageAsBase64 = fs.readFileSync(filePath, 'base64');
         const response = await openai.chat.completions.create({
-            model: "gpt4o",
+            model: "gpt-4o",
             messages: [
                 {
                     role: "user",
@@ -55,7 +55,8 @@ app.post('/openai', async (req, res) => {
                 }
             ]
         })
-        console.log(response.choices[0])
+        console.log(response.choices[0].message.content)
+        res.send(response.choices[0].message.content)
     } catch (err) {
         console.error(err)
     }   

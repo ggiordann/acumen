@@ -55,6 +55,8 @@ const App = () => {
           }
         }
         const response = await fetch("http://localhost:8000/openai", options) // HTTPS??!?!?!?
+        const text = await response.text()
+        setResponse(text)
         
       } catch (err) {
         console.log(err)
