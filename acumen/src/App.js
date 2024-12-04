@@ -6,7 +6,7 @@ const App = () => {
     const [ response, setResponse ] = useState("")
     const [ error, setError ] = useState("")
 
-    const surpriseOptions = [ // random incorporate in 2 function later
+    const surpriseOptions = [ // random incorporate in 2 function later --> POSSIBLE FEATURE IN FUTURE
       'Is this item in good condition?',
       'Is this item pink?',
       'What brand can you identify in this image?'
@@ -32,11 +32,33 @@ const App = () => {
         console.log(data)
       } catch (err) {
         console.log(err)
+        setError("Something didn't work! Please try again.")
       }
     }
 
-    const analyseImage = () => {
-      
+    // testing -> console.log(value)
+
+    const analyseImage = async() => {
+      setResponse("")
+      if (!image){
+        setError("Error, no image attached.")
+        return
+      }
+      try { // API POST
+        const options = {
+          method: "POST",
+          body: JSON.stringify({
+            message: value
+          }),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+        const response = await fetch("http://localhost:8000/openai", options) // HTTPS??!?!?!?
+      } catch (err) {
+        console.log(err)
+        setError("Something didn't work! Please try again.")
+      }
     }
 
     const clear = () => { // resetting allat
