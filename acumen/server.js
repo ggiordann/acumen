@@ -37,7 +37,10 @@ app.post('/openai', async (req, res) => {
     try {
         const prompt = req.body.message
         console.log(prompt)
-        const imageAsBase64 = fs.readFileSync(filePath, 'base64')
+        if (!filePath) {
+            return res.status(400).json({ error: "No image uploaded." });
+        }
+        const imageAsBase64 = fs.readFileSync(filePath, 'base64');
         const response = await openai.chat.completions.create({
             model: "gpt4o",
             messages: [

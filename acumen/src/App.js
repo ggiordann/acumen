@@ -92,7 +92,7 @@ const App = () => {
                 onChange={e => setValue(e.target.value)}
               />
               {(!response && !error) && <button onClick={analyseImage}>Ask me</button>}
-              {(response || error) && <button onClick={analyseImage}>Clear</button>}
+              {(response || error) && <button onClick={clear}>Clear</button>}
             </div>
             {error && <p>{error}</p>}
             {response && <p className="answer">{response}</p>}
