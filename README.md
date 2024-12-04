@@ -16,7 +16,6 @@ Acumen is a web application designed to help users create listings and manage th
 - **React**: For building the interactive frontend.
 - **Multer**: For handling file uploads.
 - **OpenAI API**: To generate descriptions and price estimates for uploaded images.
-- **OpenAI API**: To generate descriptions and price estimates for uploaded images.
 
 ## Getting Started
 
@@ -72,10 +71,6 @@ Acumen is a web application designed to help users create listings and manage th
    git push origin feature-name
    ```
 5. Open a pull request on the main repository.
-
-## License
-
-This project is licensed under the MIT License.
 
 ## License
 
