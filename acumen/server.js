@@ -37,12 +37,6 @@ app.post('/openai', async (req, res) => {
     try {
         const prompt = req.body.message
         console.log(prompt)
-        if (prompt.includes("Estimate the price in AUD")) {
-            // Custom logic for price estimation
-            const priceEstimate = "100 AUD"; // Placeholder for actual logic
-            return res.send(priceEstimate);
-        }
-        console.log(prompt)
         if (!filePath) {
             return res.status(400).json({ error: "No image uploaded." });
         }

@@ -5,7 +5,6 @@ const App = () => {
     const [ value, setValue ] = useState("")
     const [ response, setResponse ] = useState("")
     const [ error, setError ] = useState("")
-    const [ priceEstimate, setPriceEstimate ] = useState("")
 
     const surpriseOptions = [ // random incorporate in 2 function later --> POSSIBLE FEATURE IN FUTURE
       'Is this item in good condition?',
@@ -65,37 +64,7 @@ const App = () => {
       }
     }
 
-    const getPriceEstimate = async () => {
-      setPriceEstimate("")
-      if (!image) {
-        setError("Error, no image attached.")
-        return
-      }
-      try {
-        const options = {
-          method: "POST",
-          body: JSON.stringify({
-            message: "Estimate the price in AUD for selling this item on Facebook Marketplace."
-          }),
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-        const response = await fetch("http://localhost:8000/openai", options)
-        const text = await response.text()
-        setPriceEstimate(text)
-      } catch (err) {
-        console.log(err)
-        setError("Something didn't work! Please try again.")
-      }
-    }
-
     const clear = () => { // resetting allat
-      setImage(null)
-      setValue("")
-      setResponse("")
-      setError("")
-      setPriceEstimate("")
       setImage(null)
       setValue("")
       setResponse("")
@@ -107,9 +76,7 @@ const App = () => {
           <section className="search-section">
             <div className="image-container">
                 {image && <img src={URL.createObjectURL(image)}/>}
-              <button onClick={getPriceEstimate} disabled={response || priceEstimate}>Get Price Estimate</button>
             </div>
-            {priceEstimate && <p className="price-estimate">Estimated Price: {priceEstimate} AUD</p>}
             <p className="extra-info">
               <span>
                 <label htmlFor="files"> upload an image </label>
