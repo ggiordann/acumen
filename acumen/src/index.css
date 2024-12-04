@@ -51,3 +51,23 @@ button.surprise {
     font-size: 0.9em;
     color: #666;
 }
+
+label[for="files"] {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+label[for="files"]:hover {
+    background-color: #0056b3;
+}
+
+input[type="file"] {
+    display: none;
+}
