@@ -33,10 +33,9 @@ app.post('/upload', (req, res) => {
     })
 })
 
-app.post('/openai', async (req, res) => {
+app.post('/openai1', async (req, res) => {
     try {
-        const prompt = req.body.message
-        console.log(prompt)
+        const prompt = "Provide a price estimate for the Attached item in AUD. Here is extra information from the user: " + req.body.message // fix prompt
         if (!filePath) {
             return res.status(400).json({ error: "No image uploaded." });
         }

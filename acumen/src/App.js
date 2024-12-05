@@ -6,7 +6,7 @@ const App = () => {
     const [ response, setResponse ] = useState("")
     const [ error, setError ] = useState("")
 
-    const surpriseOptions = [ // random incorporate in 2 function later --> POSSIBLE FEATURE IN FUTURE
+    /* const surpriseOptions = [ // random incorporate in 2 function later --> POSSIBLE FEATURE IN FUTURE
       'Is this item in good condition?',
       'Is this item pink?',
       'What brand can you identify in this image?'
@@ -15,7 +15,7 @@ const App = () => {
     const surprise = () => {
       const randomValue = surpriseOptions[Math.floor(Math.random() * surpriseOptions.length)]
       setValue(randomValue)
-    }
+    } */
 
     const uploadImage = async (e) => {
       const formData = new FormData()
@@ -38,7 +38,7 @@ const App = () => {
 
     // testing -> console.log(value)
 
-    const analyseImage = async() => {
+    const priceEstimate = async() => { // apply function
       setResponse("")
       if (!image){
         setError("Error, no image attached.")
@@ -54,7 +54,7 @@ const App = () => {
             "Content-Type": "application/json"
           }
         }
-        const response = await fetch("http://localhost:8000/openai", options) // HTTPS??!?!?!?
+        const response = await fetch("http://localhost:8000/openai1", options) // HTTPS??!?!?!?
         const text = await response.text()
         setResponse(text)
         
@@ -84,16 +84,13 @@ const App = () => {
               </span>
               to ask questions about
             </p>
-            <p>What do you want to know about the image?
-              <button className="surprise" onClick={surprise} disabled={response}>surprise me</button>
-            </p>
+            <button className="estimate" onClick={priceEstimate}>Click this button for a price estimate</button>
             <div className="input-container">
               <input
                 value={value}
-                placeholder="what is in the image dawg"
+                placeholder="extra information" // fix this
                 onChange={e => setValue(e.target.value)}
               />
-              {(!response && !error) && <button onClick={analyseImage}>Ask me</button>}
               {(response || error) && <button onClick={clear}>Clear</button>}
             </div>
             {error && <p>{error}</p>}
