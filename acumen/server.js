@@ -38,7 +38,8 @@ app.post('/openai1', async (req, res) => {
     try {
         const { currency, condition, platforms, message } = req.body;
         const realString = platforms.join(", ");
-        const prompt = "Provide a price estimate for the attached item in " + currency + ". The item is in " + condition + " condition. The user is interested in listing on the following platforms: " + realString + ". Here is extra information from the user: " + message;
+        const prompt = "Based on the uploaded image, create an estimated price in " + currency + "and generate a description for an advertisement for " + realString +
+        "Take the item's condition into account. It is in" + condition + "condition and adjust the price estimate and description accordingly. Provide a clear, concise, and attractive description that highlights the key features of the item and appeals to potential buyers. Here is extra information from the user: " + message;
         if (!filePath) {
             return res.status(400).json({ error: "No image uploaded." });
         }
