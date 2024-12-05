@@ -37,10 +37,7 @@ app.post('/upload', (req, res) => {
 app.post('/openai1', async (req, res) => {
     try {
         const { currency, condition, platforms, message } = req.body;
-        let realString = "";
-        for (let i = 0; i < platforms.length; i++) {
-            realString += platforms[i];
-        }
+        const realString = platforms.join(", ");
         const prompt = "Provide a price estimate for the attached item in " + currency + ". The item is in " + condition + " condition. The user is interested in listing on the following platforms: " + realString + ". Here is extra information from the user: " + message;
         if (!filePath) {
             return res.status(400).json({ error: "No image uploaded." });

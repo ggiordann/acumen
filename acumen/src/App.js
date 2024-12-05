@@ -51,6 +51,9 @@ const App = () => {
         const options = {
           method: "POST",
           body: JSON.stringify({
+            currency,
+            condition,
+            platforms,
             message: value
           }),
           headers: {
