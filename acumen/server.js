@@ -59,7 +59,10 @@ app.post('/openai1', async (req, res) => {
             ]
         })
         console.log(response.choices[0].message.content)
-        res.send(response.choices[0].message.content)
+        const formattedResponse = response.choices[0].message.content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold text
+            .replace(/\n/g, '<br>'); // Line breaks
+        res.send(formattedResponse)
     } catch (err) {
         console.error(err)
     }   

@@ -156,7 +156,7 @@ const App = () => {
               {(response || error) && <button onClick={clear}>Clear</button>}
             </div>
             {error && <p>{error}</p>}
-            {response && <p className="answer">{response}</p>}
+            {response && <div className="answer" dangerouslySetInnerHTML={{ __html: response }} />}
           </section>
         </div>
 
