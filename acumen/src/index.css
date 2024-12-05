@@ -1,3 +1,30 @@
+.app-title {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.dropdown-container, .checkbox-container {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.checkbox-container label {
+    display: block;
+    margin: 5px 0;
+}
+
+.checkbox-container input {
+    margin-right: 10px;
+}
+
 .app {
     font-family: Arial, sans-serif;
     max-width: 600px;
