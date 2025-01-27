@@ -4,7 +4,6 @@ Acumen is a web application designed to help users create listings and manage th
 
 ## Features
 
-- **Interactive Animation**: The application includes a dynamic animation of a sun and planets, enhancing the visual appeal.
 - **Responsive Design**: The layout is responsive and adapts to different screen sizes, ensuring a seamless user experience.
 - **Express.js Backend**: Acumen uses Express.js for its backend, handling image uploads and interactions with OpenAI's API.
 - **User Authentication**: Includes buttons for user login and signup, facilitating user management.
