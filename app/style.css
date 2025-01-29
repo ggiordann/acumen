@@ -1,0 +1,70 @@
+:root {
+    --accent-green: #00ff9d;
+    --bg-dark: #121212;
+    --text-light: #ffffff;
+    --spacing: 1.5rem;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    line-height: 1.6;
+    padding: var(--spacing);
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent-green);
+    margin-bottom: var(--spacing);
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing);
+}
+
+input[type="file"] {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--accent-green);
+    width: 100%;
+    margin-bottom: var(--spacing);
+}
+
+button {
+    background: var(--accent-green);
+    color: var(--bg-dark);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #00cc7d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 255, 157, 0.2);
+}
+
+#preview {
+    border-radius: 12px;
+    margin: var(--spacing) auto;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    display: block;
+}
+
+#analysisOutput {
+    background: rgba(255, 255, 255, 0.05);
+    padding: var(--spacing);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 157, 0.2);
+}
