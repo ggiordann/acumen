@@ -6,14 +6,16 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 const app = express();
 const port = 8080;
 
+// increased sigma size limt
+app.use(bodyParser.json({ limit: '25mb' }));
+app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
+
 app.use(cors());
-app.use(bodyParser.json());
 app.use(express.json());
 
 // configure openai
@@ -24,7 +26,6 @@ const openai = new OpenAI({
 // endpoint to analyze an image
 app.post('/analyze', async (req, res) => {
   const { imageData } = req.body;
-
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -32,16 +33,8 @@ app.post('/analyze', async (req, res) => {
         {
           role: 'user',
           content: [
-            {
-              type: 'text',
-              text: 'what do you see in this image?'
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:image/jpeg;base64,${imageData}`
-              }
-            }
+            { type: 'text', text: 'what do you see in this image?' },
+            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageData}` } }
           ]
         }
       ],
@@ -49,8 +42,6 @@ app.post('/analyze', async (req, res) => {
     });
 
     const answer = response.choices[0].message.content;
-
-
     res.json({ response: answer });
   } catch (error) {
     console.error('error analyzing image:', error);
