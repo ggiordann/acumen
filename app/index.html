@@ -1,15 +1,22 @@
 <!DOCTYPE html>
-
 <html>
     <head>
-        <script src="main.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="main.js" type="module"></script>
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <h1>Acumen</h1>
-        <h2>Image Upload</h2>
+        <h1>acumen</h1>
+        <h2>image upload</h2>
         <input type="file" id="fileInput" accept="image/*">
-        <br>
-        <image id="preview">
+        <br><br>
+        <!-- trigger analyse request -->
+        <button id="analyzeBtn">analyze image</button>
+        <br><br>
+        <!-- img tag for showing preview -->
+        <img id="preview" style="max-width: 300px; display: none;">
+        <br><br>
+        <!-- output -->
+        <p id="analysisOutput"></p>
     </body>
 </html>
