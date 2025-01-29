@@ -1,6 +1,6 @@
 # Acumen
 
-Acumen is a web application designed to help users create listings and manage them across multiple platforms. It features a visually appealing interface with animations and interactive elements. The application allows users to upload images and generate descriptions and price estimates using OpenAI's API.
+Acumen is a web application designed to help users create marketplace listings and manage them across multiple platforms. It features a visually appealing interface with animations and interactive elements. The application allows users to upload images and generate descriptions and price estimates using OpenAI's API.
 
 ## Features
 
