@@ -1,6 +1,6 @@
 # Acumen
 
-Acumen is a web application designed to help users create marketplace listings and manage them across multiple platforms. It features a visually appealing interface with animations and interactive elements. The application allows users to upload images and generate descriptions and price estimates using OpenAI's API.
+Acumen is a web application designed to help users create marketplace listings and manage them across multiple platforms. The application allows users to upload images and generate descriptions and price estimates using OpenAI's API.
 
 ## Features
 
@@ -38,21 +38,17 @@ Acumen is a web application designed to help users create marketplace listings a
 
 3. Create a `.env` file in the root directory and add your OpenAI API key:
    ```
-   OPENAI_KEY=your_openai_api_key
+   OPENAI_API_KEY=your_openai_api_key
    ```
 
 4. Start the server:
    ```bash
-   node acumen/server.js
+   node server.js
    ```
 
-5. Open a new terminal and start the React app:
-   ```bash
-   cd acumen
-   npm start
-   ```
+5. Launch `index.html` using a Live Server extension.
 
-6. Open your web browser and go to `http://localhost:3000` to access the application.
+6. Open your web browser and go to `http://127.0.0.1:5500/app/index.html` to access the application.
 
 ## Contributing
 
