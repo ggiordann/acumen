@@ -21,8 +21,9 @@ $(document).ready(function() {
   // handle analyze button click
   $("#analyzeBtn").click(function() {
     // if we have a valid image's base64 data
+    //no ajax :brokenheart:
     if (base64Data) {
-      fetch("http://localhost:8080/analyze", {
+      fetch("http://localhost:5500/app/analyze", { //http://localhost:5500/analyze
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -32,7 +33,7 @@ $(document).ready(function() {
       .then(res => res.json())
       .then(data => {
         // display the analysis result in the p element
-        $("#analysisOutput").text("analysis: " + data.response);
+        $("#analysisOutput").text("analysis: " + data.response); // adi format some stuff here to make it look better
       })
       .catch(err => {
         console.error("error calling analyze endpoint:", err);

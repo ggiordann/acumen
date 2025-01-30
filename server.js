@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const port = 8080;
+const port = 5500;
 
 // increased sigma size limt
 app.use(bodyParser.json({ limit: '25mb' }));
