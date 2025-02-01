@@ -24,6 +24,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "openai": "^4.80.1"
+    "express-session": "^1.17.3",
+    "openai": "^4.80.1",
+    "passport": "^0.6.0",
+    "passport-facebook": "^3.0.0"
   }
 }
