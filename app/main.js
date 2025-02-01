@@ -23,7 +23,7 @@ $(document).ready(function() {
     // if we have a valid image's base64 data
     //no ajax :brokenheart:
     if (base64Data) {
-      fetch("http://localhost:5500/app/analyze", { //http://localhost:5500/analyze
+      fetch("http://localhost:5500/analyze", { //http://localhost:5500/analyze
         method: "POST",
         headers: {
           "Content-Type": "application/json"

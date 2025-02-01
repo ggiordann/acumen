@@ -33,7 +33,7 @@ app.post('/analyze', async (req, res) => {
         {
           role: 'user',
           content: [
-            { type: 'text', text: 'what do you see in this image?' }, // adi prompt engineer here
+            { type: 'text', text: 'write a facebook marketplace ad based on the product in the image. in the advertisement, provide a price estimate for the product displayed in the image. AUD prices.' }, // adi prompt engineer here
             // do something about "write heading: and then heading, also write description: and then description"
             // just set it up so it's easy to interact with gumtree API later
             // look at conditions to fill out .png image and CATEGORIES folder and prompt engineer accordingly
