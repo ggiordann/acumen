@@ -74,6 +74,6 @@ curl -X POST http://localhost:5500/post-facebook \
     "title": "example listing title",
     "category": "electronics",
     "description": "this is an example description for a facebook marketplace listing.",
-    "imagePath": "/absolute/path/to/your/image.jpg"
+    "imagePath": "null"
   }'
 */
