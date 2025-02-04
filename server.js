@@ -67,7 +67,7 @@ app.listen(port, () => {
   console.log(`server listening on port ${port}`);
 });
 
-/*
+/* ADD TO TERMINAL
 curl -X POST http://localhost:5500/post-facebook \
   -H "Content-Type: application/json" \
   -d '{
