@@ -69,3 +69,6 @@ export async function postListing({ title, category, description, imagePath }) {
   await browser.close();
   return true;
 }
+
+// sign in once (human), save cookies
+// then make post
