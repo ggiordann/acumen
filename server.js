@@ -6,10 +6,11 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
+import { postListing } from './fbMarketplacePoster.js';
 dotenv.config();
 
 const app = express();
-const port = 8080;
+const port = 5500;
 
 // increased sigma size limt
 app.use(bodyParser.json({ limit: '25mb' }));
@@ -33,10 +34,7 @@ app.post('/analyze', async (req, res) => {
         {
           role: 'user',
           content: [
-            { type: 'text', text: 'what do you see in this image?' }, // adi prompt engineer here
-            // do something about "write heading: and then heading, also write description: and then description"
-            // just set it up so it's easy to interact with gumtree API later
-            // look at conditions to fill out .png image and CATEGORIES folder and prompt engineer accordingly
+            { type: 'text', text: 'write a facebook marketplace ad based on the product in the image. in the advertisement, provide a price estimate for the product displayed in the image. aud prices.' },
             { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageData}` } }
           ]
         }
@@ -52,6 +50,30 @@ app.post('/analyze', async (req, res) => {
   }
 });
 
+// endpoint to post a facebook marketplace listing
+app.post('/post-facebook', async (req, res) => {
+  // get title, category, description, and imagePath from request body
+  const { title, category, description, imagePath } = req.body;
+  try {
+    const result = await postListing({ title, category, description, imagePath });
+    res.json({ success: result });
+  } catch (error) {
+    console.error('error posting facebook listing:', error);
+    res.status(500).json({ error: error.toString() });
+  }
+});
+
 app.listen(port, () => {
   console.log(`server listening on port ${port}`);
 });
+
+/* ADD TO TERMINAL
+curl -X POST http://localhost:5500/post-facebook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "example listing title",
+    "category": "electronics",
+    "description": "this is an example description for a facebook marketplace listing.",
+    "imagePath": "null"
+  }'
+*/
