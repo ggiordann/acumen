@@ -1,47 +1,57 @@
 let base64Data = null;
 
 $(document).ready(function() {
-  // handle file selection
   $("#fileInput").change(function(event) {
     const file = event.target.files[0];
-
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        // show image preview
         $("#preview").attr("src", e.target.result).show();
-
-        // store base64 data for later use
         base64Data = e.target.result.split(",")[1];
       };
       reader.readAsDataURL(file);
     }
   });
 
-  // handle analyze button click
   $("#analyzeBtn").click(function() {
-    // if we have a valid image's base64 data
-    //no ajax :brokenheart:
     if (base64Data) {
-      fetch("http://localhost:5500/analyze", { //http://localhost:5500/analyze
+      // image data
+      fetch("http://localhost:5500/analyze", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
       })
       .then(res => res.json())
       .then(data => {
-        // display the analysis result in the p element
-        $("#analysisOutput").text("analysis: " + data.response); // adi format some stuff here to make it look better
+        $("#analysisOutput").text("Analysis result: " + data.response);
+        try {
+          // parse gpt 4o output
+          const adData = JSON.parse(data.response);
+          // send to post endpoint
+          fetch("http://localhost:5500/post-facebook", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(adData)
+          })
+          .then(postRes => postRes.json())
+          .then(postData => {
+            $("#analysisOutput").append("\nFacebook Post: " + JSON.stringify(postData));
+          })
+          .catch(err => {
+            console.error("Error posting to Facebook:", err);
+            $("#analysisOutput").append("\nError posting to Facebook.");
+          });
+        } catch (e) { // this is if the AI doesn't do what we expect
+          console.error("Error parsing AI output:", e);
+          $("#analysisOutput").append("\nError parsing AI output.");
+        }
       })
       .catch(err => {
-        console.error("error calling analyze endpoint:", err);
-        $("#analysisOutput").text("an error occurred during analysis");
+        console.error("Error calling analyze endpoint:", err);
+        $("#analysisOutput").text("An error occurred during analysis.");
       });
     } else {
-      // if no file is selected
-      $("#analysisOutput").text("please select an image first");
+      $("#analysisOutput").text("Please select an image first.");
     }
   });
 });
