@@ -38,16 +38,6 @@ input[type="file"] {
     margin-bottom: var(--spacing);
 }
 
-button {
-    background: var(--accent-green);
-    color: var(--bg-dark);
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
 
 button:hover {
     background: #00cc7d;
@@ -67,4 +57,73 @@ button:hover {
     padding: var(--spacing);
     border-radius: 8px;
     border: 1px solid rgba(0, 255, 157, 0.2);
+}
+
+button i {
+    margin-right: 8px;
+}
+
+button img {
+    height: 16px;
+    width: auto;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+button {
+    border: none;
+    padding: 0.8rem 1.3rem;
+    border-radius: 8px;
+    color: var(--bg-dark);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+    background: var(--accent-green);
+}
+
+#connectFB {
+    background: linear-gradient(135deg, #1877f2 0%, #00c6ff 100%);
+    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.2);
+}
+
+#connectEB {
+    background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%);
+    color: #333;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+}
+
+#connectDE {
+    background: linear-gradient(135deg, #ff0050 0%, #ff4d94 100%);
+    box-shadow: 0 4px 15px rgba(255, 0, 80, 0.2);
+}
+
+#connectGU {
+    background: linear-gradient(135deg, #00b67a 0%, #00e599 100%);
+    box-shadow: 0 4px 15px rgba(0, 182, 122, 0.2);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(110%);
+}
+
+button:active {
+    transform: translateY(0);
+    filter: brightness(90%);
+}
+
+.posting-options {
+    margin: 20px 0;
+}
+
+.posting-options label {
+    display: block;
+    margin: 8px 0;
+    cursor: pointer;
+}
+
+.posting-options input[type="checkbox"] {
+    margin-right: 8px;
 }
