@@ -6,7 +6,6 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
-import { postListing } from './fbMarketplacePoster.js';
 dotenv.config();
 
 const app = express();
@@ -29,7 +28,7 @@ app.post('/analyze', async (req, res) => {
   const { imageData } = req.body;
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'user',

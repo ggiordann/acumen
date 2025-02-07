@@ -10,6 +10,12 @@ async function postItemToMarketplace() {
     const page = await context.newPage();
 
     await page.goto("https://www.facebook.com/marketplace/create/item")
+
+
+
+    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'Publish' }).click();
+    await page.goto('https://www.facebook.com/marketplace/you/selling');
 }
 
 postItemToMarketplace();
