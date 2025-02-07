@@ -11,7 +11,7 @@ async function postItemToMarketplace() {
 
     await page.goto("https://www.facebook.com/marketplace/create/item")
 
-
+    //gg giordan
 
     await page.getByRole('button', { name: 'Next' }).click();
     await page.getByRole('button', { name: 'Publish' }).click();
