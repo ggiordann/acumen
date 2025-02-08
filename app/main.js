@@ -54,4 +54,33 @@ $(document).ready(function() {
       $("#analysisOutput").text("Please select an image first.");
     }
   });
+
+  // I Love You, I Hate You
+  $("#connectFB").click(function() {
+    fetch("http://localhost:5500/run-fb-login") // login
+      .then(response => response.text())
+      .then(data => {
+        console.log("fb_login.spec.js output:", data);
+        alert("Authentication executed successfully.");
+      })
+      .catch(err => {
+        console.error("Error executing fb_login.spec.js:", err);
+        alert("Error executing fb_login.spec.js.");
+      });
+  });
+
+
+  $("#connectEB").click(function() {
+    fetch("http://localhost:5500/run-ebay-login")
+      .then(response => response.text())
+      .then(data => {
+        console.log("ebay_login.spec.js output:", data); // fix
+        alert("Authentication executed successfully.");
+      })
+      .catch(err => {
+        console.error("Error executing ebay_login.spec.js:", err);
+        alert("Error executing ebay_login.spec.js.");
+      });
+  });
+
 });

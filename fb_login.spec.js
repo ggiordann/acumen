@@ -16,6 +16,8 @@ async function loginandsaveState() {
     const context = await browser.newContext();
     const page = await context.newPage()
 
+    // remove all of below
+
     await page.goto('https://www.facebook.com/');
     await page.getByTestId('royal-email').click();
     await page.getByTestId('royal-email').fill(process.env.FB_EMAIL);
@@ -24,6 +26,8 @@ async function loginandsaveState() {
     await page.getByTestId('royal-login-button').click();
     await page.waitForURL('https://www.facebook.com/');
     await page.waitForTimeout(5000);
+
+    // remove all of above
 
     await page.getByRole('link', { name: 'Marketplace' }).click();
     await page.getByLabel('Create new listing').click();
