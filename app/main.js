@@ -15,7 +15,7 @@ $(document).ready(function() {
 
   $("#analyzeBtn").click(function() {
     if (base64Data) {
-      // image data
+      // image data for facebook analysis
       fetch("http://localhost:5500/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -25,9 +25,8 @@ $(document).ready(function() {
       .then(data => {
         $("#analysisOutput").text("Analysis result: " + data.response);
         try {
-          // parse gpt 4o output
           const adData = JSON.parse(data.response);
-          // send to post endpoint
+          // send to Facebook post endpoint
           fetch("http://localhost:5500/post-facebook", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -41,7 +40,7 @@ $(document).ready(function() {
             console.error("Error posting to Facebook:", err);
             $("#analysisOutput").append("\nError posting to Facebook.");
           });
-        } catch (e) { // this is if the AI doesn't do what we expect
+        } catch (e) {
           console.error("Error parsing AI output:", e);
           $("#analysisOutput").append("\nError parsing AI output.");
         }
@@ -55,9 +54,49 @@ $(document).ready(function() {
     }
   });
 
-  // I Love You, I Hate You
+  $("#analyzeBtnEB").click(function() {
+    if (base64Data) {
+      // image data for eBay analysis
+      fetch("http://localhost:5500/analyze-ebay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageData: base64Data })
+      })
+      .then(res => res.json())
+      .then(data => {
+        $("#analysisOutput").text("eBay Analysis result: " + data.response);
+        try {
+          const adData = JSON.parse(data.response);
+          // send to eBay post endpoint
+          fetch("http://localhost:5500/post-ebay", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(adData)
+          })
+          .then(postRes => postRes.json())
+          .then(postData => {
+            $("#analysisOutput").append("\neBay Post: " + JSON.stringify(postData));
+          })
+          .catch(err => {
+            console.error("Error posting to eBay:", err);
+            $("#analysisOutput").append("\nError posting to eBay.");
+          });
+        } catch (e) {
+          console.error("Error parsing eBay AI output:", e);
+          $("#analysisOutput").append("\nError parsing eBay AI output.");
+        }
+      })
+      .catch(err => {
+        console.error("Error calling analyze-ebay endpoint:", err);
+        $("#analysisOutput").text("An error occurred during eBay analysis.");
+      });
+    } else {
+      $("#analysisOutput").text("Please select an image first.");
+    }
+  });
+
   $("#connectFB").click(function() {
-    fetch("http://localhost:5500/run-fb-login") // login
+    fetch("http://localhost:5500/run-fb-login")
       .then(response => response.text())
       .then(data => {
         console.log("fb_login.spec.js output:", data);
@@ -69,12 +108,11 @@ $(document).ready(function() {
       });
   });
 
-
   $("#connectEB").click(function() {
     fetch("http://localhost:5500/run-ebay-login")
       .then(response => response.text())
       .then(data => {
-        console.log("ebay_login.spec.js output:", data); // fix
+        console.log("ebay_login.spec.js output:", data);
         alert("Authentication executed successfully.");
       })
       .catch(err => {
@@ -82,5 +120,4 @@ $(document).ready(function() {
         alert("Error executing ebay_login.spec.js.");
       });
   });
-
 });
