@@ -1,3 +1,6 @@
+
+// STILL NEED TO DO SOMETHING REGARDING IMAGE UPLOAD //
+
 import {chromium} from 'playwright';
 import path from 'path';
 import { configDotenv } from 'dotenv';

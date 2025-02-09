@@ -1,3 +1,6 @@
+
+// STILL NEED TO DO SOMETHING REGARDING IMAGE UPLOAD //
+
 import { chromium } from 'playwright';
 import path from 'path';
 
@@ -29,10 +32,10 @@ async function postItemToEbayMarketplace(adData) {
   // click "Continue to listing"
   await page.getByRole('button', { name: 'Continue to listing' }).click();
 
-  // set attributes (fixed steps)
-  await page.locator('button[name="attributes\\.Type"]').click(); // ts
-  await page.locator('.filter-menu__checkbox').first().click();
-  await page.locator('div:nth-child(2) > .filter-menu__checkbox').first().click(); //idk
+  // set attributes (fixed steps) this only works for calculator???
+  // await page.locator('button[name="attributes\\.Type"]').click(); // ts
+  // await page.locator('.filter-menu__checkbox').first().click();
+  // await page.locator('div:nth-child(2) > .filter-menu__checkbox').first().click(); //idk
 
   // check the HTML editor checkbox
   await page.getByRole('checkbox', { name: 'Show HTML editor' }).check();
