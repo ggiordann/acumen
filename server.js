@@ -387,6 +387,7 @@ app.post('/analyze-depop', async (req, res) => {
                     DO NOT INCLUDE ANY ADDITIONAL TEXT. DO NOT INCLUDE ´´´ JSON OR I WILL TERMINATE YOU
             ` },
             { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageData}` } } // fix prompt its so bad lmao
+            // SO MANY ISSUES, ITS BECAUSE OF HOW COMPLEX THIS IS AND HOW SIMPLE AUTOMATION IS
           ]
         }
       ],
