@@ -257,6 +257,16 @@ app.get('/run-ebay-login', (req, res) => {
   });
 });
 
+app.get('/run-depop-login', (req, res) => {
+  exec('node depop_login.spec.js', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing depop_login.spec.js: ${error}`);
+      return res.status(500).send(stderr);
+    }
+    res.send(stdout);
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });

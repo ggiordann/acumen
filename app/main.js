@@ -120,4 +120,18 @@ $(document).ready(function() {
         alert("Error executing ebay_login.spec.js.");
       });
   });
+
+  $("#connectDE").click(function() {
+    fetch("http://localhost:5500/run-depop-login")
+      .then(response => response.text())
+      .then(data => {
+        console.log("depop_login.spec.js output:", data);
+        alert("Authentication executed successfully.");
+      })
+      .catch(err => {
+        console.error("Error executing depop_login.spec.js:", err);
+        alert("Error executing depop_login.spec.js.");
+      });
+  });
+
 });
