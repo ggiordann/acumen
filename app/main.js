@@ -14,8 +14,18 @@ $(document).ready(function() {
   });
 
   $("#analyzeBtn").click(function() {
-    if (base64Data) {
-      // image data for facebook analysis
+    if (!base64Data) {
+      $("#analysisOutput").text("Please select an image first.");
+      return;
+    }
+    
+    // Determine selected platforms from checkboxes
+    const platforms = $("input[name='platform']:checked").map(function() {
+      return $(this).val();
+    }).get();
+
+    // Facebook analysis and posting
+    if (platforms.includes("facebook")) {
       fetch("http://localhost:5500/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -23,10 +33,9 @@ $(document).ready(function() {
       })
       .then(res => res.json())
       .then(data => {
-        $("#analysisOutput").text("Analysis result: " + data.response);
+        $("#analysisOutput").text("Facebook Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          // send to Facebook post endpoint
           fetch("http://localhost:5500/post-facebook", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -41,22 +50,18 @@ $(document).ready(function() {
             $("#analysisOutput").append("\nError posting to Facebook.");
           });
         } catch (e) {
-          console.error("Error parsing AI output:", e);
-          $("#analysisOutput").append("\nError parsing AI output.");
+          console.error("Error parsing Facebook AI output:", e);
+          $("#analysisOutput").append("\nError parsing Facebook AI output.");
         }
       })
       .catch(err => {
         console.error("Error calling analyze endpoint:", err);
-        $("#analysisOutput").text("An error occurred during analysis.");
+        $("#analysisOutput").text("An error occurred during Facebook analysis.");
       });
-    } else {
-      $("#analysisOutput").text("Please select an image first.");
     }
-  });
 
-  $("#analyzeBtnEB").click(function() {
-    if (base64Data) {
-      // image data for eBay analysis
+    // eBay analysis and posting
+    if (platforms.includes("ebay")) {
       fetch("http://localhost:5500/analyze-ebay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,10 +69,9 @@ $(document).ready(function() {
       })
       .then(res => res.json())
       .then(data => {
-        $("#analysisOutput").text("eBay Analysis result: " + data.response);
+        $("#analysisOutput").append("\neBay Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          // send to eBay post endpoint
           fetch("http://localhost:5500/post-ebay", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -88,10 +92,44 @@ $(document).ready(function() {
       })
       .catch(err => {
         console.error("Error calling analyze-ebay endpoint:", err);
-        $("#analysisOutput").text("An error occurred during eBay analysis.");
+        $("#analysisOutput").append("\nAn error occurred during eBay analysis.");
       });
-    } else {
-      $("#analysisOutput").text("Please select an image first.");
+    }
+
+    // Depop analysis and posting
+    if (platforms.includes("depop")) {
+      fetch("http://localhost:5500/analyze-depop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageData: base64Data })
+      })
+      .then(res => res.json())
+      .then(data => {
+        $("#analysisOutput").append("\nDepop Analysis result: " + data.response);
+        try {
+          const adData = JSON.parse(data.response);
+          fetch("http://localhost:5500/post-depop", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(adData)
+          })
+          .then(postRes => postRes.json())
+          .then(postData => {
+            $("#analysisOutput").append("\nDepop Post: " + JSON.stringify(postData));
+          })
+          .catch(err => {
+            console.error("Error posting to Depop:", err);
+            $("#analysisOutput").append("\nError posting to Depop.");
+          });
+        } catch (e) {
+          console.error("Error parsing Depop AI output:", e);
+          $("#analysisOutput").append("\nError parsing Depop AI output.");
+        }
+      })
+      .catch(err => {
+        console.error("Error calling analyze-depop endpoint:", err);
+        $("#analysisOutput").append("\nAn error occurred during Depop analysis.");
+      });
     }
   });
 
@@ -133,5 +171,4 @@ $(document).ready(function() {
         alert("Error executing depop_login.spec.js.");
       });
   });
-
 });
