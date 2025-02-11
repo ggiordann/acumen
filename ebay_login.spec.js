@@ -141,6 +141,6 @@ import path from 'path';
     });
   });
 
-  // closing browser after user has done x
+  // closing browser after user has clicked done button
   await browser.close();
 })();
