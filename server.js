@@ -153,8 +153,6 @@ app.post('/analyze-ebay', async (req, res) => {
   }
 });
 
-
-
 app.post('/post-facebook', async (req, res) => {
   const adData = req.body;
   try {
@@ -164,9 +162,8 @@ app.post('/post-facebook', async (req, res) => {
         console.error(`Error executing fb_post.spec.js: ${error}`);
         return res.status(500).send(stderr);
       }
-      res.send(stdout);
+      return res.send(stdout);
     });
-    res.json({ success: result });
   } catch (error) {
     console.error('Error posting Facebook listing:', error);
     res.status(500).json({ error: error.toString() });
@@ -183,7 +180,7 @@ app.post('/post-ebay', async (req, res) => {
          console.error(`Error executing ebay_post.spec.js: ${error}`);
          return res.status(500).send(stderr);
       }
-      res.send(stdout);
+      return res.send(stdout);
     });
   } catch (error) {
     console.error('Error posting eBay listing:', error);
