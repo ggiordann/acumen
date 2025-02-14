@@ -166,47 +166,6 @@ $(document).ready(function() {
       });
     }
 
-    // Depop analysis and posting
-    if (platforms.includes("depop")) {
-      fetch("http://localhost:5500/analyze-depop", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageData: base64Data })
-      })
-      .then(res => res.json())
-      .then(data => {
-        $("#analysisOutput").append("\nDepop Analysis result: " + data.response);
-        try {
-          const adData = JSON.parse(data.response);
-          fetch("http://localhost:5500/post-depop", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(adData)
-          })
-          .then(postRes => postRes.json())
-          .then(postData => {
-            $("#analysisOutput").append("\nDepop Post: " + JSON.stringify(postData));
-          })
-          .catch(err => {
-            console.error("Error posting to Depop:", err);
-            $("#analysisOutput").append("\nError posting to Depop.");
-          })
-          .finally(() => {
-            checkOverlay();
-          });
-        } catch (e) {
-          console.error("Error parsing Depop AI output:", e);
-          $("#analysisOutput").append("\nError parsing Depop AI output.");
-          checkOverlay();
-        }
-      })
-      .catch(err => {
-        console.error("Error calling analyze-depop endpoint:", err);
-        $("#analysisOutput").append("\nAn error occurred during Depop analysis.");
-        checkOverlay();
-      });
-    }
-
   }); // End of analyzeBtn click handler
 
   $("#connectFB").click(function() {
@@ -235,16 +194,4 @@ $(document).ready(function() {
       });
   });
 
-  $("#connectDE").click(function() {
-    fetch("http://localhost:5500/run-depop-login")
-      .then(response => response.text())
-      .then(data => {
-        console.log("depop_login.spec.js output:", data);
-        alert("Authentication executed successfully.");
-      })
-      .catch(err => {
-        console.error("Error executing depop_login.spec.js:", err);
-        alert("Error executing depop_login.spec.js.");
-      });
-  });
 });
