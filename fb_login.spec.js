@@ -14,13 +14,6 @@ async function loginandsaveState() {
   const context = await browser.newContext();
   const page = await context.newPage();
   
-  //bot detection stuff
-  await page.evaluate(() => {
-    Object.defineProperty(navigator, 'webdriver', { get: () => false });
-    Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
-    Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
-    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
-  });
 
   // inject overlay with instructions
   await page.evaluate(() => {

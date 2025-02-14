@@ -35,7 +35,15 @@ async function postListingFacebookMarketplace(adData) {
     const browser = await chromium.launch({ headless: false });
     const context = await browser.newContext({ storageState: savePath });
     const page = await context.newPage();
-  
+    
+    //bot detection stuff
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'webdriver', { get: () => false });
+      Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
+      Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
+      Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
+    });
+
     await page.goto("https://www.facebook.com/");
     await page.getByRole('link', { name: 'Marketplace' }).click();
     await page.getByRole('link', { name: 'Create new listing' }).click();
