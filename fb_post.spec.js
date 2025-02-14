@@ -9,10 +9,18 @@ async function postItemToMarketplace() {
     const context = await browser.newContext({ storageState: savePath });
     const page = await context.newPage();
 
+    //bot detection stuff
+    await page.evaluate(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
+        Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
+        Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
+        Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
+    });
+
     await page.goto("https://www.facebook.com/marketplace/create/item")
 
-    //gg giordan
-
+    
+    
     await page.getByRole('button', { name: 'Next' }).click();
     await page.getByRole('button', { name: 'Publish' }).click();
     await page.goto('https://www.facebook.com/marketplace/you/selling');
