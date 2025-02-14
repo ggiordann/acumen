@@ -28,7 +28,9 @@
     "openai": "^4.80.1",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",
-    "playwright": "^1.50.1"
+    "playwright": "^1.50.1",
+    "playwright-extra": "^4.3.6",
+    "playwright-stealth": "^0.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.1"
