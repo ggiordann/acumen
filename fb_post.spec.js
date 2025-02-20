@@ -54,6 +54,9 @@ async function postListingFacebookMarketplace(adData) {
     ) {
       await page.getByRole('checkbox', { name: 'Door pick-up Buyer picks up' }).click();
     }
+
+    await page.getByRole('button', { name: 'Add photos or drag and drop' }).click();
+    await page.getByRole('button', { name: 'Add photos or drag and drop' }).setInputFiles('adime.jpg');
   
     await page.getByRole('button', { name: 'Next' }).click();
     await page.waitForTimeout(5000);
