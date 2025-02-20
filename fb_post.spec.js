@@ -1,6 +1,21 @@
 import { chromium } from 'playwright';
 import path from 'path';
 
+// read data from the thing
+const inputArg = process.argv[2]; // bruh ion know what this does google said ts
+if (!inputArg) {
+  console.error("no ad data provided, JSON is not being passed");
+  process.exit(1);
+}
+
+let adData;
+try {
+  adData = JSON.parse(inputArg);
+} catch (e) {
+  console.error("Invalid JSON input:", e);
+  process.exit(1);
+}
+
 async function postListingFacebookMarketplace(adData) {
     const savePath = path.join(process.cwd(), 'facebook_session.json');
     const browser = await chromium.launch({ headless: false });
@@ -56,10 +71,18 @@ async function postListingFacebookMarketplace(adData) {
     }
 
     await page.getByRole('button', { name: 'Add photos or drag and drop' }).click();
-    await page.getByRole('button', { name: 'Add photos or drag and drop' }).setInputFiles('adime.jpg');
+    await page.getByRole('button', { name: 'Add photos or drag and drop' }).setInputFiles('acumen-1/adime.jpg');
   
     await page.getByRole('button', { name: 'Next' }).click();
     await page.waitForTimeout(5000);
     await browser.close();
+    console.log("Listing posted successfully");
     return "Listing posted successfully";
-  }
+}
+
+postListingFacebookMarketplace(adData)
+  .then(result => console.log(result))
+  .catch(err => {
+    console.error("Error posting to Facebook:", err);
+    process.exit(1);
+  });
