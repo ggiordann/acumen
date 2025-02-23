@@ -2,20 +2,20 @@
   "cookies": [
     {
       "name": "datr",
-      "value": "wmy6Z3dtKKtXKSK-nm-KqkmP",
+      "value": "BW66Z9U7dLYiSsEmZundFH3q",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1774830786.631211,
+      "expires": 1774831109.940498,
       "httpOnly": true,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "sb",
-      "value": "wmy6Z2j1kPgEZmSEyP5x_EgX",
+      "value": "BW66Z2Abilk80yGYvD14f4Tb",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1774830800.825234,
+      "expires": 1774831124.270512,
       "httpOnly": true,
       "secure": true,
       "sameSite": "None"
@@ -25,7 +25,7 @@
       "value": "1280x720",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1740875604,
+      "expires": 1740875928,
       "httpOnly": false,
       "secure": true,
       "sameSite": "Lax"
@@ -35,7 +35,7 @@
       "value": "1",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1740875604,
+      "expires": 1740875928,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
@@ -45,34 +45,34 @@
       "value": "61570656310028",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1771806800.824232,
+      "expires": 1771807124.270386,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "xs",
-      "value": "29%3AfhPCo0rX9TKhUQ%3A2%3A1740270798%3A-1%3A-1",
+      "value": "10%3AQ9mEsef9Dytikw%3A2%3A1740271123%3A-1%3A-1",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1771806800.826084,
+      "expires": 1771807124.270535,
       "httpOnly": true,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "fr",
-      "value": "03bL9n6HmbPDttD4Z.AWUE8PwhpTFlxds1_b8brgwVgd540Chk4TikFA.BnumzC..AAA.0.0.BnumzQ.AWU41y_BipQ",
+      "value": "0gLqvXkVi7F5MwdVz.AWWwkxqNHup5GbjjNacYzI4qAaBLURkb4TewqA.Bnum4F..AAA.0.0.Bnum4U.AWWYbNE2cgQ",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1748046801.269167,
+      "expires": 1748047124.646542,
       "httpOnly": true,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "presence",
-      "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1740270805261%2C%22v%22%3A1%7D",
+      "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1740271128718%2C%22v%22%3A1%7D",
       "domain": ".facebook.com",
       "path": "/",
       "expires": -1,
@@ -87,39 +87,39 @@
       "localStorage": [
         {
           "name": "screen_time_period_logging_facebook",
-          "value": "{\"actorId\":\"61570656310028\",\"currentIntervalLastTick\":1740270807,\"currentIntervalStart\":1740270802,\"intervals\":[],\"lastCallbackAttempt\":1740270802,\"localStorageId\":\"25491245\",\"syncedL24HS\":null,\"syncedTodayS\":null}"
+          "value": "{\"actorId\":\"61570656310028\",\"currentIntervalLastTick\":1740271130,\"currentIntervalStart\":1740271125,\"intervals\":[],\"lastCallbackAttempt\":1740271125,\"localStorageId\":\"85282856\",\"syncedL24HS\":null,\"syncedTodayS\":null}"
         },
         {
           "name": "last_headload_time",
-          "value": "1740270802144"
+          "value": "1740271125266"
         },
         {
           "name": "hb_timestamp",
-          "value": "1740270787044"
+          "value": "1740271110312"
         },
         {
           "name": "bdz_playback_state",
-          "value": "{\"session_key\":\"m72lwfiw\",\"buffer_length\":60}"
+          "value": "{\"session_key\":\"m72m3cq5\",\"buffer_length\":60}"
         },
         {
           "name": "mw_encrypted_backups_restore_upsell_first_impression_time_key",
-          "value": "1740270804692"
+          "value": "1740271128106"
         },
         {
           "name": "ares_last_signal_flush",
-          "value": "1739406803864"
+          "value": "1739407126829"
         },
         {
           "name": "signal_flush_timestamp",
-          "value": "1740270787056"
+          "value": "1740271110330"
         },
         {
           "name": "Session",
-          "value": "vid3j7:1740270842551"
+          "value": "4xw220:1740271166521"
         },
         {
           "name": "banzai:last_storage_flush",
-          "value": "1740270805538.5"
+          "value": "1740271129045.1"
         }
       ]
     }
