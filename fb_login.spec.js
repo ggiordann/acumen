@@ -1,9 +1,7 @@
-import { chromium } from 'playwright-extra';
-import stealth from 'playwright-stealth';
+import { chromium } from 'playwright';
 import path from 'path';
 import { configDotenv } from 'dotenv';
 
-chromium.use(stealth);
 configDotenv('.env');
 
 const __dirname = import.meta.dirname;
@@ -13,7 +11,6 @@ async function loginandsaveState() {
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
   const page = await context.newPage();
-  
 
   // inject overlay with instructions
   await page.evaluate(() => {
