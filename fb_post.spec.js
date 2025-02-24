@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import path from 'path';
 
 // read data from the thing
-const inputArg = process.argv[2]; // bruh ion know what this does google said ts
+const inputArg = process.argv[2];
 if (!inputArg) {
   console.error("no ad data provided, JSON is not being passed");
   process.exit(1);
@@ -71,7 +71,7 @@ async function postListingFacebookMarketplace(adData) {
     }
 
     await page.getByRole('button', { name: 'Add photos or drag and drop' }).click();
-    await page.getByRole('button', { name: 'Add photos or drag and drop' }).setInputFiles('acumen-1/adime.jpg');
+    await page.getByRole('button', { name: 'Add photos or drag and drop' }).setInputFiles(path.join(process.cwd(), 'adime.jpg')); // is this the right path?
   
     await page.getByRole('button', { name: 'Next' }).click();
     await page.waitForTimeout(5000);
