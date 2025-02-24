@@ -22,7 +22,7 @@ async function postListingFacebookMarketplace(adData) {
     const context = await browser.newContext({ storageState: savePath });
     const page = await context.newPage();
     
-    //bot detection stuff
+    // Bot detection overrides
     await page.evaluate(() => {
       Object.defineProperty(navigator, 'webdriver', { get: () => false });
       Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
@@ -70,8 +70,11 @@ async function postListingFacebookMarketplace(adData) {
       await page.getByRole('checkbox', { name: 'Door pick-up Buyer picks up' }).click();
     }
 
-    await page.getByRole('button', { name: 'Add photos or drag and drop' }).click();
-    await page.getByRole('button', { name: 'Add photos or drag and drop' }).setInputFiles(path.join(process.cwd(), 'adime.jpg')); // is this the right path?
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent('filechooser'),
+      page.getByRole('button', { name: 'Add photos or drag and drop' }).click()
+    ]);
+    await fileChooser.setFiles(path.join(process.cwd(), 'adime.jpg'));
   
     await page.getByRole('button', { name: 'Next' }).click();
     await page.waitForTimeout(5000);
@@ -85,4 +88,4 @@ postListingFacebookMarketplace(adData)
   .catch(err => {
     console.error("Error posting to Facebook:", err);
     process.exit(1);
-  });
+});
