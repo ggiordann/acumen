@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import path from 'path';
+import fs from 'fs';
 
-// read data from the thing
 const inputArg = process.argv[2];
 if (!inputArg) {
   console.error("no ad data provided, JSON is not being passed");
@@ -22,7 +22,6 @@ async function postListingFacebookMarketplace(adData) {
     const context = await browser.newContext({ storageState: savePath });
     const page = await context.newPage();
     
-    // Bot detection overrides
     await page.evaluate(() => {
       Object.defineProperty(navigator, 'webdriver', { get: () => false });
       Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
@@ -70,16 +69,26 @@ async function postListingFacebookMarketplace(adData) {
       await page.getByRole('checkbox', { name: 'Door pick-up Buyer picks up' }).click();
     }
 
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    const files = fs.readdirSync(uploadDir)
+                   .map(filename => path.join(uploadDir, filename));
+    if (files.length === 0) {
+      console.error("No files found in uploads directory");
+      process.exit(1);
+    }
     const [fileChooser] = await Promise.all([
       page.waitForEvent('filechooser'),
       page.getByRole('button', { name: 'Add photos or drag and drop' }).click()
     ]);
-    await fileChooser.setFiles(path.join(process.cwd(), 'adime.jpg'));
-  
+    await fileChooser.setFiles(files);
+
     await page.getByRole('button', { name: 'Next' }).click();
     await page.waitForTimeout(5000);
     await browser.close();
     console.log("Listing posted successfully");
+    files.forEach(file => {
+      fs.unlinkSync(file);
+    });
     return "Listing posted successfully";
 }
 
@@ -88,4 +97,4 @@ postListingFacebookMarketplace(adData)
   .catch(err => {
     console.error("Error posting to Facebook:", err);
     process.exit(1);
-});
+  });
