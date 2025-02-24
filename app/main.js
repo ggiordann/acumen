@@ -1,4 +1,6 @@
 let base64Data = "";
+let previewImages = [];
+let currentImageIndex = 0;
 
 $(document).ready(function() {
   if ($("#google-font").length === 0) {
@@ -27,33 +29,62 @@ $(document).ready(function() {
 
   $("#fileInput").change(function(event) {
     base64Data = "";
-    // Clear any existing previews
+    previewImages = [];
     $("#preview-container").empty();
 
     const files = event.target.files;
     if (files.length) {
-      const readFilePromises = Array.from(files).map(file => {
+      const readFilePromises = Array.from(files).map((file, index) => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = function(e) {
-            // Append this image to the preview container
-            $("#preview-container").append(`<img src="${e.target.result}" style="max-width: 300px; margin: 10px;" />`);
-            resolve(e.target.result.split(",")[1]);
+            $("#preview-container").append(`<img src="${e.target.result}" data-index="${index}" class="preview-image" />`);
+            previewImages.push(e.target.result.split(",")[1]);
+            resolve();
           };
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
       });
       Promise.all(readFilePromises)
-        .then(results => {
-          // Join all base64 strings (separated by newline) for analysis
-          base64Data = results.join("\n");
+        .then(() => {
+          base64Data = previewImages.join("\n");
         })
         .catch(err => {
           console.error("Error reading files:", err);
         });
     }
   });
+
+  // Lightbox functionality
+  $("#preview-container").on("click", "img.preview-image", function() {
+    currentImageIndex = parseInt($(this).attr("data-index"));
+    openLightbox(currentImageIndex);
+  });
+
+  $("#lightbox-close").click(function() {
+    $("#lightbox").hide();
+  });
+
+  $("#lightbox-prev").click(function() {
+    currentImageIndex = (currentImageIndex > 0) ? currentImageIndex - 1 : previewImages.length - 1;
+    updateLightboxImage(currentImageIndex);
+  });
+
+  $("#lightbox-next").click(function() {
+    currentImageIndex = (currentImageIndex < previewImages.length - 1) ? currentImageIndex + 1 : 0;
+    updateLightboxImage(currentImageIndex);
+  });
+
+  function openLightbox(index) {
+    updateLightboxImage(index);
+    $("#lightbox").css("display", "flex"); // Force display as flex to vertically center
+  }
+
+  function updateLightboxImage(index) {
+    const src = "data:image/jpeg;base64," + previewImages[index];
+    $("#lightbox-img").attr("src", src);
+  }
 
   $("#analyzeBtn").click(function() {
     if (!base64Data) {

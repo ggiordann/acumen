@@ -9,8 +9,6 @@
   <body>
     <h1>acumen</h1>
 
-    <!-- doesn't do anything for now -->
-
     <button id="connectFB"><i class="fab fa-facebook-f"></i> connect to facebook</button>
     <button id="connectEB"><i class="fab fa-ebay"></i> connect to ebay</button>
     <button id="connectGU"><i class="fas fa-store"></i> connect to gumtree</button>
@@ -20,9 +18,12 @@
     <!-- Allow multiple image selection -->
     <input type="file" id="fileInput" accept="image/*" multiple>
 
-    <!-- Optionally remove the single preview image -->
-    <!-- Instead, use a container to display all previews -->
+    <br><br>
+
+    <!-- Container for gallery previews -->
     <div id="preview-container"></div>
+
+    <br><br>
 
     <input id="extraInformation" type="text" placeholder="extra information">
 
@@ -43,5 +44,15 @@
     <br><br>
     <!-- output -->
     <p id="analysisOutput"></p>
+
+    <!-- yuh yuh -->
+    <div id="lightbox">
+      <span id="lightbox-close">&times;</span>
+      <img id="lightbox-img" src="">
+      <div id="lightbox-nav">
+        <span id="lightbox-prev">&#10094;</span>
+        <span id="lightbox-next">&#10095;</span>
+      </div>
+    </div>
   </body>
 </html>
