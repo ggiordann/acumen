@@ -82,7 +82,7 @@ async function postListingFacebookMarketplace(adData) {
     ]);
     await fileChooser.setFiles(files);
 
-    await page.getByRole('button', { name: 'Next' }).click();
+    // await page.getByRole('button', { name: 'Next' }).click(); // THIS IS THE ONE THAT POSTS THE ACTUAL LISTING
     await page.waitForTimeout(5000);
     await browser.close();
     console.log("Listing posted successfully");

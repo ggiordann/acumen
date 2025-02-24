@@ -1,11 +1,10 @@
-let base64Data = null;
+let base64Data = "";
 
 $(document).ready(function() {
   if ($("#google-font").length === 0) {
     $("<link id='google-font' rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'>").appendTo("head");
   }
 
-  // append to css later
   if ($("#spinner-style").length === 0) {
     $("<style id='spinner-style'>")
       .prop("type", "text/css")
@@ -27,14 +26,32 @@ $(document).ready(function() {
   }
 
   $("#fileInput").change(function(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        $("#preview").attr("src", e.target.result).show();
-        base64Data = e.target.result.split(",")[1];
-      };
-      reader.readAsDataURL(file);
+    base64Data = "";
+    // Clear any existing previews
+    $("#preview-container").empty();
+
+    const files = event.target.files;
+    if (files.length) {
+      const readFilePromises = Array.from(files).map(file => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            // Append this image to the preview container
+            $("#preview-container").append(`<img src="${e.target.result}" style="max-width: 300px; margin: 10px;" />`);
+            resolve(e.target.result.split(",")[1]);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      });
+      Promise.all(readFilePromises)
+        .then(results => {
+          // Join all base64 strings (separated by newline) for analysis
+          base64Data = results.join("\n");
+        })
+        .catch(err => {
+          console.error("Error reading files:", err);
+        });
     }
   });
 
@@ -62,20 +79,18 @@ $(document).ready(function() {
           font-family: 'Roboto', sans-serif;
         ">
           <div style="text-align: center;">
-             Analysing Image
+             Analysing Image(s)
              <br><br>
-             <div style="margin-left:30%" class="spinner" style="margin-top: 20px;"></div>
+             <div class="spinner" style="margin-top: 20px;"></div>
           </div>
       </div>
     `);
     $("body").append(loadingOverlay);
 
-    // Determine selected platforms from checkboxes
     const platforms = $("input[name='platform']:checked").map(function() {
       return $(this).val();
     }).get();
 
-    // Set a counter to track pending requests
     let pending = platforms.length;
     function checkOverlay() {
       pending--;
@@ -84,7 +99,6 @@ $(document).ready(function() {
       }
     }
 
-    // Facebook analysis and posting
     if (platforms.includes("facebook")) {
       fetch("http://localhost:5500/analyze", {
         method: "POST",
@@ -125,7 +139,6 @@ $(document).ready(function() {
       });
     }
 
-    // eBay analysis and posting
     if (platforms.includes("ebay")) {
       fetch("http://localhost:5500/analyze-ebay", {
         method: "POST",
@@ -165,8 +178,7 @@ $(document).ready(function() {
         checkOverlay();
       });
     }
-
-  }); // End of analyzeBtn click handler
+  });
 
   $("#connectFB").click(function() {
     fetch("http://localhost:5500/run-fb-login")
@@ -193,5 +205,4 @@ $(document).ready(function() {
         alert("Error executing ebay_login.spec.js.");
       });
   });
-
 });

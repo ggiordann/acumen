@@ -11,22 +11,20 @@
 
     <!-- doesn't do anything for now -->
 
-    <button id="connectFB"><i class="fab fa-facebook-f"></i> connect to facebook</button> <!-- add actual logos -->
-    <button id="connectEB"><i class="fab fa-ebay"></i> connect to ebay</button> <!-- add actual logos -->
-    <button id="connectGU"><i class="fas fa-store"></i> connect to gumtree</button> <!-- add actual logos -->
+    <button id="connectFB"><i class="fab fa-facebook-f"></i> connect to facebook</button>
+    <button id="connectEB"><i class="fab fa-ebay"></i> connect to ebay</button>
+    <button id="connectGU"><i class="fas fa-store"></i> connect to gumtree</button>
 
     <h2>image upload</h2>
 
     <!-- Allow multiple image selection -->
     <input type="file" id="fileInput" accept="image/*" multiple>
 
-    <!-- doesn't do anything for now -->
+    <!-- Optionally remove the single preview image -->
+    <!-- Instead, use a container to display all previews -->
+    <div id="preview-container"></div>
 
     <input id="extraInformation" type="text" placeholder="extra information">
-
-    <!--extra info?? like idk condition, or brand? they also need to specify if they want door to door pickup-->
-  
-    <!-- doesn't do anything for now -->
 
     <br><br>
 
@@ -42,8 +40,6 @@
     <!-- trigger analyse request -->
     <button id="analyzeBtn">analyze image</button>
 
-    <!-- img tag for showing preview -->
-    <img id="preview" style="max-width: 300px; display: none;">
     <br><br>
     <!-- output -->
     <p id="analysisOutput"></p>
