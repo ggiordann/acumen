@@ -34,6 +34,7 @@ $(document).ready(function() {
 
     const files = event.target.files;
     if (files.length) {
+      // First, read the files and update the preview
       const readFilePromises = Array.from(files).map((file, index) => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -48,10 +49,24 @@ $(document).ready(function() {
       });
       Promise.all(readFilePromises)
         .then(() => {
+          // Set the base64 data for analysis after all files are read
           base64Data = previewImages.join("\n");
+          // Then upload the files to the server
+          let formData = new FormData();
+          for (let i = 0; i < files.length; i++) {
+            formData.append("files", files[i]);
+          }
+          return fetch("http://localhost:5500/upload", {
+            method: "POST",
+            body: formData
+          });
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log("Files uploaded successfully:", data);
         })
         .catch(err => {
-          console.error("Error reading files:", err);
+          console.error("Error reading files or uploading:", err);
         });
     }
   });
