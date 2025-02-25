@@ -6,6 +6,8 @@ import { chromium } from 'playwright';
 import dotenv from 'dotenv';
 import path from 'path';
 import { exec } from 'child_process'; // for executing scripts
+import fs from 'fs'; // added for file system operations
+import multer from 'multer'; // added for file uploads
 dotenv.config();
 
 const app = express();
@@ -15,6 +17,26 @@ app.use(bodyParser.json({ limit: '25mb' }));
 app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
 app.use(cors());
 app.use(express.json());
+
+const uploadDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function(req, file, cb) {
+    // name
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
+
+app.post('/upload', upload.array('files'), (req, res) => {
+  res.json({ message: 'Files uploaded successfully', files: req.files });
+});
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
