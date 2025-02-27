@@ -86,10 +86,11 @@ async function postListingFacebookMarketplace(adData) {
     await page.waitForTimeout(5000);
     await browser.close();
     console.log("Listing posted successfully");
-    files.forEach(file => {
-      fs.unlinkSync(file);
-    });
-    return "Listing posted successfully";
+    // COMMENTED OUT TO AVOID DELETING THE FILES - TESTING PURPOSES
+    //files.forEach(file => {
+     // fs.unlinkSync(file);
+    //});
+    //return "Listing posted successfully";
 }
 
 postListingFacebookMarketplace(adData)

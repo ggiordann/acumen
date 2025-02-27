@@ -71,7 +71,6 @@ $(document).ready(function() {
     }
   });
 
-  // Lightbox functionality
   $("#preview-container").on("click", "img.preview-image", function() {
     currentImageIndex = parseInt($(this).attr("data-index"));
     openLightbox(currentImageIndex);
