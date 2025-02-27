@@ -34,7 +34,6 @@ $(document).ready(function() {
 
     const files = event.target.files;
     if (files.length) {
-      // First, read the files and update the preview
       const readFilePromises = Array.from(files).map((file, index) => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -47,11 +46,10 @@ $(document).ready(function() {
           reader.readAsDataURL(file);
         });
       });
+
       Promise.all(readFilePromises)
         .then(() => {
-          // Set the base64 data for analysis after all files are read
-          base64Data = previewImages.join("\n");
-          // Then upload the files to the server
+          base64Data = previewImages.length > 0 ? previewImages[0] : '';
           let formData = new FormData();
           for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
