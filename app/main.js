@@ -33,6 +33,14 @@ $(document).ready(function() {
     $("#preview-container").empty();
 
     const files = event.target.files;
+    
+    // limit uploads to 10 files
+    if (files.length > 10) {
+      $("#analysisOutput").text("Please select a maximum of 10 files.");
+      $(this).val('');
+      return;
+    }
+    
     if (files.length) {
       const readFilePromises = Array.from(files).map((file, index) => {
         return new Promise((resolve, reject) => {
