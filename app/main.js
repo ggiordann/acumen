@@ -145,17 +145,22 @@ $(document).ready(function() {
       ">
         <div style="text-align: center;">
          <div style="
-          background: linear-gradient(120deg, #bfffea, #00ff9d); 
+          background: linear-gradient(90deg, #006644, #00db8e, #006644);
+          background-size: 200% 100%;
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
-          animation: pulse 2s infinite ease-in-out;
+          animation: pulse 2s infinite ease-in-out, gradientMove 2s infinite linear;
          ">Analysing</div>
          <style>
            @keyframes pulse {
            0% { opacity: 0.8; }
            50% { opacity: 1; }
            100% { opacity: 0.8; }
+           }
+           @keyframes gradientMove {
+           0% { background-position: 0% 50%; }
+           100% { background-position: 200% 50%; }
            }
          </style>
          <div class="spinner" style="
