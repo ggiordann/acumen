@@ -31,7 +31,6 @@ $(document).ready(function() {
     base64Data = "";
     previewImages = [];
     $("#preview-container").empty();
-    console.log("Resetting Everything");
 
     const files = event.target.files;
     if (files.length) {
@@ -45,11 +44,9 @@ $(document).ready(function() {
           };
           reader.onerror = reject;
           reader.readAsDataURL(file);
-          console.log("THIS IS WHER FILES.LENGHT");
         });
       });
 
-      console.log("THIS IS WHERE THE PROMISES ARE");
 
       Promise.all(readFilePromises)
         .then(() => {
@@ -58,7 +55,6 @@ $(document).ready(function() {
           for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
           }
-          console.log("Appending base64Data to formData")
           return fetch("http://localhost:5500/upload", {
             method: "POST",
             body: formData
@@ -67,7 +63,6 @@ $(document).ready(function() {
         .then(response => response.json())
         .then(data => {
           console.log("Files uploaded successfully:", data);
-          console.log(base64Data);
         })
         .catch(err => {
           console.error("Error reading files or uploading:", err);
@@ -106,40 +101,63 @@ $(document).ready(function() {
   }
 
   $("#analyzeBtn").click(function() {
+    const platforms = $("input[name='platform']:checked").map(function() {
+      return $(this).val();
+    }).get();
+    
     if (!base64Data) {
-      $("#analysisOutput").text("Please select an image first.");
+      $("#analysisOutput").text("Please upload an image and select a platform first.");
+      return;
+    }
+    
+    if (platforms.length === 0) {
+      $("#analysisOutput").text("Please select a platform first.");
       return;
     }
 
     const loadingOverlay = $(`
       <div id="loadingOverlay" style="
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.7);
-          z-index: 10000;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          color: white;
-          font-size: 32px;
-          font-family: 'Roboto', sans-serif;
-        ">
-          <div style="text-align: center;">
-             Analysing Image(s)
-             <br><br>
-             <div class="spinner" style="margin-top: 20px;"></div>
-          </div>
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 36px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      ">
+        <div style="text-align: center;">
+         <div style="
+          background: linear-gradient(120deg, #bfffea, #00ff9d); 
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: pulse 2s infinite ease-in-out;
+         ">Analysing</div>
+         <style>
+           @keyframes pulse {
+           0% { opacity: 0.8; }
+           50% { opacity: 1; }
+           100% { opacity: 0.8; }
+           }
+         </style>
+         <div class="spinner" style="
+          margin: 36px auto 0;
+          display: block;
+         "></div>
+        </div>
       </div>
     `);
     $("body").append(loadingOverlay);
-
-    const platforms = $("input[name='platform']:checked").map(function() {
-      return $(this).val();
-    }).get();
 
     let pending = platforms.length;
     function checkOverlay() {

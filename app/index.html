@@ -18,22 +18,19 @@
     <!-- Allow multiple image selection -->
     <input type="file" id="fileInput" accept="image/*" multiple>
 
-    <br><br>
 
     <!-- Container for gallery previews -->
-    <div id="preview-container"></div>
-
-    <br><br>
-
-    <input id="extraInformation" type="text" placeholder="extra information">
-
-    <br><br>
+    <div id="preview-container">
+      <!-- Images will be dynamically added here with wrappers -->
+    </div>
 
     <div class="posting-options">
-      <h3>Post to:</h3>
-      <label><input type="checkbox" name="platform" value="facebook"> Facebook Marketplace</label>
-      <label><input type="checkbox" name="platform" value="ebay"> eBay</label>
-      <label><input type="checkbox" name="platform" value="gumtree"> Gumtree</label>
+      <h2>post to:</h2>
+      <div class="checkbox-container">
+        <label><input type="checkbox" name="platform" value="facebook"> Facebook Marketplace</label>
+        <label><input type="checkbox" name="platform" value="ebay"> eBay</label>
+        <label><input type="checkbox" name="platform" value="gumtree"> Gumtree</label>
+      </div>
     </div>
 
     <br><br>

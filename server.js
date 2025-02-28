@@ -35,7 +35,6 @@ const upload = multer({ storage: storage });
 
 app.post('/upload', upload.array('files'), (req, res) => {
   res.json({ message: 'Files uploaded successfully', files: req.files });
-  console.log('TEST', req.files);
 });
 
 const openai = new OpenAI({
