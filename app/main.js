@@ -31,6 +31,7 @@ $(document).ready(function() {
     base64Data = "";
     previewImages = [];
     $("#preview-container").empty();
+    console.log("Resetting Everything");
 
     const files = event.target.files;
     if (files.length) {
@@ -44,8 +45,11 @@ $(document).ready(function() {
           };
           reader.onerror = reject;
           reader.readAsDataURL(file);
+          console.log("THIS IS WHER FILES.LENGHT");
         });
       });
+
+      console.log("THIS IS WHERE THE PROMISES ARE");
 
       Promise.all(readFilePromises)
         .then(() => {
@@ -54,6 +58,7 @@ $(document).ready(function() {
           for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
           }
+          console.log("Appending base64Data to formData")
           return fetch("http://localhost:5500/upload", {
             method: "POST",
             body: formData
@@ -62,12 +67,14 @@ $(document).ready(function() {
         .then(response => response.json())
         .then(data => {
           console.log("Files uploaded successfully:", data);
+          console.log(base64Data);
         })
         .catch(err => {
           console.error("Error reading files or uploading:", err);
         });
     }
   });
+
 
   $("#preview-container").on("click", "img.preview-image", function() {
     currentImageIndex = parseInt($(this).attr("data-index"));
@@ -90,7 +97,7 @@ $(document).ready(function() {
 
   function openLightbox(index) {
     updateLightboxImage(index);
-    $("#lightbox").css("display", "flex"); // Force display as flex to vertically center
+    $("#lightbox").css("display", "flex"); // force display as flex to vertically center
   }
 
   function updateLightboxImage(index) {

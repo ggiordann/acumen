@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
 app.use(cors());
 app.use(express.json());
 
-/*const uploadDir = path.join(process.cwd(), 'uploads');
+const uploadDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
@@ -28,7 +28,6 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: function(req, file, cb) {
-    // name
     cb(null, Date.now() + '-' + file.originalname);
   }
 });
@@ -37,7 +36,7 @@ const upload = multer({ storage: storage });
 app.post('/upload', upload.array('files'), (req, res) => {
   res.json({ message: 'Files uploaded successfully', files: req.files });
   console.log('TEST', req.files);
-});*/
+});
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
