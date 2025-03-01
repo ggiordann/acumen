@@ -5,9 +5,9 @@ import OpenAI from 'openai';
 import { chromium } from 'playwright';
 import dotenv from 'dotenv';
 import path from 'path';
-import { exec } from 'child_process'; // for executing scripts
-import fs from 'fs'; // added for file system operations
-import multer from 'multer'; // added for file uploads
+import { exec } from 'child_process';
+import fs from 'fs';
+import multer from 'multer';
 dotenv.config();
 
 const app = express();
@@ -17,6 +17,8 @@ app.use(bodyParser.json({ limit: '25mb' }));
 app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
 app.use(cors());
 app.use(express.json());
+
+app.use(express.static(path.join(process.cwd(), 'app'))); // coment out if not over network
 
 const uploadDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -53,7 +55,7 @@ app.post('/analyze', async (req, res) => {
             { type: 'text', text: `
                 Write a facebook marketplace Advertisement based on the product in the image.
 
-                DO NOT USE ANY EMOJIS IN THE LISTING.
+                DO NOT USE ANY EMOJIS IN THE LISTING. DO NOT USE ANY SINGLE QUOTES IN THE DESCRIPTION, USE SOMETHING ELSE.
 
                 Fill it out in JSON format with the following fields:
                 - Title – a short, descriptive title for the listing.
@@ -96,7 +98,7 @@ app.post('/analyze', async (req, res) => {
   }
 });
 
-// new endpoint for eBay advertisement analysis
+// New endpoint for eBay advertisement analysis
 app.post('/analyze-ebay', async (req, res) => {
   const { imageData } = req.body;
   try {
@@ -191,7 +193,7 @@ app.post('/post-facebook', async (req, res) => {
   }
 });
 
-// new endpoint for eBay posting
+// New endpoint for eBay posting
 app.post('/post-ebay', async (req, res) => {
   const adData = req.body;
   try {
@@ -231,6 +233,6 @@ app.get('/run-ebay-login', (req, res) => {
   });
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => { // comment out if not over network
   console.log(`Server listening on port ${port}`);
 });

@@ -63,7 +63,7 @@ $(document).ready(function() {
           for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
           }
-          return fetch("http://localhost:5500/upload", {
+          return fetch("http://192.168.86.25:5500/upload", { // http://localhost:5500/upload
             method: "POST",
             body: formData
           });
@@ -181,7 +181,7 @@ $(document).ready(function() {
     }
 
     if (platforms.includes("facebook")) {
-      fetch("http://localhost:5500/analyze", {
+      fetch("http://192.168.86.25:5500/analyze", { // http://localhost:5500/analyze
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -191,7 +191,7 @@ $(document).ready(function() {
         $("#analysisOutput").text("Facebook Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("http://localhost:5500/post-facebook", {
+          fetch("http://192.168.86.25:5500/post-facebook", { // http://localhost:5500/post-facebook
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -221,7 +221,7 @@ $(document).ready(function() {
     }
 
     if (platforms.includes("ebay")) {
-      fetch("http://localhost:5500/analyze-ebay", {
+      fetch("http://192.168.86.25:5500/analyze-ebay", { // http://localhost:5500/analyze-ebay
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -231,7 +231,7 @@ $(document).ready(function() {
         $("#analysisOutput").append("\neBay Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("http://localhost:5500/post-ebay", {
+          fetch("http://192.168.86.25:5500/post-ebay", { // http://localhost:5500/post-ebay
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -262,7 +262,7 @@ $(document).ready(function() {
   });
 
   $("#connectFB").click(function() {
-    fetch("http://localhost:5500/run-fb-login")
+    fetch("http://192.168.86.25:5500/run-fb-login") // http://localhost:5500/run-fb-login
       .then(response => response.text())
       .then(data => {
         console.log("fb_login.spec.js output:", data);
@@ -275,7 +275,7 @@ $(document).ready(function() {
   });
 
   $("#connectEB").click(function() {
-    fetch("http://localhost:5500/run-ebay-login")
+    fetch("http://192.168.86.25:5500/run-ebay-login") // http://localhost:5500/run-ebay-login
       .then(response => response.text())
       .then(data => {
         console.log("ebay_login.spec.js output:", data);
