@@ -2,4 +2,4 @@
 acumen\facebook_session.json
 /ebay_session.json
 /uploads/*
-/membership_pages/acumenFirebaseSecretKey
+/membership_pages/acumenFirebaseSecretKey.json
