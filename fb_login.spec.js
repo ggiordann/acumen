@@ -1,8 +1,5 @@
 import { chromium } from 'playwright';
 import path from 'path';
-import { configDotenv } from 'dotenv';
-
-configDotenv('.env');
 
 const __dirname = import.meta.dirname;
 const savePath = path.join(__dirname, 'facebook_session.json');

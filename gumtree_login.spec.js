@@ -1,10 +1,9 @@
 import { chromium } from 'playwright-extra';
 import stealth from 'playwright-stealth';
 import path from 'path';
-import { configDotenv } from 'dotenv';
+
 
 chromium.use(stealth);
-configDotenv('.env');
 
 const __dirname = import.meta.dirname;
 const savePath = path.join(__dirname, 'gumtree_session.json');

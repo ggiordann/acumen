@@ -5,7 +5,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount);
+    credential: admin.credential.cert(serviceAccount),
 })
 
 const db = admin.firestore();
