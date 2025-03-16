@@ -1,12 +1,28 @@
-import dotenv from 'dotenv';
+$(document).ready(async function() {
+    var auth, provider, firebaseConfig;
 
-dotenv.config();
-$(document).ready(function() {
-    const firebaseconfig = process.env.FIREBASE_API;
-    firebase.initializeApp(firebaseConfig);
+    console.log("before fetch");
+    await fetch("http://localhost:5000/get-api-key")
+        .then(console.log("fetch running"))
+        .then(response => response.json())
+        .then(data => {
+            console.log("In fetch rn");
+            console.log("API Key:", data.apiKey);
+            apiKey = data.apiKey;
+        })
+        .catch(error => console.error("Error fetching API key:", error));
 
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
+    await initialiseFirebase();
+    
+    console.log("after fetch");
+
+
+    async function initialiseFirebase() {
+        firebaseConfig = apiKey;
+        firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        provider = new firebase.auth.GoogleAuthProvider();
+    }
 
     $("#login").click(()=>{
         auth.signInWithPopup(provider)

@@ -1,17 +1,28 @@
-const express = require("express");
-const admin = require('firebase-admin');
-const serviceAccount = require("/acumenFirebaseSecretKey.json");
-const cors = require("cors");
-require("dotenv").config();
+import express from "express";
+import admin from "firebase-admin";
+import cors from "cors";
+import dotenv from "dotenv";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import { Buffer } from "buffer";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Load the .env file from outside the project
+dotenv.config({ path: join(__dirname, "../../acumen/.env") }); 
+
+const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SECRETKEY_BASE64, "base64").toString("utf-8"));
+console.log(serviceAccount)
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-})
+});
+  
 
 const db = admin.firestore();
 const app = express();
 
-app.use(cors);
+app.use(cors());
 app.use(express.json);
 
 async function verifyToken(req, res, next) {
@@ -40,5 +51,10 @@ app.post("/save-user", verifyToken, async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+app.get("/get-api-key", async(req, res) => {
+    console.log("key sent");
+    res.json({apikey: process.env.FIREBASE_API});
+})
+
+app.listen(5000, () => console.log("Server running on port 5000"));
 
