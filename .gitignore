@@ -3,4 +3,6 @@ acumen\facebook_session.json
 /ebay_session.json
 /uploads/*
 /membership_pages/acumenFirebaseSecretKey.json
-/membership_pages/node_modules/
+/membership_pages/node_modules/*
+/membership_pages/package-lock.json
+/membership_pages/package.json
