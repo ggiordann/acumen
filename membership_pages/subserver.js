@@ -9,7 +9,10 @@ import { Buffer } from "buffer";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Load the .env file from outside the project
-dotenv.config({ path: join(__dirname, "../../acumen/.env") }); 
+// GIORDAN: [THIS IS WHERE MY .ENV FILE IS LOCATED]
+dotenv.config({ path: join(__dirname, "../.env") });
+
+// ADI: dotenv.config({ path: join(__dirname, "../../acumen/.env") }); 
 
 const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SECRETKEY_BASE64, "base64").toString("utf-8"));
 console.log(serviceAccount)
@@ -22,8 +25,12 @@ admin.initializeApp({
 const db = admin.firestore();
 const app = express();
 
-app.use(cors());
-app.use(express.json);
+app.use(cors({
+    origin: ['http://localhost:5501', 'http://127.0.0.1:5501'],
+    credentials: true
+  }));
+
+app.use(express.json());
 
 async function verifyToken(req, res, next) {
     const idToken = req.headers.authorization?.split("Bearer ")[1];
@@ -52,9 +59,16 @@ app.post("/save-user", verifyToken, async (req, res) => {
 });
 
 app.get("/get-api-key", async(req, res) => {
-    console.log("key sent");
-    res.json({apikey: process.env.FIREBASE_API});
-})
+    console.log("Firebase config sent");
+    try {
+        const firebaseConfigString = process.env.FIREBASE_API.replace(/'/g, '"');
+        const firebaseConfig = JSON.parse(firebaseConfigString);
+        res.json({ firebaseConfig: firebaseConfig });
+    } catch (error) {
+        console.error("Error with Firebase config:", error);
+        res.status(500).send("Error with Firebase configuration");
+    }
+});
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+app.listen(1989, () => console.log("Server running on port 1989"));
 
