@@ -3,6 +3,31 @@ acumen\facebook_session.json
 /ebay_session.json
 /uploads/*
 /membership_pages/acumenFirebaseSecretKey.json
-/membership_pages/node_modules/*
-/membership_pages/package-lock.json
-/membership_pages/package.json
+
+# Node modules (including nested folders)
+node_modules/
+**/node_modules/
+
+# Build and distribution directories
+dist/
+build/
+
+# Test output
+test-results/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE settings
+.vscode/
+.idea/
+
+# Session storage files
+*_session.json
