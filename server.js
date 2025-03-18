@@ -8,18 +8,57 @@ import path from 'path';
 import { exec } from 'child_process';
 import fs from 'fs';
 import multer from 'multer';
+import admin from "firebase-admin";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import { Buffer } from "buffer";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Load environment variables
 dotenv.config();
 
+// Initialize Firebase
+const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SECRETKEY_BASE64, "base64").toString("utf-8"));
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
+
+const db = admin.firestore();
+
+// Main Express app (port 5500)
 const app = express();
 const port = 5500;
 
+// Firebase auth middleware
+async function verifyToken(req, res, next) {
+    const idToken = req.headers.authorization?.split("Bearer ")[1];
+
+    if (!idToken) {
+        return res.status(401).send("Unauthorised");
+    }
+
+    try {
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        req.user = decodedToken;
+        console.log("token verified");
+        next();
+    } catch (error){
+        res.status(401).send("Invalid Token");
+        console.log(error);
+    }
+}
+
+// Middleware setup
 app.use(bodyParser.json({ limit: '25mb' }));
 app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
 app.use(cors());
 app.use(express.json());
 
-app.use(express.static(path.join(process.cwd(), 'app'))); // coment out if not over network
+app.use(express.static(path.join(process.cwd(), 'app'))); // comment out if not over network
 
+// File upload configuration
 const uploadDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
@@ -35,12 +74,15 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-app.post('/upload', upload.array('files'), (req, res) => {
-  res.json({ message: 'Files uploaded successfully', files: req.files });
-});
-
+// Initialize OpenAI
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
+});
+
+// ============== ENDPOINTS FROM SERVER.JS ==============
+
+app.post('/upload', upload.array('files'), (req, res) => {
+  res.json({ message: 'Files uploaded successfully', files: req.files });
 });
 
 app.post('/analyze', async (req, res) => {
@@ -98,7 +140,6 @@ app.post('/analyze', async (req, res) => {
   }
 });
 
-// New endpoint for eBay advertisement analysis
 app.post('/analyze-ebay', async (req, res) => {
   const { imageData } = req.body;
   try {
@@ -193,7 +234,6 @@ app.post('/post-facebook', async (req, res) => {
   }
 });
 
-// New endpoint for eBay posting
 app.post('/post-ebay', async (req, res) => {
   const adData = req.body;
   try {
@@ -210,8 +250,6 @@ app.post('/post-ebay', async (req, res) => {
     res.status(500).json({ error: error.toString() });
   }
 });
-
-// CONNECTIONS TO PLATFORMS
 
 app.get('/run-fb-login', (req, res) => {
   exec('node fb_login.spec.js', (error, stdout, stderr) => {
@@ -233,6 +271,112 @@ app.get('/run-ebay-login', (req, res) => {
   });
 });
 
+// ============== ENDPOINTS FROM SUBSERVER.JS ==============
+
+app.post("/save-user", verifyToken, async (req, res) => {
+    const { uid, email, name } = req.user;
+
+    if (!uid) {
+        return res.status(400).json({ error: "Invalid request: UID is missing" });
+    }
+
+    try {
+        console.log("Db thing trying");
+        const userDocRef = db.collection('users').doc(uid);
+        const userDoc = await userDocRef.get();
+
+        console.log("Db thing done");
+
+        if (!userDoc.exists) {
+            console.log("New user detected, saving to Firestore...");
+            
+            // Save new user to Firestore
+            await userDocRef.set({
+                email,
+                name: name || "Unknown", // If Google OAuth doesn't return a name
+                createdAt: new Date()
+            });
+            return res.json({ message: "New user created", email, uid });
+        }
+
+        console.log("Existing user Logged in");
+        return res.json({ message: "Existing user", email, uid });
+
+    } catch (error) {
+        console.log("Error: " + error.message);
+        res.status(500).send(error.message);
+    }
+});
+
+app.get("/get-api-key", async(req, res) => {
+    console.log("Firebase config sent");
+    try {
+        const firebaseConfigString = process.env.FIREBASE_API.replace(/'/g, '"');
+        const firebaseConfig = JSON.parse(firebaseConfigString);
+        res.json({ firebaseConfig: firebaseConfig });
+    } catch (error) {
+        console.error("Error with Firebase config:", error);
+        res.status(500).send("Error with Firebase configuration");
+    }
+});
+
+// Start the server
 app.listen(port, '0.0.0.0', () => { // comment out if not over network
-  console.log(`Server listening on port ${port}`);
+  console.log(`Main server listening on port ${port}`);
+});
+
+// Create a secondary app for the membership endpoints
+const membershipApp = express();
+membershipApp.use(cors());
+membershipApp.use(express.json());
+
+// Apply the same routes to the membership app
+membershipApp.post("/save-user", verifyToken, async (req, res) => {
+    // Same implementation as above
+    const { uid, email, name } = req.user;
+
+    if (!uid) {
+        return res.status(400).json({ error: "Invalid request: UID is missing" });
+    }
+
+    try {
+        console.log("Db thing trying");
+        const userDocRef = db.collection('users').doc(uid);
+        const userDoc = await userDocRef.get();
+
+        console.log("Db thing done");
+
+        if (!userDoc.exists) {
+            console.log("New user detected, saving to Firestore...");
+            await userDocRef.set({
+                email,
+                name: name || "Unknown",
+                createdAt: new Date()
+            });
+            return res.json({ message: "New user created", email, uid });
+        }
+
+        console.log("Existing user Logged in");
+        return res.json({ message: "Existing user", email, uid });
+    } catch (error) {
+        console.log("Error: " + error.message);
+        res.status(500).send(error.message);
+    }
+});
+
+membershipApp.get("/get-api-key", async(req, res) => {
+    console.log("Firebase config sent");
+    try {
+        const firebaseConfigString = process.env.FIREBASE_API.replace(/'/g, '"');
+        const firebaseConfig = JSON.parse(firebaseConfigString);
+        res.json({ firebaseConfig: firebaseConfig });
+    } catch (error) {
+        console.error("Error with Firebase config:", error);
+        res.status(500).send("Error with Firebase configuration");
+    }
+});
+
+// Start the membership server on the original port
+membershipApp.listen(1989, () => {
+    console.log("Membership server running on port 1989");
 });
