@@ -7,40 +7,184 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   </head>
   <body>
-    <h1>acumen</h1>
-
-    <button id="connectFB"><i class="fab fa-facebook-f"></i> connect to facebook</button>
-    <button id="connectEB"><i class="fab fa-ebay"></i> connect to ebay</button>
-    <button id="connectGU"><i class="fas fa-store"></i> connect to gumtree</button>
-
-    <h2>image upload</h2>
-
-    <!-- Allow multiple image selection -->
-    <input type="file" id="fileInput" accept="image/*" multiple>
-
-
-    <!-- Container for gallery previews -->
-    <div id="preview-container">
-      <!-- Images will be dynamically added here with wrappers -->
-    </div>
-
-    <div class="posting-options">
-      <h2>post to:</h2>
-      <div class="checkbox-container">
-        <label><input type="checkbox" name="platform" value="facebook"> Facebook Marketplace</label>
-        <label><input type="checkbox" name="platform" value="ebay"> eBay</label>
-        <label><input type="checkbox" name="platform" value="gumtree"> Gumtree</label>
+    <!-- New Navbar with dropdowns -->
+    <nav class="navbar" id="main-navbar">
+      <div class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+      </div>
+      
+      <a href="#" class="navbar-brand" id="brand-logo">acumen</a>
+      <div class="navbar-links" id="nav-links">
+        <!-- Product Dropdown -->
+        <div class="nav-item" id="product-dropdown">
+          Product <i class="fas fa-chevron-down dropdown-arrow"></i>
+          <div class="dropdown-content">
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-search-plus"></i>
+              </div>
+              <div class="content">
+                <span class="title">Generate item specifications</span>
+                <span class="description">Turn an image into a listing within seconds</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-balance-scale"></i>
+              </div>
+              <div class="content">
+                <span class="title">Compare item values</span>
+                <span class="description">Compare your item's value across platforms</span>
+              </div>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Resources Dropdown -->
+        <div class="nav-item" id="resources-dropdown">
+          Resources <i class="fas fa-chevron-down dropdown-arrow"></i>
+          <div class="dropdown-content">
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-blog"></i>
+              </div>
+              <div class="content">
+                <span class="title">Blog</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-info-circle"></i>
+              </div>
+              <div class="content">
+                <span class="title">About</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fab fa-discord"></i>
+              </div>
+              <div class="content">
+                <span class="title">Community Discord</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="auth-container" id="auth-buttons">
+        <button class="auth-btn login-btn" id="login-button" onclick="window.location.href='../membership_pages/subs.html'">
+          Log In
+        </button>
+        <button class="auth-btn signup-btn" id="signup-button" onclick="window.location.href='../membership_pages/subs.html'">
+          Sign Up
+        </button>
+      </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="mobile-close" id="mobile-close">
+        <i class="fas fa-times"></i>
+      </div>
+      <div class="mobile-menu-header">acumen</div>
+      
+      <div class="mobile-section">
+        <div class="mobile-section-title">Product</div>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-search-plus"></i>
+          </div>
+          <div class="content">
+            <span class="title">Generate item specifications</span>
+          </div>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-balance-scale"></i>
+          </div>
+          <div class="content">
+            <span class="title">Compare item values</span>
+          </div>
+        </a>
+      </div>
+      
+      <div class="mobile-section">
+        <div class="mobile-section-title">Resources</div>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-blog"></i>
+          </div>
+          <div class="content">
+            <span class="title">Blog</span>
+          </div>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div class="content">
+            <span class="title">About</span>
+          </div>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fab fa-discord"></i>
+          </div>
+          <div class="content">
+            <span class="title">Community Discord</span>
+          </div>
+        </a>
+      </div>
+      
+      <div class="mobile-section">
+        <a href="../membership_pages/subs.html" class="auth-btn login-btn" style="display: block; text-align: center; margin-bottom: 1rem;">
+          Log In
+        </a>
+        <a href="../membership_pages/subs.html" class="auth-btn signup-btn" style="display: block; text-align: center;">
+          Sign Up
+        </a>
       </div>
     </div>
+    
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    
+    <!-- Content Container for Centered Layout -->
+    <div class="content-container">
+      <!-- Platform Connection Buttons -->
+      <div class="platform-buttons-container">
+        <button id="connectFB" class="action-button"><i class="fab fa-facebook-f"></i> connect to facebook</button>
+        <button id="connectEB" class="action-button"><i class="fab fa-ebay"></i> connect to ebay</button>
+        <button id="connectGU" class="action-button"><i class="fas fa-store"></i> connect to gumtree</button>
+      </div>
+      
+      <h2>image upload</h2>
 
-    <br><br>
+      <!-- Allow multiple image selection -->
+      <input type="file" id="fileInput" accept="image/*" multiple>
 
-    <!-- trigger analyse request -->
-    <button id="analyzeBtn">analyze image</button>
+      <!-- Container for gallery previews -->
+      <div id="preview-container">
+        <!-- Images will be dynamically added here with wrappers -->
+      </div>
 
-    <br><br>
-    <!-- output -->
-    <p id="analysisOutput"></p>
+      <div class="posting-options">
+        <h2>post to:</h2>
+        <div class="checkbox-container">
+          <label><input type="checkbox" name="platform" value="facebook"> Facebook Marketplace</label>
+          <label><input type="checkbox" name="platform" value="ebay"> eBay</label>
+          <label><input type="checkbox" name="platform" value="gumtree"> Gumtree</label>
+        </div>
+      </div>
+
+      <br><br>
+
+      <!-- trigger analyse request -->
+      <button id="analyzeBtn" class="action-button">analyze image</button>
+
+      <br><br>
+      <!-- output -->
+      <p id="analysisOutput"></p>
+    </div>
 
     <!-- yuh yuh -->
     <div id="lightbox">
@@ -51,5 +195,24 @@
         <span id="lightbox-next">&#10095;</span>
       </div>
     </div>
+    
+    <!-- JavaScript for mobile menu -->
+    <script>
+      $(document).ready(function() {
+        // Mobile menu toggle
+        $("#mobile-menu-toggle").click(function() {
+          $("#mobile-menu").addClass("active");
+          $("#mobile-overlay").addClass("active");
+          $("body").css("overflow", "hidden"); // Prevent scrolling
+        });
+        
+        // Close mobile menu
+        $("#mobile-close, #mobile-overlay").click(function() {
+          $("#mobile-menu").removeClass("active");
+          $("#mobile-overlay").removeClass("active");
+          $("body").css("overflow", ""); // Allow scrolling again
+        });
+      });
+    </script>
   </body>
 </html>

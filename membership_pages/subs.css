@@ -1,0 +1,288 @@
+/* CSS Variables */
+:root {
+    --accent-green: #00ff9d;
+    --bg-dark: #111111;
+    --bg-darker: #0d0d0d;
+    --text-light: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --spacing: 1.5rem;
+    --border-radius: 12px;
+    --shadow-subtle: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  
+  /* Base Styles */
+    body, html {
+        margin: 0;
+        padding: 0;
+        font-family: var(--font-family);
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center; /* Add this line */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+  
+  /* Navbar */
+  .navbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-darker);
+    box-shadow: var(--shadow-subtle);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.8rem 2rem;
+    z-index: 1000;
+    box-sizing: border-box;
+    margin-bottom: 2rem;
+  }
+  
+  .navbar-brand {
+    font-size: clamp(1.8rem, 3vw, 2.2rem);
+    font-weight: 700;
+    color: var(--accent-green);
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    letter-spacing: -0.02em;
+  }
+  
+  .navbar-brand:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+  
+  /* Auth Container */
+  /* Auth Container */
+  .auth-container {
+    width: 90%;
+    max-width: 450px;
+    margin: 0 auto; /* Changed from 3rem auto to 0 auto */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .auth-box {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-subtle);
+    backdrop-filter: blur(10px);
+    text-align: center;
+  }
+  
+  .auth-box h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  
+  .accent {
+    color: var(--accent-green);
+  }
+  
+  .auth-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  /* Auth Methods */
+  .auth-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  /* Google Sign In Button */
+  .google-sign-in {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: white;
+    color: #333;
+    border: none;
+    border-radius: calc(var(--border-radius) - 4px);
+    padding: 0.8rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .google-sign-in img {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .google-sign-in:hover {
+    background-color: #f5f5f5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--text-secondary);
+    margin: 1rem 0;
+  }
+  
+  .divider::before,
+  .divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .divider span {
+    padding: 0 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Email Login */
+  .email-login {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .email-login input {
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: calc(var(--border-radius) - 4px);
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .email-login input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.2);
+  }
+  
+  .email-login-btn {
+    background-color: var(--accent-green);
+    color: var(--bg-dark);
+    border: none;
+    border-radius: calc(var(--border-radius) - 4px);
+    padding: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    margin-top: 0.5rem;
+  }
+  
+  .email-login-btn:hover {
+    background-color: #00cc7d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 255, 157, 0.25);
+  }
+  
+  /* Terms */
+  .terms {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  
+  .terms a {
+    color: var(--accent-green);
+    text-decoration: none;
+  }
+  
+  .terms a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Auth Footer */
+  .auth-footer {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  
+  .auth-footer a {
+    color: var(--accent-green);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .auth-footer a:hover {
+    filter: brightness(1.1);
+    text-decoration: underline;
+  }
+  
+  /* User Info (when logged in) */
+  .user-info {
+    width: 90%;
+    max-width: 450px;
+    margin: 3rem auto;
+    text-align: center;
+  }
+  
+  .logout-btn {
+    background-color: transparent;
+    color: var(--text-light);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: calc(var(--border-radius) - 4px);
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    margin-top: 1rem;
+  }
+  
+  .logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .auth-box {
+      padding: 2rem 1.5rem;
+    }
+    
+    .auth-container {
+      margin: 1.5rem auto;
+    }
+    
+    /* Navbar */
+.navbar {
+    position: absolute; /* Changed from sticky to absolute */
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-darker);
+    box-shadow: var(--shadow-subtle);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.8rem 2rem;
+    z-index: 1000;
+    box-sizing: border-box;
+    margin-bottom: 2rem;
+  }
+  }
