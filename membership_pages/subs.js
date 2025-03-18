@@ -17,6 +17,7 @@ $(document).ready(async function() {
         firebase.initializeApp(firebaseConfig);
         auth = firebase.auth();
         provider = new firebase.auth.GoogleAuthProvider();
+        console.log("Initialised Firebase");
     }
     
     $("#login").click(()=>{
@@ -24,27 +25,27 @@ $(document).ready(async function() {
             .then(() => {
                 return auth.signInWithPopup(provider)
                     .then(async (result) => {
-                    const user = result.user;
-                    const idToken = await user.getIdToken();
+                        const user = result.user;
+                        const idToken = await user.getIdToken();
 
-                    //Save user data to firestore
-                    $.ajax({
-                        url: "http://localhost:1989/save-user",
-                        type: "POST",
-                        headers: { Authorization: `Bearer ${idToken}` },
-                        success: () => console.log("User saved"),
-                        error: (xhr) => console.error("Error saving user", xhr)
+                        //Save user data to firestore
+                        $.ajax({
+                            url: "http://localhost:1989/save-user",
+                            type: "POST",
+                            headers: { Authorization: `Bearer ${idToken}` },
+                            success: () => console.log("User saved"),
+                            error: (xhr) => console.error("Error saving user", xhr)
+                        });
+
+                        $("#email").text(`Welcome ${user.displayName}`);
+                    }) 
+                    .catch(error =>{
+                        console.error("Authentication error:", error);
+                        console.error("Error code:", error.code);
+                        console.error("Error message:", error.message);
+                        console.log("Current domain:", window.location.hostname);
+                        console.log("Full URL:", window.location.href);
                     });
-
-                    $("#email").text(`Welcome ${user.displayName}`);
-                }) 
-                .catch(error =>{
-                    console.error("Authentication error:", error);
-                    console.error("Error code:", error.code);
-                    console.error("Error message:", error.message);
-                    console.log("Current domain:", window.location.hostname);
-                    console.log("Full URL:", window.location.href);
-                });
             });
     })
 })
