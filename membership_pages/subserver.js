@@ -20,13 +20,12 @@ console.log(serviceAccount)
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
-  
+
 
 const db = admin.firestore();
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
 
 async function verifyToken(req, res, next) {
@@ -39,6 +38,7 @@ async function verifyToken(req, res, next) {
     try {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         req.user = decodedToken;
+        console.log("token verified");
         next()
     } catch (error){
         res.status(401).send("Invalid Token");
@@ -47,10 +47,36 @@ async function verifyToken(req, res, next) {
 }
 
 app.post("/save-user", verifyToken, async (req, res) => {
-    const {userId} = req.user;
+    const { uid, email, name } = req.user;
+
+    if (!uid) {
+        return res.status(400).json({ error: "Invalid request: UID is missing" });
+    }
+
     try {
-        const userDoc = await db.collection("users").doc(uid).get();
+        console.log("Db thing trying");
+        const userDocRef =  db.collection('users').doc(uid);
+        const userDoc = await userDocRef.get();
+
+        console.log("Db thing done");
+
+        if (!userDoc.exists) {
+            console.log("New user detected, saving to Firestore...");
+            
+            // Save new user to Firestore
+            await userDocRef.set({
+                email,
+                name: name || "Unknown", // If Google OAuth doesn't return a name
+                createdAt: new Date()
+            });
+            return res.json({ message: "New user created", email, uid });
+        }
+
+        console.log("Existing user Logged in");
+        return res.json({ message: "Existing user", email, uid });
+
     } catch (error) {
+        console.log("Error: " + error.message);
         res.status(500).send(error.message);
     }
 });
