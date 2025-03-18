@@ -169,7 +169,12 @@
       <h2>image upload</h2>
 
       <!-- Allow multiple image selection -->
-      <input type="file" id="fileInput" accept="image/*" multiple>
+      <div class="file-upload-container">
+        <input type="file" id="fileInput" accept="image/*" multiple>
+        <label for="fileInput" class="file-upload-label">
+          <i class="fas fa-upload"></i> Browse files
+        </label>
+      </div>
 
       <!-- Container for gallery previews -->
       <div id="preview-container">

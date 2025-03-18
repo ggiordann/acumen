@@ -329,9 +329,68 @@ h2 {
   margin-bottom: var(--spacing);
   letter-spacing: -0.01em;
   color: var(--text-secondary);
+  text-align: center;
+  width: 100%;
 }
 
 /* Form Elements */
+/* Custom File Upload Styling */
+.file-upload-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: var(--spacing);
+}
+
+input[type="file"] {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-upload-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.file-upload-label i {
+  margin-right: 8px;
+  font-size: 1.2rem;
+  color: var(--accent-green);
+}
+
+input[type="file"]:hover + .file-upload-label {
+  border-color: var(--accent-green);
+  background: rgba(0, 255, 157, 0.05);
+  color: var(--text-light);
+  box-shadow: var(--shadow-subtle);
+}
+
+input[type="file"]:focus + .file-upload-label {
+  border-color: var(--accent-green);
+  box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.2);
+}
+
+/* Legacy file input style for backward compatibility */
 input[type="file"] {
   background: rgba(255, 255, 255, 0.05);
   padding: 1.2rem;
@@ -482,6 +541,9 @@ button:hover {
   max-height: 90%;
   border-radius: var(--border-radius);
   box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+  object-fit: contain; /* Ensures image is properly contained and centered */
+  display: block;
+  margin: 0 auto; /* Center horizontally */
 }
 
 #lightbox-close {
@@ -509,6 +571,7 @@ button:hover {
   color: var(--text-light);
   font-size: 60px;
   user-select: none;
+  transform: translateY(-50%); /* Center navigation arrows vertically */
 }
 
 #lightbox-prev, #lightbox-next {
@@ -516,12 +579,14 @@ button:hover {
   padding: 16px;
   opacity: 0.7;
   transition: opacity 0.2s ease;
+  z-index: 21000; /* Ensure navigation arrows are above the image */
 }
 
 #lightbox-prev:hover, #lightbox-next:hover {
   opacity: 1;
 }
 
+/* Analysis Output Styling */
 #analysisOutput {
   background: rgba(255, 255, 255, 0.03);
   padding: calc(var(--spacing) * 1.2);
@@ -530,6 +595,20 @@ button:hover {
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow-subtle);
   margin: 2rem 0;
+  width: 100%;
+  min-height: 100px;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+  transition: all 0.3s ease;
+}
+
+#analysisOutput:not(:empty) {
+  border-color: var(--accent-green);
+  box-shadow: 0 4px 20px rgba(0, 255, 157, 0.1);
 }
 
 /* Posting Options */
@@ -626,6 +705,32 @@ h1, h2, #analyzeBtn {
   font-weight: 700;
 }
 
+/* Animation for analyze button */
+#analyzeBtn {
+  position: relative;
+  overflow: hidden;
+}
+
+#analyzeBtn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 1s;
+}
+
+#analyzeBtn:hover::after {
+  left: 100%;
+}
+
 /* Responsive styles */
 @media (max-width: 992px) {
   .content-container {
@@ -682,5 +787,10 @@ h1, h2, #analyzeBtn {
   /* More vertical spacing for connect buttons in mobile */
   #connectFB, #connectEB, #connectGU, #analyzeBtn, .action-button {
     margin: 0.7rem auto;
+  }
+  
+  /* Adjust file upload button for mobile */
+  .file-upload-label {
+    font-size: 0.9rem;
   }
 }
