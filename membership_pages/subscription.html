@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acumen - Subscription Plans</title>
+    <link rel="stylesheet" href="subscription.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../app/index.html" class="navbar-brand">acumen</a>
+        <div class="navbar-links">
+            <div class="nav-item">
+                <span>Features</span>
+                <i class="dropdown-arrow fas fa-chevron-down"></i>
+                <div class="dropdown-content">
+                    <a href="#" class="dropdown-item">
+                        <div class="icon">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                        <div class="content">
+                            <span class="title">Generate item specifications</span>
+                            <span class="description">Turn an image into a listing within seconds</span>
+                        </div>
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <div class="icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div class="content">
+                            <span class="title">Compare item values</span>
+                            <span class="description">Compare your item's value across platforms</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <span>Pricing</span>
+            </div>
+            <div class="nav-item">
+                <span>Resources</span>
+                <i class="dropdown-arrow fas fa-chevron-down"></i>
+                <div class="dropdown-content">
+                    <a href="#" class="dropdown-item">
+                        <div class="icon">
+                            <i class="fas fa-blog"></i>
+                        </div>
+                        <div class="content">
+                            <span class="title">Blog</span>
+                        </div>
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <div class="icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="content">
+                            <span class="title">About</span>
+                        </div>
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <div class="icon">
+                            <i class="fab fa-discord"></i>
+                        </div>
+                        <div class="content">
+                            <span class="title">Community Discord</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="auth-container">
+            <button class="auth-btn login-btn" onclick="window.location.href='../membership_pages/subs.html'">Log In</button>
+            <button class="auth-btn signup-btn" onclick="window.location.href='../membership_pages/subs.html'">Sign Up</button>
+        </div>
+        <div class="mobile-menu-toggle" id="mobile-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-close" id="mobile-close">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="mobile-menu-header">acumen</div>
+        
+        <div class="mobile-section">
+            <div class="mobile-section-title">Features</div>
+            <a href="#" class="mobile-nav-item">
+                <div class="icon">
+                    <i class="fas fa-search-plus"></i>
+                </div>
+                <div class="content">
+                    <span class="title">Generate item specifications</span>
+                </div>
+            </a>
+            <a href="#" class="mobile-nav-item">
+                <div class="icon">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <div class="content">
+                    <span class="title">Compare item values</span>
+                </div>
+            </a>
+        </div>
+        
+        <div class="mobile-section">
+            <div class="mobile-section-title">Resources</div>
+            <a href="#" class="mobile-nav-item">
+                <div class="icon">
+                    <i class="fas fa-blog"></i>
+                </div>
+                <div class="content">
+                    <span class="title">Blog</span>
+                </div>
+            </a>
+            <a href="#" class="mobile-nav-item">
+                <div class="icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="content">
+                    <span class="title">About</span>
+                </div>
+            </a>
+            <a href="#" class="mobile-nav-item">
+                <div class="icon">
+                    <i class="fab fa-discord"></i>
+                </div>
+                <div class="content">
+                    <span class="title">Community Discord</span>
+                </div>
+            </a>
+        </div>
+        
+        <div class="mobile-section">
+            <a href="../membership_pages/subs.html" class="auth-btn login-btn" style="display: block; text-align: center; margin-bottom: 1rem;">
+                Log In
+            </a>
+            <a href="../membership_pages/subs.html" class="auth-btn signup-btn" style="display: block; text-align: center;">
+                Sign Up
+            </a>
+        </div>
+    </div>
+    
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
+    <div class="content-container">
+        <h1>Choose Your Plan</h1>
+        <h2>Select the perfect plan to streamline your marketplace listings</h2>
+        
+        <div class="pricing-container">
+            <!-- Free Tier -->
+            <div class="pricing-card free">
+                <div class="card-header">
+                    <h3>Free</h3>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">0</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="feature feature-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>5 Free Listings per month</span>
+                    </div>
+                    <div class="features-list">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>AI Image Analysis</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Basic Marketplace Integration</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Standard Support</span>
+                        </div>
+                        <div class="feature disabled">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Advanced Analytics</span>
+                        </div>
+                        <div class="feature disabled">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Bulk Listing Options</span>
+                        </div>
+                    </div>
+                    <button class="plan-button" data-plan="free">
+                        <span>Current Plan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Plus Tier -->
+            <div class="pricing-card plus">
+                <div class="card-header">
+                    <h3>Plus</h3>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">15</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="feature feature-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>100 Free Listings per month</span>
+                    </div>
+                    <div class="features-list">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>AI Image Analysis</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Full Marketplace Integration</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority Support</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Basic Analytics</span>
+                        </div>
+                        <div class="feature disabled">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Bulk Listing Options</span>
+                        </div>
+                    </div>
+                    <button class="plan-button" data-plan="plus">
+                        <span>Buy Now</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pro Tier -->
+            <div class="pricing-card pro popular">
+                <div class="popular-badge">MOST POPULAR</div>
+                <div class="card-header">
+                    <h3>Pro</h3>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">30</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="feature feature-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>500 Free Listings per month</span>
+                    </div>
+                    <div class="features-list">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Enhanced AI Analysis</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority Marketplace Integration</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>24/7 Priority Support</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Advanced Analytics Dashboard</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Bulk Listing Options</span>
+                        </div>
+                    </div>
+                    <button class="plan-button" data-plan="pro">
+                        <span>Buy Now</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Premium Tier -->
+            <div class="pricing-card premium best-deal">
+                <div class="best-deal-badge">BEST DEAL</div>
+                <div class="card-header">
+                    <h3>Premium</h3>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">70</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="feature feature-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>1500 Free Listings per month</span>
+                    </div>
+                    <div class="features-list">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Premium AI Analysis</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Advanced Marketplace Integration</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>24/7 Dedicated Support</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Full Analytics Suite</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Advanced Bulk Operations</span>
+                        </div>
+                    </div>
+                    <button class="plan-button" data-plan="premium">
+                        <span>Buy Now</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="guarantees">
+            <div class="guarantee-item">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                    <h4>100% Secure Payments</h4>
+                    <p>All transactions are processed securely through Stripe.</p>
+                </div>
+            </div>
+            <div class="guarantee-item">
+                <i class="fas fa-bolt"></i>
+                <div>
+                    <h4>Instant Access</h4>
+                    <p>Get immediate access to all features after subscription.</p>
+                </div>
+            </div>
+            <div class="guarantee-item">
+                <i class="fas fa-headset"></i>
+                <div>
+                    <h4>Dedicated Support</h4>
+                    <p>Our team is ready to assist you with any questions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Can I upgrade or downgrade my plan later?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, you can change your subscription plan at any time. Changes will be reflected at the start of your next billing cycle.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>How do I cancel my subscription?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>You can cancel your subscription at any time from your account settings. Your subscription will remain active until the end of the current billing period.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Do you offer a free trial?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We offer a free tier with limited functionality so you can test our service before committing to a paid plan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for mobile menu toggle -->
+    <script>
+        $(document).ready(function() {
+            // Mobile menu toggle
+            $("#mobile-menu-toggle").click(function() {
+                $("#mobile-menu").addClass("active");
+                $("#mobile-overlay").addClass("active");
+                $("body").css("overflow", "hidden"); // Prevent scrolling
+            });
+            
+            // Close mobile menu
+            $("#mobile-close, #mobile-overlay").click(function() {
+                $("#mobile-menu").removeClass("active");
+                $("#mobile-overlay").removeClass("active");
+                $("body").css("overflow", ""); // Allow scrolling again
+            });
+        });
+    </script>
+
+    <script src="subscription.js"></script>
+</body>
+</html>
