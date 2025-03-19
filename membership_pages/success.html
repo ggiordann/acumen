@@ -29,7 +29,7 @@
                 </a>
             </div>
         </div>
-        <!-- Removed Go to Dashboard button as requested -->
+        <!-- No "Go to Dashboard" in top right as requested -->
     </div>
     
     <!-- Mobile Menu -->
@@ -56,7 +56,7 @@
         </div>
         
         <div class="mobile-section">
-            <a href="../app/index.html" class="auth-btn signup-btn" style="display: block; text-align: center;">
+            <a href="../app/index.html" class="auth-btn signup-btn" style="display: block; text-align: center; text-decoration: none;">
                 Go to Dashboard
             </a>
         </div>
@@ -64,6 +64,7 @@
     
     <div class="mobile-overlay" id="mobile-overlay"></div>
     
+    <!-- Success page content - centered vertically -->
     <div class="success-page-container">
         <div class="success-container">
             <div class="success-icon">
@@ -103,15 +104,12 @@
             if (sessionId) {
                 console.log("Payment completed with session ID:", sessionId);
                 
-                // Optional: You can make an API call to your server to verify the session
-                // and update any UI elements based on the subscription status
-                
-                // Add enhanced confetti animation
+                // Enhanced confetti animation
                 createConfetti();
             }
         });
         
-        // Enhanced confetti animation
+        // Enhanced confetti animation with different shapes
         function createConfetti() {
             const confettiCount = 150;
             const container = document.querySelector('.success-page-container');

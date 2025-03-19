@@ -738,6 +738,7 @@ h1, h2, #analyzeBtn {
   }
 }
 
+/* Update the media query around line 766 */
 @media (max-width: 768px) {
   .navbar-links, .auth-container {
     display: none;
@@ -745,6 +746,20 @@ h1, h2, #analyzeBtn {
   
   .mobile-menu-toggle {
     display: block;
+  }
+  
+  /* Fix for connection buttons alignment on mobile */
+  .platform-buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  #connectFB, #connectEB, #connectGU, #analyzeBtn, .action-button {
+    margin: 0.7rem auto;
+    width: 80%; /* Make buttons slightly wider on mobile */
+    max-width: 250px;
   }
   
   .pricing-container {
@@ -782,11 +797,6 @@ h1, h2, #analyzeBtn {
   #preview-container {
     width: 100%;
     overflow-x: auto;
-  }
-  
-  /* More vertical spacing for connect buttons in mobile */
-  #connectFB, #connectEB, #connectGU, #analyzeBtn, .action-button {
-    margin: 0.7rem auto;
   }
   
   /* Adjust file upload button for mobile */
