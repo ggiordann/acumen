@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
                     
                     // Create checkout session
-                    const response = await fetch('http://localhost:5500/create-checkout-session', {
+                    const response = await fetch('http://localhost:1989/create-checkout-session', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

@@ -33,14 +33,6 @@ $(document).ready(function() {
     $("#preview-container").empty();
 
     const files = event.target.files;
-    
-    // limit uploads to 10 files
-    if (files.length > 10) {
-      $("#analysisOutput").text("Please select a maximum of 10 files.");
-      $(this).val('');
-      return;
-    }
-    
     if (files.length) {
       const readFilePromises = Array.from(files).map((file, index) => {
         return new Promise((resolve, reject) => {
@@ -63,7 +55,7 @@ $(document).ready(function() {
           for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
           }
-          return fetch("http://192.168.86.25:5500/upload", { // http://localhost:5500/upload
+          return fetch("http://localhost:1989/upload", { // Changed from 5500 to 1989
             method: "POST",
             body: formData
           });
@@ -109,17 +101,8 @@ $(document).ready(function() {
   }
 
   $("#analyzeBtn").click(function() {
-    const platforms = $("input[name='platform']:checked").map(function() {
-      return $(this).val();
-    }).get();
-    
     if (!base64Data) {
       $("#analysisOutput").text("Please upload an image and select a platform first.");
-      return;
-    }
-    
-    if (platforms.length === 0) {
-      $("#analysisOutput").text("Please select a platform first.");
       return;
     }
 
@@ -145,22 +128,17 @@ $(document).ready(function() {
       ">
         <div style="text-align: center;">
          <div style="
-          background: linear-gradient(90deg, #006644, #00db8e, #006644);
-          background-size: 200% 100%;
+          background: linear-gradient(120deg, #bfffea, #00ff9d); 
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
-          animation: pulse 2s infinite ease-in-out, gradientMove 2s infinite linear;
+          animation: pulse 2s infinite ease-in-out;
          ">Analysing</div>
          <style>
            @keyframes pulse {
            0% { opacity: 0.8; }
            50% { opacity: 1; }
            100% { opacity: 0.8; }
-           }
-           @keyframes gradientMove {
-           0% { background-position: 0% 50%; }
-           100% { background-position: 200% 50%; }
            }
          </style>
          <div class="spinner" style="
@@ -172,6 +150,10 @@ $(document).ready(function() {
     `);
     $("body").append(loadingOverlay);
 
+    const platforms = $("input[name='platform']:checked").map(function() {
+      return $(this).val();
+    }).get();
+
     let pending = platforms.length;
     function checkOverlay() {
       pending--;
@@ -181,7 +163,7 @@ $(document).ready(function() {
     }
 
     if (platforms.includes("facebook")) {
-      fetch("http://192.168.86.25:5500/analyze", { // http://localhost:5500/analyze
+      fetch("http://localhost:1989/analyze", { // Changed from 5500 to 1989
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -191,7 +173,7 @@ $(document).ready(function() {
         $("#analysisOutput").text("Facebook Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("http://192.168.86.25:5500/post-facebook", { // http://localhost:5500/post-facebook
+          fetch("http://localhost:1989/post-facebook", { // Changed from 5500 to 1989
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -221,7 +203,7 @@ $(document).ready(function() {
     }
 
     if (platforms.includes("ebay")) {
-      fetch("http://192.168.86.25:5500/analyze-ebay", { // http://localhost:5500/analyze-ebay
+      fetch("http://localhost:1989/analyze-ebay", { // Changed from 5500 to 1989
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -231,7 +213,7 @@ $(document).ready(function() {
         $("#analysisOutput").append("\neBay Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("http://192.168.86.25:5500/post-ebay", { // http://localhost:5500/post-ebay
+          fetch("http://localhost:1989/post-ebay", { // Changed from 5500 to 1989
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -262,7 +244,7 @@ $(document).ready(function() {
   });
 
   $("#connectFB").click(function() {
-    fetch("http://192.168.86.25:5500/run-fb-login") // http://localhost:5500/run-fb-login
+    fetch("http://localhost:1989/run-fb-login") // Changed from 5500 to 1989
       .then(response => response.text())
       .then(data => {
         console.log("fb_login.spec.js output:", data);
@@ -275,7 +257,7 @@ $(document).ready(function() {
   });
 
   $("#connectEB").click(function() {
-    fetch("http://192.168.86.25:5500/run-ebay-login") // http://localhost:5500/run-ebay-login
+    fetch("http://localhost:1989/run-ebay-login") // Changed from 5500 to 1989
       .then(response => response.text())
       .then(data => {
         console.log("ebay_login.spec.js output:", data);

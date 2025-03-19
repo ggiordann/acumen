@@ -32,9 +32,9 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// Main Express app (port 5500)
+// Main Express app (port 1989)
 const app = express();
-const port = 5500;
+const port = 1989; // Changed from 5500 to 1989
 
 // Firebase auth middleware
 async function verifyToken(req, res, next) {
@@ -303,6 +303,7 @@ app.post("/save-user", verifyToken, async (req, res) => {
                 email,
                 name: name || "Unknown", // If Google OAuth doesn't return a name
                 createdAt: new Date()
+                // we need to add the stripe subscription things here?
             });
             return res.json({ message: "New user created", email, uid });
         }
@@ -317,62 +318,6 @@ app.post("/save-user", verifyToken, async (req, res) => {
 });
 
 app.get("/get-api-key", async(req, res) => {
-    console.log("Firebase config sent");
-    try {
-        const firebaseConfigString = process.env.FIREBASE_API.replace(/'/g, '"');
-        const firebaseConfig = JSON.parse(firebaseConfigString);
-        res.json({ firebaseConfig: firebaseConfig });
-    } catch (error) {
-        console.error("Error with Firebase config:", error);
-        res.status(500).send("Error with Firebase configuration");
-    }
-});
-
-// Start the server
-app.listen(port, '0.0.0.0', () => { // comment out if not over network
-  console.log(`Main server listening on port ${port}`);
-});
-
-// Create a secondary app for the membership endpoints
-const membershipApp = express();
-membershipApp.use(cors());
-membershipApp.use(express.json());
-
-// Apply the same routes to the membership app
-membershipApp.post("/save-user", verifyToken, async (req, res) => {
-    // Same implementation as above
-    const { uid, email, name } = req.user;
-
-    if (!uid) {
-        return res.status(400).json({ error: "Invalid request: UID is missing" });
-    }
-
-    try {
-        console.log("Db thing trying");
-        const userDocRef = db.collection('users').doc(uid);
-        const userDoc = await userDocRef.get();
-
-        console.log("Db thing done");
-
-        if (!userDoc.exists) {
-            console.log("New user detected, saving to Firestore...");
-            await userDocRef.set({
-                email,
-                name: name || "Unknown",
-                createdAt: new Date()
-            });
-            return res.json({ message: "New user created", email, uid });
-        }
-
-        console.log("Existing user Logged in");
-        return res.json({ message: "Existing user", email, uid });
-    } catch (error) {
-        console.log("Error: " + error.message);
-        res.status(500).send(error.message);
-    }
-});
-
-membershipApp.get("/get-api-key", async(req, res) => {
     console.log("Firebase config sent");
     try {
         const firebaseConfigString = process.env.FIREBASE_API.replace(/'/g, '"');
@@ -478,7 +423,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
   res.send();
 });
 
-// Start the membership server on the original port
-membershipApp.listen(1989, () => {
-    console.log("Membership server running on port 1989");
+// Start the server on port 1989
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server listening on port ${port}`);
 });
