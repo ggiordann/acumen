@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Successful - Acumen</title>
+    <link rel="stylesheet" href="subscription.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- Navbar with matched styling -->
+    <div class="navbar">
+        <div class="mobile-menu-toggle" id="mobile-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        
+        <a href="../app/index.html" class="navbar-brand">acumen</a>
+        <div class="navbar-links">
+            <div class="nav-item">
+                <a href="../app/index.html" style="color: inherit; text-decoration: none;">
+                    <span>Home</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="../membership_pages/subscription.html" style="color: inherit; text-decoration: none;">
+                    <span>Pricing</span>
+                </a>
+            </div>
+        </div>
+        <!-- Removed Go to Dashboard button as requested -->
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-close" id="mobile-close">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="mobile-menu-header">acumen</div>
+        
+        <div class="mobile-section">
+            <div class="mobile-section-title">Navigation</div>
+            <a href="../app/index.html" class="mobile-nav-item">
+                <div class="icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <span>Home</span>
+            </a>
+            <a href="../membership_pages/subscription.html" class="mobile-nav-item">
+                <div class="icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <span>Pricing</span>
+            </a>
+        </div>
+        
+        <div class="mobile-section">
+            <a href="../app/index.html" class="auth-btn signup-btn" style="display: block; text-align: center;">
+                Go to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    
+    <div class="success-page-container">
+        <div class="success-container">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Subscription Successful!</h1>
+            <p>Thank you for subscribing to Acumen. Your account has been upgraded.</p>
+            <p>You will receive a confirmation email shortly with details of your subscription.</p>
+            <div class="success-actions">
+                <a href="../app/index.html" class="btn-primary">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Mobile menu toggle
+        $(document).ready(function() {
+            $("#mobile-menu-toggle").click(function() {
+                $("#mobile-menu").addClass("active");
+                $("#mobile-overlay").addClass("active");
+                $("body").css("overflow", "hidden"); // Prevent scrolling
+            });
+            
+            // Close mobile menu
+            $("#mobile-close, #mobile-overlay").click(function() {
+                $("#mobile-menu").removeClass("active");
+                $("#mobile-overlay").removeClass("active");
+                $("body").css("overflow", ""); // Allow scrolling again
+            });
+        });
+        
+        // Verify the session was successful with Stripe
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            
+            if (sessionId) {
+                console.log("Payment completed with session ID:", sessionId);
+                
+                // Optional: You can make an API call to your server to verify the session
+                // and update any UI elements based on the subscription status
+                
+                // Add enhanced confetti animation
+                createConfetti();
+            }
+        });
+        
+        // Enhanced confetti animation
+        function createConfetti() {
+            const confettiCount = 150;
+            const container = document.querySelector('.success-page-container');
+            const shapes = ['circle', 'triangle', 'square', 'rect', 'diamond'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                
+                // Randomly select shape class
+                const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                confetti.className = `confetti confetti-${shape}`;
+                
+                // Randomize position, size and animation
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.width = Math.random() * 15 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                confetti.style.animationDelay = Math.random() * 5 + 's';
+                confetti.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                confetti.style.background = getRandomColor();
+                confetti.style.opacity = Math.random() * 0.5 + 0.5;
+                container.appendChild(confetti);
+            }
+        }
+        
+        function getRandomColor() {
+            // Expanded color palette with Acumen theme colors
+            const colors = [
+                '#00ff9d', '#00e58d', '#00cc7d', // Accent green variations
+                '#ffffff', '#f0f0f0', // White variations
+                '#1a1a1a', '#222222', // Dark variations
+                '#00c6ff', '#1877f2', // Blue variations
+                '#ffcc00', '#ffd700' // Gold variations
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+    </script>
+</body>
+</html>

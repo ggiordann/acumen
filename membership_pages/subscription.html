@@ -400,7 +400,44 @@
             });
         });
     </script>
-
-    <script src="subscription.js"></script>
+          
+        <!-- Add Firebase SDK -->
+        <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+        
+        <!-- Initialize Firebase -->
+        <script>
+            // Fetch Firebase configuration and initialize
+            async function initFirebase() {
+                try {
+                    const response = await fetch('http://localhost:1989/get-api-key');
+                    const data = await response.json();
+                    const firebaseConfig = data.firebaseConfig;
+                    
+                    // Initialize Firebase
+                    firebase.initializeApp(firebaseConfig);
+                    console.log('Firebase initialized successfully');
+                    
+                    // Check if user is already logged in
+                    firebase.auth().onAuthStateChanged(function(user) {
+                        if (user) {
+                            console.log("User is signed in:", user.displayName);
+                            // Make sure their token is fresh
+                            user.getIdToken(true).then(function(idToken) {
+                                console.log("Fresh token obtained");
+                            });
+                        } else {
+                            console.log("No user is signed in");
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing Firebase:', error);
+                }
+            }
+            
+            // Initialize Firebase when the page loads
+            initFirebase();
+        </script>
+        <script src="subscription.js"></script>
 </body>
 </html>

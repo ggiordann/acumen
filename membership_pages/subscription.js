@@ -92,44 +92,63 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Subscription plan buttons - Stripe redirects
     const planButtons = document.querySelectorAll('.plan-button');
-    
-    // Stripe product IDs - Replace these with your actual Stripe product IDs
-    const stripeProducts = {
-        free: null, // No payment for free tier
-        plus: 'price_1234567890abcdef', // Example ID for Plus tier
-        pro: 'price_2345678901abcdef',  // Example ID for Pro tier
-        premium: 'price_3456789012abcdef' // Example ID for Premium tier
-    };
-    
-    // Stripe checkout URLs
-    const stripeBaseUrl = 'https://checkout.stripe.com/pay/';
-    
+
     planButtons.forEach(button => {
         const plan = button.getAttribute('data-plan');
         
         // Only add click handlers to paid plans
         if (plan !== 'free') {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', async () => {
                 // Add button animation
                 button.classList.add('clicked');
                 
-                // Reset animation after a short delay
-                setTimeout(() => {
+                // Check if Firebase is initialized
+                if (typeof firebase === 'undefined') {
+                    console.error('Firebase is not initialized yet');
+                    alert('Authentication service is not ready yet. Please try again in a moment.');
                     button.classList.remove('clicked');
-                }, 300);
+                    return;
+                }
                 
-                // Redirect to Stripe after animation (if not free plan)
-                if (stripeProducts[plan]) {
-                    setTimeout(() => {
-                        // This is where you would redirect to your backend endpoint that creates a Stripe checkout session
-                        console.log(`Redirecting to Stripe checkout for ${plan} plan...`);
-                        
-                        // Example of how you would redirect to your backend
-                        // window.location.href = `/create-checkout-session?plan=${plan}`;
-                        
-                        // Just for demonstration - this would be replaced with your actual Stripe integration
-                        alert(`In production, this would redirect to Stripe checkout for the ${plan.toUpperCase()} plan.`);
-                    }, 350);
+                try {
+                    // Get current user if logged in
+                    const currentUser = firebase.auth().currentUser;
+                    if (!currentUser) {
+                        // Redirect to login if no user is signed in
+                        window.location.href = '../membership_pages/subs.html?redirect=subscription';
+                        return;
+                    }
+                    
+                    // Show loading state
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    
+                    // Create checkout session
+                    const response = await fetch('http://localhost:5500/create-checkout-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            plan: plan,
+                            userId: currentUser.uid
+                        }),
+                    });
+                    
+                    const session = await response.json();
+                    
+                    if (session.error) {
+                        throw new Error(session.error);
+                    }
+                    
+                    // Redirect to Stripe checkout
+                    window.location.href = session.url;
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    button.innerHTML = 'Try Again';
+                    button.disabled = false;
+                    alert('There was an error processing your request. Please try again.');
                 }
             });
         }

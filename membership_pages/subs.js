@@ -1,6 +1,10 @@
 $(document).ready(async function() {
     var auth, provider, firebaseConfig, apiKey;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get('redirect');
+    console.log("Redirect parameter:", redirect);
+    
     console.log("before fetch");
     try {
         const response = await fetch("http://localhost:1989/get-api-key");
@@ -33,11 +37,24 @@ $(document).ready(async function() {
                             url: "http://localhost:1989/save-user",
                             type: "POST",
                             headers: { Authorization: `Bearer ${idToken}` },
-                            success: () => console.log("User saved"),
+                            success: () => {
+                                console.log("User saved");
+                                
+                                // Display welcome message
+                                $("#email").text(`Welcome ${user.displayName}`);
+                                
+                                // If there was a redirect parameter, go back to that page
+                                if (redirect === 'subscription') {
+                                    console.log("Redirecting back to subscription page");
+                                    setTimeout(() => {
+                                        window.location.href = '../membership_pages/subscription.html';
+                                    }, 1000); // Short delay to show welcome message
+                                }
+                            },
                             error: (xhr) => console.error("Error saving user", xhr)
                         });
 
-                        $("#email").text(`Welcome ${user.displayName}`);
+                        // schlawg we need to use allat somewhere else $("#email").text(`Welcome ${user.displayName}`);
                     }) 
                     .catch(error =>{
                         console.error("Authentication error:", error);

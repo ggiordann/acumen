@@ -12,11 +12,16 @@ import admin from "firebase-admin";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { Buffer } from "buffer";
+import Stripe from 'stripe';
+
+// IF ERROR REMOVE IMAGES UPLOAD
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Load environment variables
 dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Initialize Firebase
 const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SECRETKEY_BASE64, "base64").toString("utf-8"));
@@ -56,7 +61,10 @@ app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
 app.use(cors());
 app.use(express.json());
 
+// Around line 83 in server.js
 app.use(express.static(path.join(process.cwd(), 'app'))); // comment out if not over network
+app.use(express.static(path.join(process.cwd()))); // Serve files from project root
+
 
 // File upload configuration
 const uploadDir = path.join(process.cwd(), 'uploads');
@@ -374,6 +382,100 @@ membershipApp.get("/get-api-key", async(req, res) => {
         console.error("Error with Firebase config:", error);
         res.status(500).send("Error with Firebase configuration");
     }
+});
+
+// =============== STRIPE ENDPOINTS ===============
+
+// Create checkout session endpoint
+app.post('/create-checkout-session', async (req, res) => {
+  const { plan } = req.body;
+  
+  // Map plan names to price IDs
+  const priceIds = {
+    plus: 'price_1R4Az1IMPfgQ2CBGgRnSEebU',
+    pro: 'price_1R4AzuIMPfgQ2CBGakghtEhV',
+    premium: 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ'
+  };
+  
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceIds[plan],
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: `${process.env.DOMAIN}/membership_pages/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.DOMAIN}/membership_pages/subscription.html`,
+      client_reference_id: req.body.userId, // Add user ID for webhook
+      metadata: {
+        plan: plan
+      }
+    });
+
+    res.json({ id: session.id, url: session.url });
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Stripe webhook endpoint to handle subscription events
+app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  switch (event.type) {
+    case 'checkout.session.completed':
+      const session = event.data.object;
+      // Here you'd update your database with the user's subscription status
+      // If you used client_reference_id to pass a user ID, you can retrieve it here
+      const userId = session.client_reference_id;
+      const plan = session.metadata.plan;
+      
+      // Update user in Firebase with subscription data
+      if (userId) {
+        const userDocRef = db.collection('users').doc(userId);
+        await userDocRef.update({
+          subscription: {
+            plan: plan,
+            active: true,
+            stripeCustomerId: session.customer,
+            subscriptionId: session.subscription,
+            updatedAt: new Date()
+          }
+        });
+      }
+      break;
+      
+    case 'customer.subscription.updated':
+      // Handle subscription updates
+      const subscription = event.data.object;
+      // Update subscription status in your database
+      break;
+      
+    case 'customer.subscription.deleted':
+      // Handle when a subscription is canceled
+      const canceledSubscription = event.data.object;
+      // Update the user's subscription status in your database
+      break;
+  }
+
+  // Return a 200 response to acknowledge receipt of the event
+  res.send();
 });
 
 // Start the membership server on the original port
