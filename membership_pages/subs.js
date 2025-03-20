@@ -1,5 +1,5 @@
 $(document).ready(async function() {
-    var auth, provider, firebaseConfig, apiKey;
+    var auth, provider, firebaseConfig, user;
 
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get('redirect');
@@ -29,7 +29,7 @@ $(document).ready(async function() {
             .then(() => {
                 return auth.signInWithPopup(provider)
                     .then(async (result) => {
-                        const user = result.user;
+                        user = result.user;
                         const idToken = await user.getIdToken();
 
                         //Save user data to firestore

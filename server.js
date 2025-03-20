@@ -282,7 +282,7 @@ app.get('/run-ebay-login', (req, res) => {
 // ============== ENDPOINTS FROM SUBSERVER.JS ==============
 
 app.post("/save-user", verifyToken, async (req, res) => {
-    const { uid, email, name } = req.user;
+    ({ uid, email, name } = req.user);
 
     if (!uid) {
         return res.status(400).json({ error: "Invalid request: UID is missing" });
@@ -297,13 +297,14 @@ app.post("/save-user", verifyToken, async (req, res) => {
 
         if (!userDoc.exists) {
             console.log("New user detected, saving to Firestore...");
-            
+             
             // Save new user to Firestore
             await userDocRef.set({
                 email,
                 name: name || "Unknown", // If Google OAuth doesn't return a name
-                createdAt: new Date()
-                // we need to add the stripe subscription things here?
+                createdAt: new Date(),
+                stripeId: null,
+                plan: {},
             });
             return res.json({ message: "New user created", email, uid });
         }
@@ -329,12 +330,30 @@ app.get("/get-api-key", async(req, res) => {
     }
 });
 
+app.get("get-user-id", async (req, res) => {
+    res.json({ userId: uid });
+})
+
 // =============== STRIPE ENDPOINTS ===============
 
 // Create checkout session endpoint
 app.post('/create-checkout-session', async (req, res) => {
-  const { plan } = req.body;
+  const { plan, uid } = req.body;
+
+  console.log(uid);
+
+  //get user from firestore
+  const userRef = db.collection('users').doc(uid);
+  const userDoc = await userRef.get();
   
+  //just in case user doesn't exist
+  if (!userDoc.exists) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  const userData = userDoc.data();
+  const { email, name } = userData;
+
   // Map plan names to price IDs
   const priceIds = {
     plus: 'price_1R4Az1IMPfgQ2CBGgRnSEebU',
@@ -342,6 +361,8 @@ app.post('/create-checkout-session', async (req, res) => {
     premium: 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ'
   };
   
+  console.log(process.env.STRIPE_SECRET_KEY);
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -351,12 +372,15 @@ app.post('/create-checkout-session', async (req, res) => {
           quantity: 1,
         },
       ],
+      customer_email: email,
       mode: 'subscription',
       success_url: `${process.env.DOMAIN}/membership_pages/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.DOMAIN}/membership_pages/subscription.html`,
       client_reference_id: req.body.userId, // Add user ID for webhook
       metadata: {
-        plan: plan
+        plan: plan,
+        userId: uid,
+        name: name,
       }
     });
 

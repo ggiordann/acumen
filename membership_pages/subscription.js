@@ -1,9 +1,40 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Mobile menu toggle
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
     const mobileOverlay = document.getElementById('mobile-overlay');
     const mobileClose = document.getElementById('mobile-close');
+
+    //function to initialise firebase
+    async function initFirebase() {
+        try {
+            const response = await fetch('http://localhost:1989/get-api-key');
+            const data = await response.json();
+            const firebaseConfig = data.firebaseConfig;
+            
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            console.log('Firebase initialized successfully');
+            
+            // Check if user is already logged in
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    console.log("User is signed in:", user.displayName);
+                    // Make sure their token is fresh
+                    user.getIdToken(true).then(function(idToken) {
+                        console.log("Fresh token obtained");
+                    });
+                } else {
+                    console.log("No user is signed in");
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing Firebase:', error);
+        }
+    }
+    
+    // Initialize Firebase when the page loads
+    initFirebase();
     
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', function() {
@@ -131,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         body: JSON.stringify({
                             plan: plan,
-                            userId: currentUser.uid
+                            uid: currentUser.uid
                         }),
                     });
                     
