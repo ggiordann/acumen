@@ -352,8 +352,8 @@ app.post('/create-checkout-session', async (req, res) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.DOMAIN}/membership_pages/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.DOMAIN}/membership_pages/subscription.html`,
+      success_url: `http://localhost:5501/acumen-1/membership_pages/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:5501/acumen-1/membership_pages/subscription.html`,
       client_reference_id: req.body.userId, // Add user ID for webhook
       metadata: {
         plan: plan
