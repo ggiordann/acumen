@@ -44,6 +44,209 @@ body::-webkit-scrollbar-thumb {
     border-radius: 20px;
 }
 
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background-color: rgba(17, 17, 17, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Remove max-width constraint to make navbar full-width */
+    width: 100%;
+}
+
+.navbar-brand {
+    font-size: clamp(2.2rem, 3.5vw, 2.6rem);
+    font-weight: 700;
+    color: var(--accent-green);
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    letter-spacing: -0.05em;
+}
+
+.navbar-brand:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+.navbar-links {
+    display: flex;
+    margin-left: 2rem;
+}
+
+.nav-item {
+    position: relative;
+    margin-right: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    color: var(--text-light);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.nav-item a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-item:hover a, .nav-item a:hover {
+    color: var(--accent-green);
+}
+
+/* Auth Button Styles */
+.auth-container {
+    display: flex;
+    gap: 1rem;
+}
+
+.auth-btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.login-btn {
+    background-color: transparent;
+    color: var(--text-light);
+    border: 1px solid var(--text-light);
+}
+
+.login-btn:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+}
+
+.signup-btn {
+    background-color: var(--accent-green);
+    color: var(--bg-dark);
+}
+
+.signup-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-accent);
+}
+
+/* Mobile Menu Styles */
+.mobile-menu-toggle {
+    display: none;
+    color: var(--text-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.mobile-menu-toggle:hover {
+    color: var(--accent-green);
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    max-width: 350px;
+    height: 100%;
+    background-color: var(--card-bg-dark);
+    z-index: 1001;
+    padding: 2rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    transition: left 0.3s ease-in-out;
+}
+
+.mobile-menu.active {
+    left: 0;
+}
+
+.mobile-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    color: var(--text-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.mobile-close:hover {
+    color: var(--accent-green);
+}
+
+.mobile-menu-header {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: var(--accent-green);
+}
+
+.mobile-section {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 1.5rem;
+}
+
+.mobile-section:last-child {
+    border-bottom: none;
+}
+
+.mobile-section-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.mobile-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.mobile-nav-item:hover {
+    color: var(--accent-green);
+}
+
+.mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
 /* Container for 3D model */
 #container {
     position: fixed;
@@ -179,9 +382,46 @@ body::-webkit-scrollbar-thumb {
 }
 
 .content-container {
-    max-width: 1400px;
+    /* Remove max-width constraint to make content full-width */
+    width: 100%;
     margin: 0 auto;
     padding-top: 100vh; /* Whitespace for the initial transition */
+    box-sizing: border-box;
+}
+
+/* Adjust section containers for full width */
+.hero-section, 
+.features-section, 
+.how-it-works-section, 
+.testimonials-section,
+.pricing-section,
+.faq-section,
+.cta-section,
+.main-footer {
+    padding-left: 5%;
+    padding-right: 5%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Center content for better readability on very wide screens */
+.hero-content,
+.section-subtitle,
+.steps-container,
+.features-grid,
+.testimonials-container,
+.pricing-container,
+.faq-container {
+    max-width: 1800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Adjust the CTA section to be full-width */
+.cta-section {
+    max-width: 100%;
+    border-radius: 0;
+    margin: 4rem 0;
 }
 
 /* Typography & General Styles */
@@ -871,8 +1111,9 @@ p {
     overflow: hidden;
     background: linear-gradient(135deg, rgba(0, 255, 157, 0.05), rgba(0, 0, 0, 0));
     border-radius: var(--border-radius);
-    margin: 4rem auto;
-    max-width: 1200px;
+    margin: 4rem 0;
+    max-width: 100%;
+    border-radius: 0;
 }
 
 .cta-content {
@@ -1131,6 +1372,14 @@ p {
     .pricing-card.popular:hover {
         transform: translateY(-10px);
     }
+
+    .navbar-links, .auth-container {
+        display: none;
+    }
+    
+    .mobile-menu-toggle {
+        display: block;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1148,5 +1397,22 @@ p {
     
     .hero-cta, .hero-stats {
         max-width: 100%;
+    }
+}
+
+@media (min-width: 2000px) {
+    /* For ultra-wide screens, add extra padding */
+    .hero-section, 
+    .features-section, 
+    .how-it-works-section, 
+    .testimonials-section,
+    .pricing-section,
+    .faq-section {
+        padding-left: 10%;
+        padding-right: 10%;
+    }
+
+    body {
+        font-size: 18px;
     }
 }

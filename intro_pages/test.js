@@ -258,9 +258,20 @@ function prepareContentTransition() {
     contentPage.style.visibility = 'visible';
     contentPage.style.opacity = '1';
     
+    // Set the background to black during transition
+    document.body.style.backgroundColor = '#000000';
+    contentPage.style.backgroundColor = '#000000';
+    
     // Hide the info element
     if (infoElement) {
         infoElement.style.opacity = 0;
+    }
+    
+    // Make navbar visible during transition
+    const navbar = document.getElementById('main-navbar');
+    if (navbar) {
+        navbar.style.opacity = '1';
+        navbar.style.transform = 'translateY(0)';
     }
     
     // Completely hide the 3D scene
@@ -371,6 +382,9 @@ window.addEventListener('resize', () => {
 
 // Initialize all content features
 function initContentFeatures() {
+    // Initialize mobile menu functionality
+    initMobileMenu();
+    
     // Initialize reveal animations for elements
     initRevealAnimations();
     
@@ -385,6 +399,40 @@ function initContentFeatures() {
     
     // Initialize pricing card interactivity
     initPricingCards();
+
+    handleTransitionScrollPast();
+}
+
+// Initialize mobile menu functionality
+function initMobileMenu() {
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const mobileClose = document.querySelector('.mobile-close');
+    const mobileOverlay = document.querySelector('.mobile-overlay');
+    
+    if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('active');
+            mobileOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        if (mobileClose) {
+            mobileClose.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+    }
 }
 
 // Initialize reveal animations for elements as they scroll into view
@@ -569,9 +617,108 @@ function initPricingCards() {
     });
 }
 
+// Function to remove the transition space and prevent scrolling back up
+function handleTransitionScrollPast() {
+    // Create a dedicated transition space element
+    const transitionSpace = document.createElement('div');
+    transitionSpace.style.height = '100vh';
+    transitionSpace.style.width = '100%';
+    transitionSpace.style.backgroundColor = '#000000';
+    transitionSpace.style.position = 'relative';
+    transitionSpace.style.zIndex = '5';
+    transitionSpace.id = 'transition-space';
+    
+    // Get the first element in the content container to insert before it
+    const contentContainer = document.querySelector('.content-container');
+    const firstContentElement = contentContainer.firstElementChild;
+    
+    // Insert the transition space at the beginning of the content
+    contentContainer.insertBefore(transitionSpace, firstContentElement);
+    
+    // Remove any padding that was previously set
+    contentContainer.style.paddingTop = '0';
+    
+    // Set proper styles for scrolling
+    contentPage.style.position = 'absolute';
+    contentPage.style.top = '0';
+    contentPage.style.left = '0';
+    contentPage.style.height = 'auto';
+    contentPage.style.overflowY = 'visible';
+    document.body.style.height = 'auto';
+    
+    // Add a small indicator arrow to show users they should scroll
+    const scrollIndicator = document.createElement('div');
+    scrollIndicator.innerHTML = `
+        <div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
+                    animation: bounce 2s infinite; color: white; text-align: center;">
+            <div style="font-size: 14px; margin-bottom: 10px;">Scroll Down</div>
+            <i class="fas fa-chevron-down" style="font-size: 24px;"></i>
+        </div>
+    `;
+    transitionSpace.appendChild(scrollIndicator);
+    
+    // Add the bounce animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+            40% { transform: translateY(-20px) translateX(-50%); }
+            60% { transform: translateY(-10px) translateX(-50%); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Flag to track if transition has been removed
+    let transitionRemoved = false;
+    
+    // Function to check scroll position and handle transition
+    function scrollCheck() {
+        if (transitionRemoved) return;
+        
+        const scrollPosition = window.scrollY || window.pageYOffset;
+        const viewportHeight = window.innerHeight;
+        
+        // If scrolled more than 85% of the viewport height, remove the transition space
+        if (scrollPosition > viewportHeight * 0.85) {
+            console.log("Removing transition space at position:", scrollPosition);
+            
+            // Temporarily disable scroll events
+            window.removeEventListener('scroll', scrollCheck);
+            
+            // Store current scroll position
+            const currentScroll = scrollPosition;
+            
+            // Remove transition space from DOM
+            if (transitionSpace && transitionSpace.parentElement) {
+                transitionSpace.parentElement.removeChild(transitionSpace);
+            }
+            
+            // Adjust scroll position to account for removed space
+            window.scrollTo(0, currentScroll - viewportHeight);
+            
+            // Prevent further execution
+            transitionRemoved = true;
+            
+            // Re-enable scrolling
+            setTimeout(() => {
+                window.addEventListener('scroll', handleScrollAnimations, { passive: true });
+            }, 100);
+        }
+    }
+    
+    // Add scroll event listener
+    window.addEventListener('scroll', scrollCheck, { passive: true });
+    
+    // Initial check in case page is already scrolled
+    scrollCheck();
+}
+
 // Check if we should immediately initialize content features
 // (in case someone refreshes the page when already in content mode)
 document.addEventListener('DOMContentLoaded', () => {
+    // Set initial body background to black
+    document.body.style.backgroundColor = '#000000';
+    
     if (scrollingPastAnimation || 
         (window.location.hash && window.location.hash.length > 1)) {
         initContentFeatures();
