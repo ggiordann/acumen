@@ -36,6 +36,9 @@ const db = admin.firestore();
 const app = express();
 const port = 1989; // Changed from 5500 to 1989
 
+//initialise globals
+var uid, email, fullName = null;
+
 // Firebase auth middleware
 async function verifyToken(req, res, next) {
     const idToken = req.headers.authorization?.split("Bearer ")[1];
@@ -282,7 +285,7 @@ app.get('/run-ebay-login', (req, res) => {
 // ============== ENDPOINTS FROM SUBSERVER.JS ==============
 
 app.post("/save-user", verifyToken, async (req, res) => {
-    ({ uid, email, name } = req.user);
+    ({ uid, email, fullName } = req.user);
 
     if (!uid) {
         return res.status(400).json({ error: "Invalid request: UID is missing" });
@@ -301,7 +304,7 @@ app.post("/save-user", verifyToken, async (req, res) => {
             // Save new user to Firestore
             await userDocRef.set({
                 email,
-                name: name || "Unknown", // If Google OAuth doesn't return a name
+                name: fullName || "Unknown", // If Google OAuth doesn't return a name
                 createdAt: new Date(),
                 stripeId: null,
                 plan: {},
