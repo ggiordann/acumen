@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acumen - AI-Powered Marketplace Listing Tool</title>
+    <link rel="stylesheet" href="test.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        // Force scroll restoration to manual to prevent browser from restoring previous position
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+    </script>
+</head>
+<body>
+    <div id="loading-screen">
+        <h1>acumen</h1>
+        <div id="loading-bar-container">
+            <div id="loading-bar"></div>
+        </div>
+    </div>
+    
+    <div id="container"></div>
+    
+    <!-- Content page that appears after animation -->
+    <div id="content-page">
+        <div class="content-container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-content reveal-element">
+                    <h1 class="hero-title">Revolutionize Your <span class="accent">Online Selling</span></h1>
+                    <p class="hero-subtitle">AI-powered platform that transforms product photos into professional marketplace listings in seconds</p>
+                    <div class="hero-cta">
+                        <a href="#pricing" class="btn-primary">Get Started</a>
+                        <a href="#features" class="btn-secondary">Explore Features</a>
+                    </div>
+                </div>
+                <div class="hero-stats reveal-element">
+                    <div class="stat-card">
+                        <span class="stat-number" data-count="95">0</span>%
+                        <p>Time saved on listing creation</p>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" data-count="3">0</span>+
+                        <p>Marketplace integrations</p>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" data-count="10000">0</span>+
+                        <p>Active users</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section id="features" class="features-section">
+                <h2 class="section-title reveal-element">Powerful <span class="accent">AI Features</span></h2>
+                <p class="section-subtitle reveal-element">Everything you need to optimize your online sales process</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card reveal-element">
+                        <div class="feature-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3>Automated Listing Creation</h3>
+                        <p>Upload up to 10 photos and let our AI analyze visual details to craft compelling product descriptions.</p>
+                    </div>
+                    <div class="feature-card reveal-element" data-delay="200">
+                        <div class="feature-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <h3>Multi-Platform Posting</h3>
+                        <p>Post directly to eBay, Facebook Marketplace, and more from a single, unified dashboard.</p>
+                    </div>
+                    <div class="feature-card reveal-element" data-delay="400">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Financial Management</h3>
+                        <p>Track your funds and manage transactions across all your marketplace accounts.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How It Works Section -->
+            <section class="how-it-works-section">
+                <h2 class="section-title reveal-element">How <span class="accent">Acumen</span> Works</h2>
+                <p class="section-subtitle reveal-element">Three simple steps to transform your selling experience</p>
+                
+                <div class="steps-container">
+                    <div class="step-card reveal-element">
+                        <div class="step-number">1</div>
+                        <h3>Upload Photos</h3>
+                        <p>Take up to 10 photos of your product from different angles</p>
+                        <div class="step-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step-card reveal-element" data-delay="200">
+                        <div class="step-number">2</div>
+                        <h3>AI Analysis</h3>
+                        <p>Our advanced AI analyses your photos and generates professional listings</p>
+                        <div class="step-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step-card reveal-element" data-delay="400">
+                        <div class="step-number">3</div>
+                        <h3>Multi-Platform Post</h3>
+                        <p>Your listings are automatically published to multiple marketplaces</p>
+                        <div class="step-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section class="testimonials-section">
+                <h2 class="section-title reveal-element">What Our <span class="accent">Users Say</span></h2>
+                <p class="section-subtitle reveal-element">Real results from real sellers</p>
+                
+                <div class="testimonials-container">
+                    <div class="testimonial-card reveal-element">
+                        <div class="testimonial-content">
+                            <p>"Acumen has completely transformed my reselling business. The AI-generated listings are professional and detailed, saving me hours of work every day. I've made over $10,000 in profit since switching to Acumen."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Ricky Ye">
+                            </div>
+                            <div class="author-info">
+                                <h4>Ricky Ye</h4>
+                                <p>Professional Reseller</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card reveal-element" data-delay="200">
+                        <div class="testimonial-content">
+                            <p>"The multi-platform integration is a game-changer. I can manage listings across eBay, Facebook, and other marketplaces all from one dashboard. Acumen has simplified my workflow and increased my sales by 45%."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson">
+                            </div>
+                            <div class="author-info">
+                                <h4>Sarah Johnson</h4>
+                                <p>Small Business Owner</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card reveal-element" data-delay="400">
+                        <div class="testimonial-content">
+                            <p>"As someone who struggled with writing compelling product descriptions, Acumen has been a lifesaver. The AI understands what makes products sell and creates descriptions that actually convert to sales."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Marcus Chen">
+                            </div>
+                            <div class="author-info">
+                                <h4>Marcus Chen</h4>
+                                <p>Vintage Collector & Seller</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing Section -->
+            <section id="pricing" class="pricing-section">
+                <h2 class="section-title reveal-element">Choose Your <span class="accent">Plan</span></h2>
+                <p class="section-subtitle reveal-element">Select the perfect plan to streamline your marketplace listings</p>
+                
+                <div class="pricing-container">
+                    <!-- Free Tier -->
+                    <div class="pricing-card free">
+                        <div class="card-header">
+                            <h3>Free</h3>
+                            <div class="price">
+                                <span class="currency">$</span>
+                                <span class="amount">0</span>
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="feature feature-highlight">
+                                <i class="fas fa-check-circle"></i>
+                                <span>5 Free Listings per month</span>
+                            </div>
+                            <div class="features-list">
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>AI Image Analysis</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Basic Marketplace Integration</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Standard Support</span>
+                                </div>
+                                <div class="feature disabled">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Advanced Analytics</span>
+                                </div>
+                                <div class="feature disabled">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Bulk Listing Options</span>
+                                </div>
+                            </div>
+                            <button class="plan-button" data-plan="free">
+                                <span>Get Started</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plus Tier -->
+                    <div class="pricing-card plus">
+                        <div class="card-header">
+                            <h3>Plus</h3>
+                            <div class="price">
+                                <span class="currency">$</span>
+                                <span class="amount">15</span>
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="feature feature-highlight">
+                                <i class="fas fa-check-circle"></i>
+                                <span>100 Free Listings per month</span>
+                            </div>
+                            <div class="features-list">
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>AI Image Analysis</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Full Marketplace Integration</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Priority Support</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Basic Analytics</span>
+                                </div>
+                                <div class="feature disabled">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Bulk Listing Options</span>
+                                </div>
+                            </div>
+                            <button class="plan-button" data-plan="plus">
+                                <span>Choose Plan</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Pro Tier -->
+                    <div class="pricing-card pro popular">
+                        <div class="popular-badge">MOST POPULAR</div>
+                        <div class="card-header">
+                            <h3>Pro</h3>
+                            <div class="price">
+                                <span class="currency">$</span>
+                                <span class="amount">30</span>
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="feature feature-highlight">
+                                <i class="fas fa-check-circle"></i>
+                                <span>500 Free Listings per month</span>
+                            </div>
+                            <div class="features-list">
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Enhanced AI Analysis</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Priority Marketplace Integration</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>24/7 Priority Support</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Advanced Analytics Dashboard</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Bulk Listing Options</span>
+                                </div>
+                            </div>
+                            <button class="plan-button" data-plan="pro">
+                                <span>Choose Plan</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Premium Tier -->
+                    <div class="pricing-card premium best-deal">
+                        <div class="best-deal-badge">BEST DEAL</div>
+                        <div class="card-header">
+                            <h3>Premium</h3>
+                            <div class="price">
+                                <span class="currency">$</span>
+                                <span class="amount">70</span>
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="feature feature-highlight">
+                                <i class="fas fa-check-circle"></i>
+                                <span>1500 Free Listings per month</span>
+                            </div>
+                            <div class="features-list">
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Premium AI Analysis</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Advanced Marketplace Integration</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>24/7 Dedicated Support</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Full Analytics Suite</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Advanced Bulk Operations</span>
+                                </div>
+                            </div>
+                            <button class="plan-button" data-plan="premium">
+                                <span>Choose Plan</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="faq-section">
+                <h2 class="section-title reveal-element">Frequently Asked <span class="accent">Questions</span></h2>
+                <div class="faq-container">
+                    <div class="faq-item reveal-element">
+                        <div class="faq-question">
+                            <h3>How accurate is the AI in describing my products?</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Our AI has been trained on millions of product listings and can identify thousands of items with 95%+ accuracy. For best results, we recommend uploading multiple clear photos from different angles.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item reveal-element">
+                        <div class="faq-question">
+                            <h3>Which marketplaces does Acumen support?</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Acumen currently supports eBay, Facebook Marketplace, and Grailed with more platforms being added regularly. Our roadmap includes Etsy, Poshmark, and Mercari in the next quarter.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item reveal-element">
+                        <div class="faq-question">
+                            <h3>Can I upgrade or downgrade my plan later?</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes, you can change your subscription plan at any time. Changes will be reflected at the start of your next billing cycle.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="cta-section">
+                <div class="cta-content reveal-element">
+                    <h2>Ready to <span class="accent">Transform</span> Your Online Selling?</h2>
+                    <p>Join thousands of sellers who are saving time and increasing profits with Acumen</p>
+                    <a href="#pricing" class="btn-primary pulse-animation">Get Started Today</a>
+                </div>
+                <div class="cta-pattern"></div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <div class="footer-top">
+                    <div class="footer-logo">
+                        <a href="#">acumen</a>
+                    </div>
+                    <div class="footer-nav">
+                        <div class="footer-nav-column">
+                            <h4>Product</h4>
+                            <ul>
+                                <li><a href="#features">Features</a></li>
+                                <li><a href="#pricing">Pricing</a></li>
+                                <li><a href="#">API</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-nav-column">
+                            <h4>Resources</h4>
+                            <ul>
+                                <li><a href="#">Blog</a></li>
+                                <li><a href="#">Documentation</a></li>
+                                <li><a href="#">Support</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-nav-column">
+                            <h4>Company</h4>
+                            <ul>
+                                <li><a href="#">About</a></li>
+                                <li><a href="#">Careers</a></li>
+                                <li><a href="#">Contact</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2023 Acumen. All rights reserved.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js",
+                "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/controls/OrbitControls.js",
+                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/loaders/GLTFLoader.js",
+                "three/examples/jsm/postprocessing/EffectComposer.js": "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/postprocessing/EffectComposer.js",
+                "three/examples/jsm/postprocessing/RenderPass.js": "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/postprocessing/RenderPass.js",
+                "three/examples/jsm/postprocessing/UnrealBloomPass.js": "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/postprocessing/UnrealBloomPass.js"
+            }
+        }
+    </script>
+    <script type="module" src="test.js"></script>
+</body>
+</html>
