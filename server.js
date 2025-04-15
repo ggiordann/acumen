@@ -307,7 +307,9 @@ app.post("/save-user", verifyToken, async (req, res) => {
                 name: fullName || "Unknown", // If Google OAuth doesn't return a name
                 createdAt: new Date(),
                 stripeId: null,
-                plan: {},
+                subscription: {
+                  subscriptionLevel:"free",
+                },
             });
             return res.json({ message: "New user created", email, uid });
         }
@@ -338,6 +340,8 @@ app.get("get-user-id", async (req, res) => {
 })
 
 // =============== STRIPE ENDPOINTS ===============
+
+app.post
 
 // Create checkout session endpoint
 app.post('/create-checkout-session', async (req, res) => {
@@ -394,6 +398,30 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
+//when customer clicks cancel subscription button. 
+//rn it instantly deletes for testing but later we can make it end at period end
+app.post('/cancel-subscription', async (req, res) => {
+  const { uid} = req.body; // 'uid' is the user's Firebase ID; cancelAtPeriodEnd is a boolean
+
+  try {
+    // Look up the user in Firestore (assumes you stored the Stripe customer and subscription info)
+    const userDoc = await firestore.collection('users').doc(uid).get();
+    if (!userDoc.exists) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+    
+    const userData = userDoc.data();
+    const subscriptionId = userData.subscription?.id;
+    if (!subscriptionId) {
+      return res.status(400).send({ error: 'No active subscription found' });
+    }
+
+  } catch (error) {
+    console.error('Error canceling subscription:', error);
+    return res.status(500).send({ error: 'Internal server error' });
+  }
+})   
+
 // Stripe webhook endpoint to handle subscription events
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -411,44 +439,68 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
 
   // Handle the event
   switch (event.type) {
-    case 'checkout.session.completed':
-      const session = event.data.object;
-      // Here you'd update your database with the user's subscription status
-      // If you used client_reference_id to pass a user ID, you can retrieve it here
-      const userId = session.client_reference_id;
-      const plan = session.metadata.plan;
-      
-      // Update user in Firebase with subscription data
-      if (userId) {
-        const userDocRef = db.collection('users').doc(userId);
-        await userDocRef.update({
-          subscription: {
-            plan: plan,
-            active: true,
-            stripeCustomerId: session.customer,
-            subscriptionId: session.subscription,
-            updatedAt: new Date()
-          }
-        });
-      }
+    //Adds subscription to users account after successful payment
+    case 'invoice.paid':
+      var invoice = event.data.object;
+      var subscriptionId = invoice.subscription;
+
+      updateCustomerSubscription(invoice.customer, subscriptionId, invoice);
       break;
-      
-    case 'customer.subscription.updated':
-      // Handle subscription updates
-      const subscription = event.data.object;
-      // Update subscription status in your database
-      break;
-      
     case 'customer.subscription.deleted':
-      // Handle when a subscription is canceled
-      const canceledSubscription = event.data.object;
-      // Update the user's subscription status in your database
+      const subscription = event.data.object;
+        updateSubscriptionStatus(subscription.id, 'something', 'cancelled');
+      break;
+    case 'invoice.payment_failed':
+      var invoice = event.data.object;
+      var subscriptionId = invoice.subscription;
+
+      updateCustomerSubscription(invoice.customer, subscriptionId, "cancelled");
       break;
   }
 
   // Return a 200 response to acknowledge receipt of the event
   res.send();
 });
+
+//multiple use function to update user subscription
+async function updateCustomerSubscription(userId, plan, invoice) {
+  try {
+    // Query Firestore for users with this stripeCustomerId.
+    const usersSnapshot = await firestore.collection('users')
+      .where('stripeCustomerId', '==', customerId)
+      .get();
+
+    if (usersSnapshot.empty) {
+      console.log(`No user found with stripeCustomerId: ${customerId}`);
+      return;
+    }
+
+    //if there is invoice, update/add subs, otherwise cancel plan
+    if (invoice!="cancelled") {
+      const subscriptionData = {
+        subscriptionLevel: plan,
+        periodStart: invoice.period_start,
+        periodEnd: invoice.period_end,
+        invoiceStatus: invoice.status,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }
+    } else {
+      const subscriptionData = {
+        subscriptionLevel: "free",
+      }
+    }
+
+    //update for every matching user
+    usersSnapshot.forEach(doc => {
+      doc.ref.set({
+        subscription: subscriptionData
+      }, { merge: true });
+      console.log(`Updated subscription for user ${doc.id}`);
+    })
+  } catch (error) {
+    console.error('Error updating user subscription:', error);
+  }
+}
 
 // Start the server on port 1989
 app.listen(port, '0.0.0.0', () => {
