@@ -30,7 +30,7 @@ async function postListingFacebookMarketplace(adData) {
     });
 
     await page.goto("https://www.facebook.com/");
-    await page.getByRole('link', { name: 'Marketplace' }).click();
+    await page.getByLabel('Shortcuts').getByRole('link', { name: 'Marketplace' }).click();
     await page.getByRole('link', { name: 'Create new listing' }).click();
     await page.getByRole('link', { name: 'Item for sale Create a single' }).click();
   
@@ -40,7 +40,7 @@ async function postListingFacebookMarketplace(adData) {
     await page.getByRole('textbox', { name: 'Price' }).click();
     await page.getByRole('textbox', { name: 'Price' }).fill(adData.Price ? String(adData.Price) : "");
   
-    await page.getByRole('button', { name: 'Category' }).click();
+    await page.getByRole('combobox', { name: 'Category' }).locator('i').click();
     await page.getByRole('button', { name: adData.Category || "", exact: true }).click();
   
     await page.getByRole('combobox', { name: 'Condition' }).locator('div').nth(2).click();

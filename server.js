@@ -235,9 +235,9 @@ app.post('/post-facebook', async (req, res) => {
     exec(`node fb_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing fb_post.spec.js: ${error}`);
-        return res.status(500).send(stderr);
+        return res.status(500).json({ error: stderr });
       }
-      return res.send(stdout);
+      return res.json({ message: stdout });
     });
   } catch (error) {
     console.error('Error posting Facebook listing:', error);
