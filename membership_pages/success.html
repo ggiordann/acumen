@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="subscription.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 </head>
 <body>
     <!-- Navbar with matched styling -->
@@ -104,8 +107,213 @@
             if (sessionId) {
                 console.log("Payment completed with session ID:", sessionId);
                 
-                // Enhanced confetti animation
-                createConfetti();
+                // Initialize Firebase to refresh subscription data
+                try {
+                    const response = await fetch('http://localhost:1989/get-api-key');
+                    const data = await response.json();
+                    const firebaseConfig = data.firebaseConfig;
+                    
+                    // Initialize Firebase
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                    
+                    // Set persistence to LOCAL
+                    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                    
+                    // Show initial loading message
+                    document.querySelector('.success-container h1').innerText = 'Processing Your Subscription...';
+                    document.querySelector('.success-container p').innerText = 'Please wait while we finalize your subscription details.';
+                    
+                    // Check if user is authenticated
+                    firebase.auth().onAuthStateChanged(async function(user) {
+                        if (user) {
+                            console.log("User is signed in:", user.displayName);
+                            
+                            // Force refresh token to get latest claims
+                            await user.getIdToken(true);
+                            
+                            // Use a longer delay and multiple retry attempts to ensure webhook has time to process
+                            let attempts = 0;
+                            const maxAttempts = 8; // Increased from 5 to 8
+                            const delayMs = 2500; // Increased delay between checks
+                            
+                            // Get the plan from URL if provided
+                            const urlPlan = urlParams.get('plan');
+                            console.log("Plan from URL:", urlPlan);
+                            
+                            // Manually check the Stripe session status
+                            const verifyStripeSession = async () => {
+                                try {
+                                    const idToken = await user.getIdToken(true);
+                                    const verifyResponse = await fetch(`http://localhost:1989/verify-session?session_id=${sessionId}`, {
+                                        headers: { 'Authorization': `Bearer ${idToken}` }
+                                    });
+                                    
+                                    if (verifyResponse.ok) {
+                                        const verifyData = await verifyResponse.json();
+                                        console.log("Stripe session verification:", verifyData);
+                                        return verifyData;
+                                    }
+                                } catch (error) {
+                                    console.error("Error verifying Stripe session:", error);
+                                }
+                                return { verified: false };
+                            };
+                            
+                            // Force update user subscription in Firestore
+                            const forceUpdateSubscription = async (plan) => {
+                                try {
+                                    const idToken = await user.getIdToken(true);
+                                    const updateResponse = await fetch(`http://localhost:1989/force-update-subscription`, {
+                                        method: 'POST',
+                                        headers: { 
+                                            'Authorization': `Bearer ${idToken}`,
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            uid: user.uid,
+                                            session_id: sessionId,
+                                            plan: plan || urlPlan || 'plus' // Use URL plan parameter, fallback to plus
+                                        })
+                                    });
+                                    
+                                    if (updateResponse.ok) {
+                                        const updateData = await updateResponse.json();
+                                        console.log("Subscription force-updated:", updateData);
+                                        return updateData.success;
+                                    }
+                                } catch (error) {
+                                    console.error("Error forcing subscription update:", error);
+                                }
+                                return false;
+                            };
+                            
+                            const checkSubscription = async () => {
+                                try {
+                                    console.log(`Checking subscription: Attempt ${attempts + 1}/${maxAttempts}`);
+                                    
+                                    // Force token refresh each time
+                                    const idToken = await user.getIdToken(true);
+                                    const subResponse = await fetch(`http://localhost:1989/get-user-subscription?uid=${user.uid}`, {
+                                        headers: { 'Authorization': `Bearer ${idToken}` }
+                                    });
+                                    
+                                    if (subResponse.ok) {
+                                        const userData = await subResponse.json();
+                                        console.log("Subscription data:", JSON.stringify(userData.subscription));
+                                        
+                                        // Check if subscription level matches the expected plan
+                                        const expectedPlan = urlPlan || 'plus';
+                                        const currentPlan = userData.subscription?.subscriptionLevel;
+                                        
+                                        // If we have a non-free subscription that's active, and it matches our expected plan, we're good
+                                        if (userData.subscription && 
+                                            userData.subscription.subscriptionLevel !== 'free' &&
+                                            userData.subscription.status === 'active' &&
+                                            userData.subscription.subscriptionLevel === expectedPlan) {
+                                            
+                                            const planName = userData.subscription.subscriptionLevel.charAt(0).toUpperCase() + 
+                                                            userData.subscription.subscriptionLevel.slice(1);
+                                                            
+                                            document.querySelector('.success-container h1').innerText = 
+                                                `${planName} Subscription Activated!`;
+                                            document.querySelector('.success-container p').innerText = 
+                                                `Thank you for subscribing to Acumen ${planName}. Your account has been successfully upgraded.`;
+                                                
+                                            // Store subscription plan in session storage for dashboard
+                                            sessionStorage.setItem('acumen_subscription_updated', 'true');
+                                            sessionStorage.setItem('acumen_subscription_plan', userData.subscription.subscriptionLevel);
+                                            sessionStorage.setItem('acumen_subscription_status', 'active');
+                                            
+                                            // Create confetti to celebrate!
+                                            createConfetti();
+                                            return;
+                                        }
+                                        // If subscription is active but doesn't match expected plan, force update after attempt #2
+                                        else if (userData.subscription && 
+                                                userData.subscription.status === 'active' && 
+                                                userData.subscription.subscriptionLevel !== expectedPlan &&
+                                                attempts >= 2) {
+                                            
+                                            console.log(`Plan mismatch: current=${currentPlan}, expected=${expectedPlan}. Forcing update...`);
+                                            await forceUpdateSubscription(expectedPlan);
+                                        }
+                                    }
+                                    
+                                    // If we reach attempt #3 and still don't see the update,
+                                    // try to manually verify the Stripe session
+                                    if (attempts === 3) {
+                                        const verified = await verifyStripeSession();
+                                        console.log("Manual Stripe session verification result:", verified);
+                                    }
+                                    
+                                    // If we reach attempt #5, force an update to the subscription
+                                    if (attempts === 5) {
+                                        // Try to determine the plan from the URL
+                                        const urlPlan = window.location.href.includes('plus') ? 'plus' : 
+                                                      window.location.href.includes('pro') ? 'pro' :
+                                                      window.location.href.includes('premium') ? 'premium' : 'plus';
+                                                      
+                                        console.log(`Force updating subscription to plan: ${urlPlan}`);
+                                        await forceUpdateSubscription(urlPlan);
+                                    }
+                                    
+                                    attempts++;
+                                    if (attempts < maxAttempts) {
+                                        // Show waiting message with attempt counter
+                                        document.querySelector('.success-container h1').innerText = 
+                                            `Processing Your Subscription (${attempts}/${maxAttempts})`;
+                                        document.querySelector('.success-container p').innerText = 
+                                            'Please wait while we finalize your subscription details.';
+                                            
+                                        setTimeout(checkSubscription, delayMs);
+                                    } else {
+                                        // Max attempts reached, show generic success and store data anyway
+                                        document.querySelector('.success-container h1').innerText = 'Subscription Successful!';
+                                        document.querySelector('.success-container p').innerText = 
+                                            'Your subscription has been processed. It may take a few moments for all systems to update.';
+                                        
+                                        // Even if we couldn't confirm the subscription, set the session storage
+                                        // this will force the app to refresh the subscription state
+                                        sessionStorage.setItem('acumen_subscription_updated', 'true');
+                                        sessionStorage.setItem('acumen_subscription_plan', 'plus'); // Default to plus
+                                        sessionStorage.setItem('acumen_subscription_status', 'active');
+                                        
+                                        createConfetti();
+                                    }
+                                } catch (error) {
+                                    console.error("Error fetching updated subscription data:", error);
+                                    document.querySelector('.success-container h1').innerText = 'Subscription Processed';
+                                    document.querySelector('.success-container p').innerText = 
+                                        'Your payment was successful, but we encountered an issue retrieving your subscription details. Everything should be updated shortly.';
+                                    
+                                    // Set session storage even on error
+                                    sessionStorage.setItem('acumen_subscription_updated', 'true');
+                                    sessionStorage.setItem('acumen_subscription_plan', 'plus'); // Default to plus
+                                    
+                                    createConfetti();
+                                }
+                            };
+                            
+                            // Start the subscription checking process
+                            checkSubscription();
+                            
+                        } else {
+                            console.log("No user is signed in");
+                            document.querySelector('.success-container h1').innerText = 'Payment Successful';
+                            document.querySelector('.success-container p').innerText = 'Please log in to access your subscription.';
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing Firebase:', error);
+                    document.querySelector('.success-container h1').innerText = 'Payment Processed';
+                    document.querySelector('.success-container p').innerText = 
+                        'Your payment was successful, but we encountered an issue retrieving your subscription details.';
+                    createConfetti();
+                }
+            } else {
+                console.log("No session ID found");
             }
         });
         

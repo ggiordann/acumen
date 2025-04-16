@@ -3,6 +3,334 @@ let previewImages = [];
 let currentImageIndex = 0;
 
 $(document).ready(function() {
+  // Initialize Firebase
+  let auth, firebaseConfig;
+  
+  // Get Firebase config
+  fetchFirebaseConfig();
+
+  async function fetchFirebaseConfig() {
+    try {
+      const response = await fetch("http://localhost:1989/get-api-key");
+      const data = await response.json();
+      firebaseConfig = data.firebaseConfig;
+      initializeFirebase();
+    } catch (error) {
+      console.error("Error fetching Firebase config:", error);
+    }
+  }
+
+  function initializeFirebase() {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    auth = firebase.auth();
+    
+    // Listen for auth state changes
+    auth.onAuthStateChanged(function(user) {
+      // Once auth state is determined (either way), remove loading overlay with smooth transition
+      setTimeout(function() {
+        $(".auth-loading-overlay").css("opacity", "0");
+        
+        setTimeout(function() {
+          $(".auth-container").removeClass("loading");
+          $(".auth-loading-overlay").remove();
+        }, 600); // Extended from 400ms to 600ms for longer fade-in effect
+      }, 500); // Extended from 300ms to 500ms for longer initial delay
+      
+      if (user) {
+        console.log("User is signed in:", user.displayName);
+        updateUIForSignedInUser(user);
+        
+        // Check if user has subscription data
+        getUserSubscriptionData(user.uid);
+      } else {
+        console.log("No user is signed in");
+        updateUIForSignedOutUser();
+      }
+    });
+  }
+  
+  async function getUserSubscriptionData(uid) {
+    try {
+      console.log("Fetching subscription data for user:", uid);
+      
+      // Force token refresh to get latest claims
+      const idToken = await auth.currentUser.getIdToken(true);
+      console.log("Token refreshed, fetching subscription data");
+      
+      const response = await fetch(`http://localhost:1989/get-user-subscription?uid=${uid}`, {
+        headers: { 
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        console.log("Retrieved subscription data:", userData.subscription);
+        updateUIWithSubscriptionData(userData.subscription);
+        
+        // Store subscription info in session storage
+        sessionStorage.setItem('acumen_user_subscription', JSON.stringify(userData.subscription));
+      } else {
+        console.error("Error response from subscription endpoint:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching subscription data:", error);
+    }
+  }
+  
+  function updateUIForSignedInUser(user) {
+    // Update auth buttons container
+    const authContainer = $("#auth-buttons");
+    authContainer.empty();
+    
+    // Get user photo URL or use placeholder
+    const photoURL = user.photoURL; // || 'https://via.placeholder.com/30' fricking packet yo
+    
+    console.log("User photo URL:", photoURL);
+    
+    // Add user profile button/dropdown with explicit width/height and improved error handling // onerror="this.src='https://via.placeholder.com/30'; console.log('Failed to load profile image, using placeholder'); this.onerror=null;">
+    authContainer.append(`
+      <div class="user-profile-container">
+        <button class="user-profile-btn">
+          <img src="${photoURL}" alt="${user.displayName}" class="user-avatar" 
+               >
+          <span>${user.displayName}</span>
+        </button>
+        <div class="user-dropdown">
+          <a href="../membership_pages/account-settings.html" class="dropdown-item" id="account-settings">Account Settings</a>
+          <a href="../membership_pages/subscription.html" class="dropdown-item" id="subscription-settings">Subscription</a>
+          <a href="#" class="dropdown-item" id="logout-btn">Sign Out</a>
+        </div>
+      </div>
+    `);
+    
+    // Initialize dropdown toggle
+    $(".user-profile-btn").click(function(e) {
+      e.stopPropagation();
+      $(".user-dropdown").toggleClass("show");
+    });
+    
+    // Close dropdown when clicking elsewhere
+    $(document).click(function() {
+      $(".user-dropdown").removeClass("show");
+    });
+    
+    // Handle logout
+    $("#logout-btn").click(function(e) {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        console.log("User signed out");
+        window.location.reload();
+      }).catch(error => {
+        console.error("Error signing out:", error);
+      });
+    });
+    
+    // Handle account settings click
+    $("#account-settings").click(function(e) {
+      e.preventDefault();
+      window.location.href = "../membership_pages/account-settings.html"; 
+    });
+    
+    // Check for subscription data in session storage (from successful checkout)
+    const storedSubscription = sessionStorage.getItem('acumen_subscription_updated');
+    if (storedSubscription === 'true') {
+      console.log("Detected subscription update from session storage");
+      // Clear the flag
+      sessionStorage.removeItem('acumen_subscription_updated');
+      
+      // Force token refresh and fetch updated subscription
+      user.getIdToken(true).then(() => {
+        console.log("Token refreshed after subscription update");
+        getUserSubscriptionData(user.uid);
+      });
+    }
+    
+    // Update mobile menu
+    updateMobileMenuForSignedInUser(user);
+  }
+  
+  function updateUIForSignedOutUser() {
+    // Reset auth container to show login/signup buttons
+    const authContainer = $("#auth-buttons");
+    authContainer.html(`
+      <button class="auth-btn login-btn" id="login-button" onclick="window.location.href='../membership_pages/subs.html'">
+        Log In
+      </button>
+      <button class="auth-btn signup-btn" id="signup-button" onclick="window.location.href='../membership_pages/subs.html'">
+        Sign Up
+      </button>
+    `);
+    
+    // Update mobile menu
+    updateMobileMenuForSignedOutUser();
+  }
+  
+  function updateUIWithSubscriptionData(subscription) {
+    console.log("Updating UI with subscription data:", subscription);
+    
+    // Determine correct display level - ensure Premium is shown properly
+    let displayLevel = subscription.subscriptionLevel.toLowerCase();
+    
+    // If the plan is stored as 'pro' but should be 'premium', correct it
+    if (displayLevel === 'pro' && (
+        (subscription.features && subscription.features.includes('premium')) || 
+        (subscription.price && subscription.price > 15)
+    )) {
+        displayLevel = 'premium';
+        console.log("Corrected subscription level from 'pro' to 'premium'");
+    }
+    
+    // Add subscription badge to profile
+    const badgeClass = `${displayLevel}-badge`;
+    const planName = displayLevel.toUpperCase();
+    
+    // Remove any existing badge first
+    $(".user-profile-btn .subscription-badge").remove();
+    
+    // Add the badge to the user profile button
+    const planBadge = $(`<span class="subscription-badge ${badgeClass}">${planName}</span>`);
+    $(".user-profile-btn span").append(" ").append(planBadge);
+    
+    // Update active mode button
+    updateActiveMode(subscription.activeMode || "standard");
+    
+    // Update remaining credits display
+    updateRemainingCredits(subscription.remainingCredits || 0);
+    
+    // Update premium features visibility
+    updateFeaturesVisibility(displayLevel);
+  }
+
+  function updateActiveMode(mode) {
+    console.log("Updating active mode to:", mode);
+    // If there's a mode selector in the UI, update it
+    if ($(".mode-selector").length) {
+      $(".mode-selector button").removeClass("active");
+      $(`.mode-selector button[data-mode="${mode}"]`).addClass("active");
+    }
+  }
+  
+  function updateRemainingCredits(credits) {
+    console.log("Updating remaining credits:", credits);
+    // Update credits display if it exists
+    if ($(".credits-display").length) {
+      $(".credits-display .count").text(credits);
+    }
+  }
+  
+  function updateFeaturesVisibility(level) {
+    console.log("Updating features visibility for level:", level);
+    // Show/hide features based on subscription level
+    if (level === 'free') {
+      $(".premium-feature, .pro-feature").hide();
+      $(".free-feature").show();
+    } else if (level === 'pro') {
+      $(".premium-feature").hide();
+      $(".free-feature, .pro-feature").show();
+    } else if (level === 'premium') {
+      $(".free-feature, .pro-feature, .premium-feature").show();
+    }
+  }
+
+  function updateSubscriptionFeatures(subscription) {
+    // Implement additional subscription feature updates here
+    // For example, show/hide premium features based on the subscription level
+    
+    // Determine correct display level (matching the same logic as above)
+    let displayLevel = subscription.subscriptionLevel.toLowerCase();
+    if (displayLevel === 'pro' && (
+        (subscription.features && subscription.features.includes('premium')) || 
+        (subscription.price && subscription.price > 15)
+    )) {
+        displayLevel = 'premium';
+    }
+    
+    // Example: Toggle visibility of premium features
+    if (displayLevel === 'premium' || displayLevel === 'pro') {
+      $(".premium-feature").show();
+    } else {
+      $(".premium-feature").hide();
+    }
+    
+    // Example: Toggle visibility of advanced features for premium only
+    if (displayLevel === 'premium') {
+      $(".advanced-feature").show();
+    } else {
+      $(".advanced-feature").hide();
+    }
+  }
+  
+  function updateMobileMenuBadge(subscription) {
+    // Remove any existing badges in mobile menu
+    $(".mobile-user-info .subscription-badge, .mobile-user-info .plan-badge").remove();
+    
+    // Add subscription badge to mobile menu
+    const mobileUserSpan = $(".mobile-user-info span");
+    
+    if (mobileUserSpan.length) {
+      // Make sure we're not duplicating content - get just the name
+      const username = mobileUserSpan.text().split(" ")[0]; 
+      
+      // Create badge with new styling
+      const badgeClass = `${subscription.subscriptionLevel}-badge`;
+      const mobileBadge = $(`<span class="subscription-badge ${badgeClass}">${subscription.subscriptionLevel.toUpperCase()}</span>`);
+      
+      mobileUserSpan.text(username).append(" ").append(mobileBadge);
+    }
+  }
+  
+  // img src = || 'https://via.placeholder.com/30'
+  // onerror="this.src='https://via.placeholder.com/30'; console.log('Failed to load mobile profile image, using placeholder'); this.onerror=null;">
+
+  function updateMobileMenuForSignedInUser(user) {
+    const mobileAuthSection = $(".mobile-menu .mobile-section:last-child");
+    mobileAuthSection.empty();
+    mobileAuthSection.append(`
+      <div class="mobile-section-title">Account</div>
+      <div class="mobile-user-info">
+        <img src="${user.photoURL}" class="mobile-avatar"
+             >
+        <span>${user.displayName}</span>
+      </div>
+      <a href="../membership_pages/account-settings.html" class="mobile-nav-item" id="mobile-account">
+        <div class="icon"><i class="fas fa-user-cog"></i></div>
+        <span>Account Settings</span>
+      </a>
+      <a href="../membership_pages/subscription.html" class="mobile-nav-item">
+        <div class="icon"><i class="fas fa-credit-card"></i></div>
+        <span>Subscription</span>
+      </a>
+      <a href="#" class="mobile-nav-item" id="mobile-logout">
+        <div class="icon"><i class="fas fa-sign-out-alt"></i></div>
+        <span>Sign Out</span>
+      </a>
+    `);
+    
+    // Handle mobile logout
+    $("#mobile-logout").click(function(e) {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        console.log("User signed out");
+        window.location.reload();
+      });
+    });
+  }
+  
+  function updateMobileMenuForSignedOutUser() {
+    const mobileAuthSection = $(".mobile-menu .mobile-section:last-child");
+    mobileAuthSection.html(`
+      <a href="../membership_pages/subs.html" class="auth-btn login-btn" style="display: block; text-align: center; margin-bottom: 1rem;">
+        Log In
+      </a>
+      <a href="../membership_pages/subs.html" class="auth-btn signup-btn" style="display: block; text-align: center;">
+        Sign Up
+      </a>
+    `);
+  }
+
   if ($("#google-font").length === 0) {
     $("<link id='google-font' rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'>").appendTo("head");
   }

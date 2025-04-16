@@ -301,14 +301,33 @@ app.post("/save-user", verifyToken, async (req, res) => {
         if (!userDoc.exists) {
             console.log("New user detected, saving to Firestore...");
              
-            // Save new user to Firestore
+            // Create a Stripe customer for the new user
+            let stripeCustomerId = null;
+            try {
+                const customer = await stripe.customers.create({
+                    email: email,
+                    name: fullName || "Unknown",
+                    metadata: {
+                        firebaseUID: uid
+                    }
+                });
+                stripeCustomerId = customer.id;
+                console.log(`Created Stripe customer: ${stripeCustomerId} for user: ${uid}`);
+            } catch (stripeError) {
+                console.error("Error creating Stripe customer:", stripeError);
+                // Continue even if Stripe customer creation fails
+            }
+            
+            // Save new user to Firestore with Stripe customer ID
             await userDocRef.set({
                 email,
                 name: fullName || "Unknown", // If Google OAuth doesn't return a name
                 createdAt: new Date(),
-                stripeId: null,
+                stripeCustomerId: stripeCustomerId,
                 subscription: {
                   subscriptionLevel:"free",
+                  status: "none",
+                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                 },
             });
             return res.json({ message: "New user created", email, uid });
@@ -335,19 +354,17 @@ app.get("/get-api-key", async(req, res) => {
     }
 });
 
-app.get("get-user-id", async (req, res) => {
+app.get("/get-user-id", async (req, res) => {
     res.json({ userId: uid });
 })
 
 // =============== STRIPE ENDPOINTS ===============
 
-app.post
-
 // Create checkout session endpoint
 app.post('/create-checkout-session', async (req, res) => {
   const { plan, uid } = req.body;
 
-  console.log(uid);
+  console.log(`Creating checkout session for user ${uid}, plan: ${plan}`);
 
   //get user from firestore
   const userRef = db.collection('users').doc(uid);
@@ -360,6 +377,9 @@ app.post('/create-checkout-session', async (req, res) => {
 
   const userData = userDoc.data();
   const { email, name } = userData;
+  const currentPlan = userData.subscription?.subscriptionLevel || 'free';
+  
+  console.log(`User current plan: ${currentPlan}, upgrading to: ${plan}`);
 
   // Map plan names to price IDs
   const priceIds = {
@@ -381,13 +401,15 @@ app.post('/create-checkout-session', async (req, res) => {
       ],
       customer_email: email,
       mode: 'subscription',
-      success_url: `http://localhost:5501/acumen-1/membership_pages/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `http://localhost:5501/acumen-1/membership_pages/success.html?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
       cancel_url: `http://localhost:5501/acumen-1/membership_pages/subscription.html`,
       client_reference_id: req.body.userId, // Add user ID for webhook
       metadata: {
         plan: plan,
         userId: uid,
         name: name,
+        previousPlan: currentPlan,
+        isUpgrade: currentPlan !== plan ? 'true' : 'false'
       }
     });
 
@@ -401,26 +423,40 @@ app.post('/create-checkout-session', async (req, res) => {
 //when customer clicks cancel subscription button. 
 //rn it instantly deletes for testing but later we can make it end at period end
 app.post('/cancel-subscription', async (req, res) => {
-  const { uid} = req.body; // 'uid' is the user's Firebase ID; cancelAtPeriodEnd is a boolean
+  const { uid } = req.body; // 'uid' is the user's Firebase ID
 
   try {
-    // Look up the user in Firestore (assumes you stored the Stripe customer and subscription info)
-    const userDoc = await firestore.collection('users').doc(uid).get();
+    // Look up the user in Firestore
+    const userDoc = await db.collection('users').doc(uid).get();
     if (!userDoc.exists) {
       return res.status(404).send({ error: 'User not found' });
     }
     
     const userData = userDoc.data();
     const subscriptionId = userData.subscription?.id;
+    
     if (!subscriptionId) {
       return res.status(400).send({ error: 'No active subscription found' });
     }
+    
+    // Cancel the subscription in Stripe
+    const result = await stripe.subscriptions.cancel(subscriptionId);
+    
+    // Update the user's subscription status in Firestore
+    await db.collection('users').doc(uid).update({
+      subscription: {
+        subscriptionLevel: "free",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        status: "cancelled"
+      }
+    });
 
+    return res.status(200).send({ success: true, message: 'Subscription cancelled' });
   } catch (error) {
     console.error('Error canceling subscription:', error);
     return res.status(500).send({ error: 'Internal server error' });
   }
-})   
+})
 
 // Stripe webhook endpoint to handle subscription events
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
@@ -439,22 +475,97 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
 
   // Handle the event
   switch (event.type) {
-    //Adds subscription to users account after successful payment
+    // Handle checkout session completion
+    case 'checkout.session.completed':
+      const session = event.data.object;
+      // Extract metadata from the session
+      const { userId, plan } = session.metadata || {};
+      console.log(`Checkout session completed for user ${userId}, plan: ${plan}`);
+      
+      if (userId) {
+        // Get or create Stripe customer
+        let customerId = session.customer;
+        let subscriptionId = session.subscription;
+        
+        if (customerId && subscriptionId) {
+          try {
+            // Update the user's Firestore document with Stripe customer ID and subscription details
+            await db.collection('users').doc(userId).update({
+              stripeCustomerId: customerId,
+              subscription: {
+                id: subscriptionId,
+                subscriptionLevel: plan,
+                status: 'active',
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              }
+            });
+            console.log(`Updated user ${userId} with subscription ${subscriptionId}`);
+          } catch (error) {
+            console.error(`Error updating user ${userId}:`, error);
+          }
+        }
+      }
+      break;
+      
+    // Handle subscription updates  
+    case 'customer.subscription.updated':
+      const subscription = event.data.object;
+      const customerId = subscription.customer;
+      
+      // Get subscription details including the plan
+      try {
+        const subscriptionData = await stripe.subscriptions.retrieve(subscription.id);
+        const planId = subscriptionData.items.data[0].plan.id;
+        
+        // Map plan ID to plan name
+        let planName = "free";
+        if (planId === 'price_1R4Az1IMPfgQ2CBGgRnSEebU') planName = "plus";
+        else if (planId === 'price_1R4AzuIMPfgQ2CBGakghtEhV') planName = "pro";
+        else if (planId === 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ') planName = "premium";
+        
+        // Find users with this Stripe customer ID
+        const usersSnapshot = await db.collection('users')
+          .where('stripeCustomerId', '==', customerId)
+          .get();
+          
+        if (!usersSnapshot.empty) {
+          usersSnapshot.forEach(doc => {
+            doc.ref.update({
+              subscription: {
+                id: subscription.id,
+                subscriptionLevel: planName,
+                status: subscription.status,
+                periodStart: subscription.current_period_start,
+                periodEnd: subscription.current_period_end,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              }
+            });
+            console.log(`Updated subscription for user ${doc.id} to ${planName}`);
+          });
+        }
+      } catch (error) {
+        console.error('Error processing subscription update:', error);
+      }
+      break;
+    
+    //Handle invoice payments  
     case 'invoice.paid':
       var invoice = event.data.object;
       var subscriptionId = invoice.subscription;
 
       updateCustomerSubscription(invoice.customer, subscriptionId, invoice);
       break;
+      
     case 'customer.subscription.deleted':
-      const subscription = event.data.object;
-        updateSubscriptionStatus(subscription.id, 'something', 'cancelled');
+      const deletedSubscription = event.data.object;
+      updateCustomerSubscription(deletedSubscription.customer, deletedSubscription.id, "cancelled");
       break;
+      
     case 'invoice.payment_failed':
-      var invoice = event.data.object;
-      var subscriptionId = invoice.subscription;
+      var failedInvoice = event.data.object;
+      var failedSubscriptionId = failedInvoice.subscription;
 
-      updateCustomerSubscription(invoice.customer, subscriptionId, "cancelled");
+      updateCustomerSubscription(failedInvoice.customer, failedSubscriptionId, "cancelled");
       break;
   }
 
@@ -462,11 +573,211 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
   res.send();
 });
 
-//multiple use function to update user subscription
-async function updateCustomerSubscription(userId, plan, invoice) {
+// Verify a Stripe session status directly
+app.get('/verify-session', verifyToken, async (req, res) => {
   try {
-    // Query Firestore for users with this stripeCustomerId.
-    const usersSnapshot = await firestore.collection('users')
+    const { session_id } = req.query;
+    
+    if (!session_id) {
+      return res.status(400).json({ error: 'Missing session_id parameter' });
+    }
+    
+    console.log(`Verifying Stripe session ${session_id}`);
+    
+    // Get the session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    
+    // Check payment status
+    const isComplete = session && session.payment_status === 'paid';
+    const customerId = session.customer;
+    const subscriptionId = session.subscription;
+    const metadata = session.metadata || {};
+    
+    console.log(`Session verification: payment_status=${session.payment_status}, customer=${customerId}, subscription=${subscriptionId}`);
+    
+    if (isComplete && subscriptionId) {
+      // Get subscription details
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      
+      // Get the plan ID and map to plan name
+      const planId = subscription.items.data[0].plan.id;
+      let planName = "free";
+      
+      if (planId === 'price_1R4Az1IMPfgQ2CBGgRnSEebU') planName = "plus";
+      else if (planId === 'price_1R4AzuIMPfgQ2CBGakghtEhV') planName = "pro";
+      else if (planId === 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ') planName = "premium";
+      
+      console.log(`Subscription plan: ${planName}`);
+      
+      // Check if user ID in request matches the one in session metadata
+      const userId = metadata.userId || req.user.uid;
+      
+      if (userId) {
+        // Update the user's Firestore document
+        await db.collection('users').doc(userId).update({
+          stripeCustomerId: customerId,
+          subscription: {
+            id: subscriptionId,
+            subscriptionLevel: planName,
+            status: subscription.status,
+            periodStart: subscription.current_period_start,
+            periodEnd: subscription.current_period_end,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          }
+        });
+        
+        console.log(`Updated user ${userId} with subscription ${subscriptionId}`);
+        return res.json({ 
+          verified: true, 
+          plan: planName, 
+          status: subscription.status 
+        });
+      }
+    }
+    
+    return res.json({ 
+      verified: isComplete, 
+      metadata: metadata 
+    });
+    
+  } catch (error) {
+    console.error('Error verifying session:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Force update a user's subscription based on session ID
+app.post('/force-update-subscription', verifyToken, async (req, res) => {
+  try {
+    const { uid, session_id, plan } = req.body;
+    
+    // Make sure this is the same user making the request or an admin
+    if (uid !== req.user.uid) {
+      return res.status(403).json({ error: 'Unauthorized access' });
+    }
+    
+    console.log(`Force updating subscription for user ${uid} to plan ${plan}`);
+    
+    // Get user data
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const userData = userDoc.data();
+    const stripeCustomerId = userData.stripeCustomerId;
+    
+    if (!stripeCustomerId) {
+      console.error("No Stripe customer ID for user");
+      return res.status(400).json({ error: 'No Stripe customer ID for user' });
+    }
+    
+    let subscriptionId = null;
+    
+    // If we have a session ID, try to get subscription from it
+    if (session_id) {
+      try {
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+        subscriptionId = session.subscription;
+        console.log(`Retrieved subscription ID ${subscriptionId} from session ${session_id}`);
+      } catch (stripeError) {
+        console.error("Error retrieving session from Stripe:", stripeError);
+      }
+    }
+    
+    // If no subscription ID from session, try to create/update via Stripe API
+    if (!subscriptionId) {
+      try {
+        // Check if user already has a subscription
+        const existingSubscriptions = await stripe.subscriptions.list({
+          customer: stripeCustomerId,
+          limit: 1,
+          status: 'all'
+        });
+        
+        if (existingSubscriptions.data.length > 0) {
+          // Update existing subscription
+          const existingSubscription = existingSubscriptions.data[0];
+          subscriptionId = existingSubscription.id;
+          
+          console.log(`Found existing subscription ${subscriptionId} for customer ${stripeCustomerId}`);
+          
+          // If subscription is canceled, create a new one instead
+          if (existingSubscription.status === 'canceled') {
+            console.log("Existing subscription is canceled, creating new one");
+            subscriptionId = null;
+          }
+        }
+        
+        // Map plan to price ID
+        const priceIds = {
+          plus: 'price_1R4Az1IMPfgQ2CBGgRnSEebU',
+          pro: 'price_1R4AzuIMPfgQ2CBGakghtEhV',
+          premium: 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ'
+        };
+        
+        const priceId = priceIds[plan] || priceIds.plus;
+        
+        if (!subscriptionId) {
+          // Create new subscription
+          const newSubscription = await stripe.subscriptions.create({
+            customer: stripeCustomerId,
+            items: [{ price: priceId }],
+            metadata: {
+              firebaseUID: uid
+            }
+          });
+          
+          subscriptionId = newSubscription.id;
+          console.log(`Created new subscription ${subscriptionId} for customer ${stripeCustomerId}`);
+        } else {
+          // Update existing subscription
+          const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+            items: [{
+              id: existingSubscriptions.data[0].items.data[0].id,
+              price: priceId
+            }],
+            metadata: {
+              firebaseUID: uid
+            }
+          });
+          
+          console.log(`Updated subscription ${subscriptionId} for customer ${stripeCustomerId}`);
+        }
+      } catch (stripeError) {
+        console.error("Error updating subscription via Stripe API:", stripeError);
+      }
+    }
+    
+    // Update user document in Firestore
+    await db.collection('users').doc(uid).update({
+      subscription: {
+        id: subscriptionId,
+        subscriptionLevel: plan,
+        status: 'active',
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }
+    });
+    
+    console.log(`Force updated user ${uid} subscription in Firestore to ${plan}`);
+    
+    return res.json({
+      success: true,
+      plan: plan,
+      subscriptionId: subscriptionId || 'manual-update'
+    });
+    
+  } catch (error) {
+    console.error('Error forcing subscription update:', error);
+    return res.status(500).json({ error: 'Internal server error', message: error.message });
+  }
+});
+
+//multiple use function to update user subscription
+async function updateCustomerSubscription(customerId, subscriptionId, invoice) {
+  try {
+    // Query Firestore for users with this stripeCustomerId
+    const usersSnapshot = await db.collection('users')
       .where('stripeCustomerId', '==', customerId)
       .get();
 
@@ -475,32 +786,76 @@ async function updateCustomerSubscription(userId, plan, invoice) {
       return;
     }
 
-    //if there is invoice, update/add subs, otherwise cancel plan
-    if (invoice!="cancelled") {
-      const subscriptionData = {
-        subscriptionLevel: plan,
-        periodStart: invoice.period_start,
-        periodEnd: invoice.period_end,
-        invoiceStatus: invoice.status,
+    let subscriptionData;
+    
+    // If there is invoice, update/add subscription, otherwise cancel plan
+    if (invoice !== "cancelled") {
+      // Get subscription details from Stripe
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const planId = subscription.items.data[0].plan.id;
+      
+      // Map plan ID to plan name
+      let planName = "free";
+      if (planId === 'price_1R4Az1IMPfgQ2CBGgRnSEebU') planName = "plus";
+      else if (planId === 'price_1R4AzuIMPfgQ2CBGakghtEhV') planName = "pro";
+      else if (planId === 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ') planName = "premium";
+      
+      subscriptionData = {
+        id: subscriptionId,
+        subscriptionLevel: planName,
+        periodStart: subscription.current_period_start,
+        periodEnd: subscription.current_period_end,
+        status: subscription.status,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }
+      };
     } else {
-      const subscriptionData = {
+      subscriptionData = {
         subscriptionLevel: "free",
-      }
+        status: "cancelled",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
     }
 
-    //update for every matching user
+    // Update for every matching user
     usersSnapshot.forEach(doc => {
-      doc.ref.set({
+      doc.ref.update({
         subscription: subscriptionData
-      }, { merge: true });
+      });
       console.log(`Updated subscription for user ${doc.id}`);
-    })
+    });
   } catch (error) {
     console.error('Error updating user subscription:', error);
   }
 }
+
+// Get user subscription endpoint
+app.get('/get-user-subscription', verifyToken, async (req, res) => {
+  try {
+    const { uid } = req.query;
+    
+    // Make sure this is the same user making the request
+    if (uid !== req.user.uid) {
+      return res.status(403).json({ error: 'Unauthorized access to subscription data' });
+    }
+    
+    // Get user data from Firestore
+    const userDoc = await db.collection('users').doc(uid).get();
+    
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const userData = userDoc.data();
+    
+    // Return subscription data
+    return res.json({ 
+      subscription: userData.subscription || { subscriptionLevel: 'free' }
+    });
+  } catch (error) {
+    console.error('Error getting user subscription:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Start the server on port 1989
 app.listen(port, '0.0.0.0', () => {

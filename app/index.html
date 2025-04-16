@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="main.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -213,6 +217,10 @@
     <!-- JavaScript for mobile menu -->
     <script>
       $(document).ready(function() {
+        // Add loading state as soon as the page loads
+        $(".auth-container").addClass("loading");
+        $(".auth-container").append('<div class="auth-loading-overlay"></div>');
+        
         // Mobile menu toggle
         $("#mobile-menu-toggle").click(function() {
           $("#mobile-menu").addClass("active");

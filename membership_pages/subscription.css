@@ -88,7 +88,7 @@ body {
 .nav-item:hover {
     color: var(--accent-green);
 }
-  
+
 /* Dropdown Menu Styles */
 .dropdown-content {
     position: absolute;
@@ -176,8 +176,9 @@ body {
 .auth-container {
     display: flex;
     gap: 1rem;
+    position: relative; /* Ensures the overlay is positioned correctly */
 }
-  
+
 .auth-btn {
     padding: 0.5rem 1.2rem;
     border-radius: var(--border-radius);
@@ -189,27 +190,35 @@ body {
     outline: none;
     text-decoration: none;
 }
-  
-.login-btn {
-    background-color: transparent;
-    color: var(--text-light);
-    border: 1px solid var(--text-light);
+
+.auth-container.loading .auth-btn,
+.auth-container.loading .user-profile-btn {
+    opacity: 0.2; /* Slightly visible but clearly disabled */
 }
-  
-.login-btn:hover {
-    border-color: var(--accent-green);
-    color: var(--accent-green);
+
+/* Authentication loading animation */
+.auth-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius);
+    animation: fade-in-green 1.2s forwards;
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 0.4s ease-out;
 }
-  
-.signup-btn {
-    background-color: var(--accent-green);
-    color: var(--bg-dark);
-}
-  
-.signup-btn:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-accent);
+
+@keyframes fade-in-green {
+    0% {
+        background: #000000;
+        box-shadow: 0 0 0px rgba(0, 0, 0, 0);
+    }
+    100% {
+        background: #00ff9d;
+        box-shadow: 0 0 20px rgba(0, 255, 157, 0.8);
+    }
 }
 
 /* Mobile Menu Styles */
@@ -310,28 +319,185 @@ body {
     visibility: visible;
 }
   
+/* User profile and subscription styling */
+.user-profile-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent;
+  color: var(--text-light);
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: none; 
+}
+
+/* Add this rule for username font size */
+.user-profile-btn span {
+  font-size: 0.9rem; /* Match auth-btn font size */
+  font-weight: 600; /* Match auth-btn font weight */
+}
+
+.user-avatar {
+  width: 36px; /* Increased size */
+  height: 36px; /* Increased size */
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-green);
+  transition: all 0.2s ease;
+}
+
+/* Add hover effect to avatar */
+.user-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.3); /* Optional: add subtle glow */
+}
+
+/* Override button hover effects for user profile button */
+.user-profile-btn:hover {
+    background: transparent !important; /* Keep transparent background */
+    transform: none !important; /* No movement */
+    box-shadow: none !important; /* No shadow */
+    color: var(--text-light); /* Keep text color */
+}
+
+.user-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: var(--card-bg-dark);
+  border-radius: var(--border-radius);
+  min-width: 180px;
+  box-shadow: var(--shadow-card);
+  padding: 0.5rem 0;
+  display: none;
+  z-index: 100;
+}
+
+.user-dropdown.show {
+  display: block;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.user-dropdown .dropdown-item {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--text-light);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+/* Re-confirm exact hover style */
+.user-dropdown .dropdown-item:hover {
+  background-color: var(--card-highlight); /* Ensure highlight background on hover */
+  color: var(--accent-green); /* Ensure green text on hover */
+}
+
+/* Mobile user info */
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-green);
+  margin-right: 12px;
+}
+
+/* Subscription badge styling */
+.subscription-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: white;
+  margin-left: 6px;
+}
+
+.free-badge {
+  background-color: #6c757d;
+}
+
+.plus-badge {
+  background-color: #4CAF50;
+}
+
+.pro-badge {
+  background-color: #2196F3;
+}
+
+.premium-badge {
+  background-color: #9C27B0;
+}
+
+/* Legacy plan badges (for backwards compatibility) */
+.plan-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: white;
+  margin-left: 6px;
+}
+
+.free-plan {
+  background-color: #6c757d;
+}
+
+.plus-plan {
+  background-color: #4CAF50;
+}
+
+.pro-plan {
+  background-color: #2196F3;
+}
+
+.premium-plan {
+  background-color: #9C27B0;
+}
+
 /* Content Container */
 .content-container {
-    width: 100%;
+    width: 90%;
     max-width: 1200px;
-    margin: 2rem auto 5rem;
-    padding: 0 1.5rem;
+    margin: 2rem auto;
+    padding: 0 1rem;
     box-sizing: border-box;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
   
 /* Typography */
 h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 600;
+    color: var(--accent-green);
+    margin-bottom: calc(var(--spacing) * 1.5);
+    letter-spacing: -0.02em;
 }
   
 h2 {
-    font-size: 1.2rem;
-    font-weight: 400;
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 500;
+    margin-bottom: var(--spacing);
+    letter-spacing: -0.01em;
     color: var(--text-secondary);
-    margin-bottom: 3rem;
+    text-align: center;
+    width: 100%;
 }
   
 /* Pricing Table Styles */
@@ -340,8 +506,10 @@ h2 {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 4rem;
+    width: 100%;
+    justify-content: center;
 }
-  
+
 .pricing-card {
     background-color: var(--card-bg-dark);
     border-radius: var(--border-radius);
@@ -358,6 +526,22 @@ h2 {
 .pricing-card:hover {
     transform: translateY(-8px);
     box-shadow: var(--shadow-hover);
+}
+
+/* Highlight current plan - removing green highlight */
+.pricing-card.current-plan {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.pricing-card.current-plan .card-header {
+}
+
+.pricing-card.current-plan .card-header h3 {
+}
+
+.pricing-card.current-plan button.plan-button {
+    opacity: 0.8;
 }
   
 /* Special card styles */
@@ -507,6 +691,55 @@ h2 {
     background-color: rgba(0, 255, 157, 0.1);
 }
   
+/* Guarantees Section */
+.guarantees {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 3rem 0;
+    width: 100%;
+}
+
+.guarantee-item {
+    background-color: var(--card-bg-dark);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    box-shadow: var(--shadow-subtle);
+    transition: all 0.3s ease;
+}
+
+.guarantee-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-card);
+}
+
+.guarantee-item i {
+    font-size: 2rem;
+    color: var(--accent-green);
+}
+
+.guarantee-item h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+}
+
+.guarantee-item p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Responsive layout for guarantees */
+@media (max-width: 900px) {
+    .guarantees {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
+
 /* Guarantees section */
 .guarantees {
     display: grid;
@@ -616,10 +849,10 @@ h2 {
     }
     
     .pricing-card.popular {
-        grid-column: 1 / -1;
-        max-width: 500px;
-        justify-self: center;
-        margin-bottom: 2rem;
+        grid-column: auto;
+        max-width: none;
+        justify-self: auto;
+        margin-bottom: 0;
     }
 }
   
@@ -630,6 +863,10 @@ h2 {
     
     .guarantees {
         grid-template-columns: 1fr;
+    }
+    
+    .content-container {
+        width: 95%;
     }
 }
   
@@ -668,18 +905,26 @@ h2 {
     h2 {
         font-size: 1rem;
     }
+    
+    .content-container {
+        width: 100%;
+        padding: 0 1rem;
+    }
 }
   
 /* Animations */
 @keyframes pulse {
     0% {
-        transform: scale(1);
+        transform: scale(0.95);
+        opacity: 0.7;
     }
     50% {
         transform: scale(1.05);
+        opacity: 1;
     }
     100% {
-        transform: scale(1);
+        transform: scale(0.95);
+        opacity: 0.7;
     }
 }
   

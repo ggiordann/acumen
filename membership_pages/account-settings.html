@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - Acumen</title>
+    <link rel="stylesheet" href="account-settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="jquery-3.7.1.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="../app/index.html" class="navbar-brand">acumen</a>
+            <div class="navbar-links">
+                <div class="nav-item">
+                    <a href="../app/index.html">Dashboard</a>
+                </div>
+                <div class="nav-item">
+                    <a href="subscription.html">Subscription</a>
+                </div>
+                <div class="nav-item">
+                    <a href="account-settings.html">Account</a>
+                </div>
+            </div>
+            <div class="mobile-menu-toggle" id="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="auth-container">
+                <!-- This will be populated by JS -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-close" id="mobile-close">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="mobile-menu-header">Acumen</div>
+        <div class="mobile-section">
+            <div class="mobile-section-title">Menu</div>
+            <a href="../app/index.html" class="mobile-nav-item">
+                <div class="icon"><i class="fas fa-home"></i></div>
+                <span>Dashboard</span>
+            </a>
+            <a href="subscription.html" class="mobile-nav-item">
+                <div class="icon"><i class="fas fa-credit-card"></i></div>
+                <span>Subscription</span>
+            </a>
+            <a href="account-settings.html" class="mobile-nav-item">
+                <div class="icon"><i class="fas fa-user-cog"></i></div>
+                <span>Account Settings</span>
+            </a>
+        </div>
+        <div class="mobile-section">
+            <!-- Will be populated by JS for auth info -->
+        </div>
+    </div>
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
+    <!-- Main Content Area -->
+    <div class="content-container">
+        <h1 class="section-title">Account Settings</h1>
+        <h2 class="section-subtitle">Manage your personal information and preferences</h2>
+
+        <div class="account-settings-grid">
+            <!-- Profile Section -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3><i class="fas fa-user"></i> Profile Information</h3>
+                </div>
+                <div class="settings-card-content">
+                    <!-- Profile Picture Section -->
+                    <div class="profile-image-container">
+                        <div class="profile-image">
+                            <img id="user-avatar" alt="User Avatar" src="https://via.placeholder.com/150" onerror="this.src='https://via.placeholder.com/150'; this.onerror=null;">
+                            <div class="profile-image-overlay">
+                                <i class="fas fa-camera"></i>
+                                <span>Change Photo</span>
+                            </div>
+                        </div>
+                        <input type="file" id="profile-upload" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="form-group">
+                        <label for="display-name">Display Name</label>
+                        <input type="text" id="display-name" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-input" disabled>
+                    </div>
+                    <button class="btn-primary save-btn" id="save-profile">Save Changes</button>
+                </div>
+            </div>
+
+            <!-- Security Section -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3><i class="fas fa-lock"></i> Security</h3>
+                </div>
+                <div class="settings-card-content">
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="new-password" class="form-input">
+                            <button class="toggle-password" type="button">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="confirm-password" class="form-input">
+                            <button class="toggle-password" type="button">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn-primary save-btn" id="change-password">Update Password</button>
+
+                    <div class="divider"></div>
+
+                    <h4>Two-Factor Authentication</h4>
+                    <p class="text-secondary">Enhance your account security with two-factor authentication.</p>
+                    <div class="toggle-switch-container">
+                        <span>Two-factor authentication</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="tfa-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscription Section -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3><i class="fas fa-credit-card"></i> Subscription</h3>
+                </div>
+                <div class="settings-card-content">
+                    <div class="current-plan">
+                        <div>
+                            <h4>Current Plan</h4>
+                            <div class="plan-info">
+                                <span id="current-plan-name">Loading...</span>
+                                <span id="plan-badge" class="subscription-badge free-badge">FREE</span>
+                            </div>
+                            <p id="plan-period" class="text-secondary">Your subscription renews on <span id="renewal-date">...</span></p>
+                        </div>
+                        <a href="subscription.html" class="btn-secondary">Manage</a>
+                    </div>
+
+                    <div class="divider"></div>
+                    
+                    <h4>Subscription Actions</h4>
+                    <div class="subscription-actions">
+                        <button id="upgrade-plan" class="btn-primary">
+                            <i class="fas fa-arrow-up"></i> Upgrade Plan
+                        </button>
+                        <button id="downgrade-plan" class="btn-secondary">
+                            <i class="fas fa-arrow-down"></i> Downgrade Plan
+                        </button>
+                        <button id="cancel-subscription" class="btn-danger">
+                            <i class="fas fa-times"></i> Cancel Subscription
+                        </button>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <h4>Payment Methods</h4>
+                    <div class="payment-methods" id="payment-methods">
+                        <div class="empty-state">
+                            <i class="fas fa-credit-card"></i>
+                            <p>No payment methods added yet</p>
+                        </div>
+                    </div>
+                    <button class="btn-outline" id="add-payment">
+                        <i class="fas fa-plus"></i> Add Payment Method
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preferences Section -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3><i class="fas fa-bell"></i> Preferences</h3>
+                </div>
+                <div class="settings-card-content">
+                    <h4>Notifications</h4>
+                    <div class="preference-item">
+                        <div>
+                            <h5>Email Notifications</h5>
+                            <p class="text-secondary">Receive updates and alerts via email</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="email-notifications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="preference-item">
+                        <div>
+                            <h5>Marketing Emails</h5>
+                            <p class="text-secondary">Receive promotional offers and news</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="marketing-emails">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <h4>Appearance</h4>
+                    <div class="theme-selector">
+                        <button class="theme-btn active" data-theme="dark">
+                            <span class="theme-circle dark"></span>
+                            <span>Dark</span>
+                        </button>
+                        <button class="theme-btn" data-theme="light">
+                            <span class="theme-circle light"></span>
+                            <span>Light</span>
+                        </button>
+                        <button class="theme-btn" data-theme="system">
+                            <span class="theme-circle system"></span>
+                            <span>System</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="settings-card danger-zone">
+                <div class="settings-card-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                </div>
+                <div class="settings-card-content">
+                    <p>These actions are irreversible. Please proceed with caution.</p>
+                    <button class="btn-danger" id="delete-account">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete Account</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                <p>Please type <strong>DELETE</strong> to confirm:</p>
+                <input type="text" id="delete-confirmation" class="form-input">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-delete">Cancel</button>
+                <button class="btn-danger" id="confirm-delete" disabled>Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Subscription Modal -->
+    <div class="modal" id="cancel-subscription-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cancel Subscription</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel your subscription?</p>
+                <p>Your subscription will be canceled immediately, and you'll lose access to premium features.</p>
+                <p>You can resubscribe at any time in the future.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-action">Go Back</button>
+                <button class="btn-danger" id="confirm-cancel-subscription">Yes, Cancel My Subscription</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Downgrade Plan Modal -->
+    <div class="modal" id="downgrade-plan-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Downgrade Subscription</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Choose a plan to downgrade to:</p>
+                <div class="plan-selection">
+                    <div class="plan-option" data-plan="plus">
+                        <h4>Plus</h4>
+                        <p>$15/month</p>
+                        <ul>
+                            <li>100 Free Listings per month</li>
+                            <li>AI Image Analysis</li>
+                        </ul>
+                    </div>
+                    <div class="plan-option" data-plan="free">
+                        <h4>Free</h4>
+                        <p>$0/month</p>
+                        <ul>
+                            <li>5 Free Listings per month</li>
+                            <li>Basic features</li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="downgrade-note">Your new plan will be effective at the end of your current billing period.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-downgrade">Go Back</button>
+                <button class="btn-primary" id="confirm-downgrade" disabled>Confirm Downgrade</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Toast Notification -->
+    <div class="toast-container">
+        <div class="toast" id="toast">
+            <div class="toast-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="toast-message">Settings saved successfully!</div>
+            <button class="toast-close">&times;</button>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="full-loading-overlay">
+        <div class="spinner"></div>
+        <p>Updating your settings...</p>
+    </div>
+
+    <script src="account-settings.js"></script>
+</body>
+</html>

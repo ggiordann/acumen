@@ -9,139 +9,152 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div class="navbar">
-        <a href="../app/index.html" class="navbar-brand">acumen</a>
-        <div class="navbar-links">
-            <div class="nav-item">
-                <span>Features</span>
-                <i class="dropdown-arrow fas fa-chevron-down"></i>
-                <div class="dropdown-content">
-                    <a href="#" class="dropdown-item">
-                        <div class="icon">
-                            <i class="fas fa-search-plus"></i>
-                        </div>
-                        <div class="content">
-                            <span class="title">Generate item specifications</span>
-                            <span class="description">Turn an image into a listing within seconds</span>
-                        </div>
-                    </a>
-                    <a href="#" class="dropdown-item">
-                        <div class="icon">
-                            <i class="fas fa-balance-scale"></i>
-                        </div>
-                        <div class="content">
-                            <span class="title">Compare item values</span>
-                            <span class="description">Compare your item's value across platforms</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="nav-item">
-                <span>Pricing</span>
-            </div>
-            <div class="nav-item">
-                <span>Resources</span>
-                <i class="dropdown-arrow fas fa-chevron-down"></i>
-                <div class="dropdown-content">
-                    <a href="#" class="dropdown-item">
-                        <div class="icon">
-                            <i class="fas fa-blog"></i>
-                        </div>
-                        <div class="content">
-                            <span class="title">Blog</span>
-                        </div>
-                    </a>
-                    <a href="#" class="dropdown-item">
-                        <div class="icon">
-                            <i class="fas fa-info-circle"></i>
-                        </div>
-                        <div class="content">
-                            <span class="title">About</span>
-                        </div>
-                    </a>
-                    <a href="#" class="dropdown-item">
-                        <div class="icon">
-                            <i class="fab fa-discord"></i>
-                        </div>
-                        <div class="content">
-                            <span class="title">Community Discord</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
+    <!-- New Navbar with dropdowns -->
+    <nav class="navbar" id="main-navbar">
+      <div class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+      </div>
+      
+      <a href="../app/index.html" class="navbar-brand" id="brand-logo">acumen</a>
+      <div class="navbar-links" id="nav-links">
+        <!-- Features Dropdown -->
+        <div class="nav-item" id="features-dropdown">
+          <span>Features</span>
+          <i class="dropdown-arrow fas fa-chevron-down"></i>
+          <div class="dropdown-content">
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-search-plus"></i>
+              </div>
+              <div class="content">
+                <span class="title">Generate item specifications</span>
+                <span class="description">Turn an image into a listing within seconds</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-balance-scale"></i>
+              </div>
+              <div class="content">
+                <span class="title">Compare item values</span>
+                <span class="description">Compare your item's value across platforms</span>
+              </div>
+            </a>
+          </div>
         </div>
-        <div class="auth-container">
-            <button class="auth-btn login-btn" onclick="window.location.href='../membership_pages/subs.html'">Log In</button>
-            <button class="auth-btn signup-btn" onclick="window.location.href='../membership_pages/subs.html'">Sign Up</button>
+        
+        <!-- Pricing Link -->
+        <div class="nav-item">
+          <a href="../membership_pages/subscription.html" style="color: inherit; text-decoration: none;">
+            <span>Pricing</span>
+          </a>
         </div>
-        <div class="mobile-menu-toggle" id="mobile-menu-toggle">
-            <i class="fas fa-bars"></i>
+        
+        <!-- Resources Dropdown -->
+        <div class="nav-item" id="resources-dropdown">
+          <span>Resources</span>
+          <i class="dropdown-arrow fas fa-chevron-down"></i>
+          <div class="dropdown-content">
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-blog"></i>
+              </div>
+              <div class="content">
+                <span class="title">Blog</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-info-circle"></i>
+              </div>
+              <div class="content">
+                <span class="title">About</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fab fa-discord"></i>
+              </div>
+              <div class="content">
+                <span class="title">Community Discord</span>
+              </div>
+            </a>
+          </div>
         </div>
-    </div>
-
+      </div>
+      <div class="auth-container" id="auth-buttons">
+        <button class="auth-btn login-btn" id="login-button" onclick="window.location.href='../membership_pages/subs.html'">
+          Log In
+        </button>
+        <button class="auth-btn signup-btn" id="signup-button" onclick="window.location.href='../membership_pages/subs.html'">
+          Sign Up
+        </button>
+      </div>
+    </nav>
+    
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobile-menu">
-        <div class="mobile-close" id="mobile-close">
-            <i class="fas fa-times"></i>
-        </div>
-        <div class="mobile-menu-header">acumen</div>
-        
-        <div class="mobile-section">
-            <div class="mobile-section-title">Features</div>
-            <a href="#" class="mobile-nav-item">
-                <div class="icon">
-                    <i class="fas fa-search-plus"></i>
-                </div>
-                <div class="content">
-                    <span class="title">Generate item specifications</span>
-                </div>
-            </a>
-            <a href="#" class="mobile-nav-item">
-                <div class="icon">
-                    <i class="fas fa-balance-scale"></i>
-                </div>
-                <div class="content">
-                    <span class="title">Compare item values</span>
-                </div>
-            </a>
-        </div>
-        
-        <div class="mobile-section">
-            <div class="mobile-section-title">Resources</div>
-            <a href="#" class="mobile-nav-item">
-                <div class="icon">
-                    <i class="fas fa-blog"></i>
-                </div>
-                <div class="content">
-                    <span class="title">Blog</span>
-                </div>
-            </a>
-            <a href="#" class="mobile-nav-item">
-                <div class="icon">
-                    <i class="fas fa-info-circle"></i>
-                </div>
-                <div class="content">
-                    <span class="title">About</span>
-                </div>
-            </a>
-            <a href="#" class="mobile-nav-item">
-                <div class="icon">
-                    <i class="fab fa-discord"></i>
-                </div>
-                <div class="content">
-                    <span class="title">Community Discord</span>
-                </div>
-            </a>
-        </div>
-        
-        <div class="mobile-section">
-            <a href="../membership_pages/subs.html" class="auth-btn login-btn" style="display: block; text-align: center; margin-bottom: 1rem;">
-                Log In
-            </a>
-            <a href="../membership_pages/subs.html" class="auth-btn signup-btn" style="display: block; text-align: center;">
-                Sign Up
-            </a>
-        </div>
+      <div class="mobile-close" id="mobile-close">
+        <i class="fas fa-times"></i>
+      </div>
+      <div class="mobile-menu-header">acumen</div>
+      
+      <div class="mobile-section">
+        <div class="mobile-section-title">Features</div>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-search-plus"></i>
+          </div>
+          <span>Generate item specifications</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-balance-scale"></i>
+          </div>
+          <span>Compare item values</span>
+        </a>
+      </div>
+      
+      <div class="mobile-section">
+        <div class="mobile-section-title">Resources</div>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-blog"></i>
+          </div>
+          <span>Blog</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <span>About</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fab fa-discord"></i>
+          </div>
+          <span>Community Discord</span>
+        </a>
+      </div>
+      
+      <div class="mobile-section">
+        <div class="mobile-section-title">Pricing</div>
+        <a href="../membership_pages/subscription.html" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-tags"></i>
+          </div>
+          <span>View Plans</span>
+        </a>
+      </div>
+      
+      <div class="mobile-section">
+        <a href="../membership_pages/subs.html" class="auth-btn login-btn" style="display: block; text-align: center; margin-bottom: 1rem;">
+          Log In
+        </a>
+        <a href="../membership_pages/subs.html" class="auth-btn signup-btn" style="display: block; text-align: center;">
+          Sign Up
+        </a>
+      </div>
     </div>
     
     <div class="mobile-overlay" id="mobile-overlay"></div>
@@ -328,12 +341,13 @@
 
         <div class="guarantees">
             <div class="guarantee-item">
-                <i class="fas fa-shield-alt"></i>
+                <i class="fas fa-lock"></i>
                 <div>
                     <h4>100% Secure Payments</h4>
                     <p>All transactions are processed securely through Stripe.</p>
                 </div>
             </div>
+            
             <div class="guarantee-item">
                 <i class="fas fa-bolt"></i>
                 <div>
@@ -341,6 +355,7 @@
                     <p>Get immediate access to all features after subscription.</p>
                 </div>
             </div>
+            
             <div class="guarantee-item">
                 <i class="fas fa-headset"></i>
                 <div>
@@ -385,6 +400,10 @@
     <!-- JavaScript for mobile menu toggle -->
     <script>
         $(document).ready(function() {
+            // Add loading state as soon as the page loads
+            $(".auth-container").addClass("loading");
+            $(".auth-container").append('<div class="auth-loading-overlay"></div>');
+            
             // Mobile menu toggle
             $("#mobile-menu-toggle").click(function() {
                 $("#mobile-menu").addClass("active");

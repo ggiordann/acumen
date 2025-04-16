@@ -169,6 +169,37 @@ body {
 .auth-container {
   display: flex;
   gap: 1rem;
+  position: relative; /* Ensures the overlay is positioned correctly */
+}
+
+.auth-container.loading .auth-btn,
+.auth-container.loading .user-profile-btn {
+  opacity: 0.2; /* Slightly visible but clearly disabled */
+}
+
+/* Authentication loading animation */
+.auth-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--border-radius);
+  animation: fade-in-green 1.2s forwards;
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.4s ease-out;
+}
+
+@keyframes fade-in-green {
+  0% {
+    background: #000000;
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0);
+  }
+  100% {
+    background: #00ff9d;
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.8);
+  }
 }
 
 .auth-btn {
@@ -429,6 +460,14 @@ button:hover {
   background: #00cc7d;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 255, 157, 0.25);
+}
+
+/* Override button hover effects for user profile button */
+.user-profile-btn:hover {
+  background: transparent !important; /* Keep transparent background */
+  transform: none !important; /* No movement */
+  box-shadow: none !important; /* No shadow */
+  color: var(--text-light); /* Keep text color */
 }
 
 /* Consistent Button Sizing */
@@ -803,4 +842,144 @@ h1, h2, #analyzeBtn {
   .file-upload-label {
     font-size: 0.9rem;
   }
+}
+
+/* User profile and subscription styling */
+.user-profile-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent;
+  color: var(--text-light);
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+/* Add this rule for username font size */
+.user-profile-btn span {
+  font-size: 0.9rem; /* Match auth-btn font size */
+  font-weight: 600; /* Match auth-btn font weight */
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-green);
+  transition: all 0.2s ease; /* Ensure transition is present */
+}
+
+/* Add hover effect to avatar */
+.user-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.3); /* Optional: add subtle glow */
+}
+
+.user-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: var(--card-bg-dark);
+  border-radius: var(--border-radius);
+  min-width: 180px;
+  box-shadow: var(--shadow-card);
+  padding: 0.5rem 0;
+  display: none;
+  z-index: 100;
+}
+
+.user-dropdown.show {
+  display: block;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.user-dropdown .dropdown-item {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--text-light);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.user-dropdown .dropdown-item:hover {
+  background-color: var(--card-highlight);
+  color: var(--accent-green);
+}
+
+/* Mobile user info */
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-green);
+  margin-right: 12px;
+}
+
+/* Consistent subscription badge styling */
+.subscription-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: white;
+  margin-left: 6px;
+}
+
+.free-badge {
+  background-color: #6c757d;
+}
+
+.plus-badge {
+  background-color: #4CAF50;
+}
+
+.pro-badge {
+  background-color: #2196F3;
+}
+
+.premium-badge {
+  background-color: #9C27B0;
+}
+
+/* Legacy plan badges (for backwards compatibility) */
+.plan-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: white;
+  margin-left: 6px;
+}
+
+.free-plan {
+  background-color: #6c757d;
+}
+
+.plus-plan {
+  background-color: #4CAF50;
+}
+
+.pro-plan {
+  background-color: #2196F3;
+}
+
+.premium-plan {
+  background-color: #9C27B0;
 }
