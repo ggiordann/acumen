@@ -534,11 +534,6 @@ h2 {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-.pricing-card.current-plan .card-header {
-}
-
-.pricing-card.current-plan .card-header h3 {
-}
 
 .pricing-card.current-plan button.plan-button {
     opacity: 0.8;

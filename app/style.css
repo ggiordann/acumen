@@ -983,3 +983,52 @@ h1, h2, #analyzeBtn {
 .premium-plan {
   background-color: #9C27B0;
 }
+
+/* upload‑limit toast */
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 2000;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  background-color: var(--card-bg-dark);
+  color: var(--text-light);
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  border-left: 4px solid var(--accent-green);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast.error {
+  border-left-color: var(--accent-green);
+}
+.toast-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  color: var(--accent-green);
+}
+.toast.error .toast-icon {
+  color: var(--accent-green);
+}
+.toast-message {
+  flex: 1;
+}
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.toast-close:hover {
+  color: var(--accent-green);
+}

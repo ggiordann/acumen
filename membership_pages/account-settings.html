@@ -79,63 +79,15 @@
                     <!-- Profile Picture Section -->
                     <div class="profile-image-container">
                         <div class="profile-image">
-                            <img id="user-avatar" alt="User Avatar" src="https://via.placeholder.com/150" onerror="this.src='https://via.placeholder.com/150'; this.onerror=null;">
-                            <div class="profile-image-overlay">
-                                <i class="fas fa-camera"></i>
-                                <span>Change Photo</span>
-                            </div>
+                            <img id="user-avatar" alt="User Avatar" src="../adime.jpg" onerror="this.src='../adime.jpg'; this.onerror=null;">
                         </div>
-                        <input type="file" id="profile-upload" accept="image/*" style="display: none;">
+                        <!-- Profile picture change disabled -->
                     </div>
                     <div class="form-group">
                         <label for="display-name">Display Name</label>
                         <input type="text" id="display-name" class="form-input">
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" class="form-input" disabled>
-                    </div>
                     <button class="btn-primary save-btn" id="save-profile">Save Changes</button>
-                </div>
-            </div>
-
-            <!-- Security Section -->
-            <div class="settings-card">
-                <div class="settings-card-header">
-                    <h3><i class="fas fa-lock"></i> Security</h3>
-                </div>
-                <div class="settings-card-content">
-                    <div class="form-group">
-                        <label for="new-password">New Password</label>
-                        <div class="password-input-container">
-                            <input type="password" id="new-password" class="form-input">
-                            <button class="toggle-password" type="button">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm-password">Confirm New Password</label>
-                        <div class="password-input-container">
-                            <input type="password" id="confirm-password" class="form-input">
-                            <button class="toggle-password" type="button">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button class="btn-primary save-btn" id="change-password">Update Password</button>
-
-                    <div class="divider"></div>
-
-                    <h4>Two-Factor Authentication</h4>
-                    <p class="text-secondary">Enhance your account security with two-factor authentication.</p>
-                    <div class="toggle-switch-container">
-                        <span>Two-factor authentication</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="tfa-toggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
                 </div>
             </div>
 
@@ -184,55 +136,6 @@
                     <button class="btn-outline" id="add-payment">
                         <i class="fas fa-plus"></i> Add Payment Method
                     </button>
-                </div>
-            </div>
-
-            <!-- Preferences Section -->
-            <div class="settings-card">
-                <div class="settings-card-header">
-                    <h3><i class="fas fa-bell"></i> Preferences</h3>
-                </div>
-                <div class="settings-card-content">
-                    <h4>Notifications</h4>
-                    <div class="preference-item">
-                        <div>
-                            <h5>Email Notifications</h5>
-                            <p class="text-secondary">Receive updates and alerts via email</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="email-notifications" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="preference-item">
-                        <div>
-                            <h5>Marketing Emails</h5>
-                            <p class="text-secondary">Receive promotional offers and news</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="marketing-emails">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <h4>Appearance</h4>
-                    <div class="theme-selector">
-                        <button class="theme-btn active" data-theme="dark">
-                            <span class="theme-circle dark"></span>
-                            <span>Dark</span>
-                        </button>
-                        <button class="theme-btn" data-theme="light">
-                            <span class="theme-circle light"></span>
-                            <span>Light</span>
-                        </button>
-                        <button class="theme-btn" data-theme="system">
-                            <span class="theme-circle system"></span>
-                            <span>System</span>
-                        </button>
-                    </div>
                 </div>
             </div>
 

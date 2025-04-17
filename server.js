@@ -83,7 +83,10 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname);
   }
 });
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { files: 10 }
+});
 
 // Initialize OpenAI
 const openai = new OpenAI({
@@ -92,7 +95,7 @@ const openai = new OpenAI({
 
 // ============== ENDPOINTS FROM SERVER.JS ==============
 
-app.post('/upload', upload.array('files'), (req, res) => {
+app.post('/upload', upload.array('files', 10), (req, res) => {
   res.json({ message: 'Files uploaded successfully', files: req.files });
 });
 

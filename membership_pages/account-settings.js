@@ -429,17 +429,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             try {
                 const newDisplayName = document.getElementById('display-name').value;
-                
                 if (newDisplayName && newDisplayName !== currentUser.displayName) {
                     await currentUser.updateProfile({
                         displayName: newDisplayName
                     });
-                    
-                    console.log('Display name updated successfully');
                 }
-                
                 hideLoading();
                 showToast('Profile updated successfully', 'success');
+                // Refresh page after a short delay to reflect updated display name and photo
+                setTimeout(() => window.location.reload(), 1000);
             } catch (error) {
                 console.error('Error updating profile:', error);
                 hideLoading();

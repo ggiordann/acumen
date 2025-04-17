@@ -514,6 +514,7 @@ p {
 .profile-image-overlay i {
     font-size: 2rem;
     color: var(--text-light);
+    margin-right: 8px;
 }
 
 /* Form Styles */

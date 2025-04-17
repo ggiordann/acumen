@@ -96,6 +96,10 @@
         </button>
       </div>
     </nav>
+    <!-- Listings Remaining Counter -->
+    <div class="listings-counter" style="padding: 1rem; background: #1a1a1a; color: #fff; text-align: center;">
+      Listings left this month: <span id="listings-left">Loading...</span>
+    </div>
     
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobile-menu">
@@ -214,6 +218,15 @@
       <div id="lightbox-nav">
         <span id="lightbox-prev">&#10094;</span>
         <span id="lightbox-next">&#10095;</span>
+      </div>
+    </div>
+    
+    <!-- Upload‑limit toast -->
+    <div class="toast-container">
+      <div class="toast" id="upload-toast">
+        <div class="toast-icon"><i class="fas fa-exclamation-circle"></i></div>
+        <div class="toast-message"></div>
+        <button class="toast-close">&times;</button>
       </div>
     </div>
     

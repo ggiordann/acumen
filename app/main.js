@@ -4,7 +4,7 @@ let currentImageIndex = 0;
 
 $(document).ready(function() {
   // Initialize Firebase
-  let auth, firebaseConfig;
+  let auth, firebaseConfig, db;
   
   // Get Firebase config
   fetchFirebaseConfig();
@@ -25,6 +25,10 @@ $(document).ready(function() {
       firebase.initializeApp(firebaseConfig);
     }
     auth = firebase.auth();
+    // Initialize Firestore
+    if (firebase.firestore) {
+      db = firebase.firestore();
+    }
     
     // Listen for auth state changes
     auth.onAuthStateChanged(function(user) {
@@ -41,6 +45,28 @@ $(document).ready(function() {
       if (user) {
         console.log("User is signed in:", user.displayName);
         updateUIForSignedInUser(user);
+        // Try to read subscription level from ID token custom claims for immediate display
+        user.getIdTokenResult().then(idTokenResult => {
+          const claims = idTokenResult.claims || {};
+          if (claims.subscriptionLevel) {
+            const limits = { free: 5, plus: 100, pro: 500, premium: 1500 };
+            const level = claims.subscriptionLevel.toLowerCase();
+            const remaining = limits[level] || 0;
+            // Render badge and count immediately
+            updateUIWithSubscriptionData({ subscriptionLevel: level, remainingCredits: remaining });
+          }
+        });
+        // If we have cached subscription data, use it for immediate badge/counter
+        const cached = JSON.parse(sessionStorage.getItem('acumen_user_subscription') || '{}');
+        if (cached.subscriptionLevel) {
+          // Compute initial credits based on plan limits and any stored usage
+          const planLimits = { free: 5, plus: 100, pro: 500, premium: 1500 };
+          const level = cached.subscriptionLevel.toLowerCase();
+          const maxAllowed = planLimits[level] || 0;
+          const usage = typeof cached.usedThisMonth === 'number' ? cached.usedThisMonth : 0;
+          cached.remainingCredits = Math.max(maxAllowed - usage, 0);
+          updateUIWithSubscriptionData(cached);
+        }
         
         // Check if user has subscription data
         getUserSubscriptionData(user.uid);
@@ -68,6 +94,14 @@ $(document).ready(function() {
       if (response.ok) {
         const userData = await response.json();
         console.log("Retrieved subscription data:", userData.subscription);
+        
+        // Calculate usage this month and remaining credits
+        const usage = await getMonthlyUsage(uid);
+        const limits = { free: 5, plus: 100, pro: 500, premium: 1500 };
+        const level = userData.subscription.subscriptionLevel.toLowerCase();
+        const maxAllowed = limits[level] || 0;
+        userData.subscription.remainingCredits = Math.max(maxAllowed - usage, 0);
+        
         updateUIWithSubscriptionData(userData.subscription);
         
         // Store subscription info in session storage
@@ -199,9 +233,20 @@ $(document).ready(function() {
     
     // Update remaining credits display
     updateRemainingCredits(subscription.remainingCredits || 0);
+    // Also update global listings counter on main page (only if defined)
+    if ($('#listings-left').length && typeof subscription.remainingCredits === 'number') {
+      $('#listings-left').text(subscription.remainingCredits);
+    }
+    // Enable or disable analysis based on remaining credits
+    if ($('#analyzeBtn').length) {
+      $('#analyzeBtn').prop('disabled', !window.remainingCredits || window.remainingCredits <= 0);
+    }
     
     // Update premium features visibility
     updateFeaturesVisibility(displayLevel);
+
+    // Expose remaining credits globally for enforce checks
+    window.remainingCredits = subscription.remainingCredits;
   }
 
   function updateActiveMode(mode) {
@@ -355,12 +400,32 @@ $(document).ready(function() {
       .appendTo("head");
   }
 
-  $("#fileInput").change(function(event) {
+  // helper to show upload‑limit toast
+  function showUploadToast(msg) {
+    const t = $('#upload-toast');
+    t.find('.toast-message').text(msg);
+    t.addClass('show');
+    setTimeout(() => t.removeClass('show'), 3000);
+  }
+
+  // clear toast on close
+  $(document).on('click', '.toast-close', () => {
+    $('#upload-toast').removeClass('show');
+  });
+
+  // file input handler
+  $('#fileInput').change(function(event) {
+    const files = event.target.files;
+    if (files.length > 10) {
+      showUploadToast('10 file upload limit exceeded');
+      $(this).val('');                          // clear selection
+      return;                                   // abort further processing
+    }
+
     base64Data = "";
     previewImages = [];
     $("#preview-container").empty();
 
-    const files = event.target.files;
     if (files.length) {
       const readFilePromises = Array.from(files).map((file, index) => {
         return new Promise((resolve, reject) => {
@@ -374,7 +439,6 @@ $(document).ready(function() {
           reader.readAsDataURL(file);
         });
       });
-
 
       Promise.all(readFilePromises)
         .then(() => {
@@ -397,7 +461,6 @@ $(document).ready(function() {
         });
     }
   });
-
 
   $("#preview-container").on("click", "img.preview-image", function() {
     currentImageIndex = parseInt($(this).attr("data-index"));
@@ -428,7 +491,20 @@ $(document).ready(function() {
     $("#lightbox-img").attr("src", src);
   }
 
+  // Initially disable analyze until subscription data arrives
+  $("#analyzeBtn").prop('disabled', true);
+
   $("#analyzeBtn").click(function() {
+    // Prevent analysis if credit info not yet loaded
+    if (typeof window.remainingCredits !== 'number') {
+      showUploadToast('Loading your monthly quota, please wait...');
+      return;
+    }
+    // Prevent analysis if no listings left
+    if (window.remainingCredits <= 0) {
+      showUploadToast('You have no listings left this month.');
+      return;
+    }
     if (!base64Data) {
       $("#analysisOutput").text("Please upload an image and select a platform first.");
       return;
@@ -487,6 +563,15 @@ $(document).ready(function() {
       pending--;
       if (pending <= 0) {
         $("#loadingOverlay").remove();
+        // Deduct one listing use
+        if (window.remainingCredits > 0) {
+          window.remainingCredits -= 1;
+          $('#listings-left').text(window.remainingCredits);
+          // disable if none left
+          if (window.remainingCredits <= 0) {
+            $('#analyzeBtn').prop('disabled', true);
+          }
+        }
       }
     }
 
@@ -596,4 +681,21 @@ $(document).ready(function() {
         alert("Error executing ebay_login.spec.js.");
       });
   });
+
+  // Fetch count of listings created this month for user
+  async function getMonthlyUsage(uid) {
+    try {
+      if (!db) return 0;
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      const snapshot = await db.collection('listings')
+        .where('uid', '==', uid)
+        .where('createdAt', '>=', start)
+        .get();
+      return snapshot.size;
+    } catch (e) {
+      console.error('Error calculating monthly usage:', e);
+      return 0;
+    }
+  }
 });
