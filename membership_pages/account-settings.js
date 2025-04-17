@@ -349,15 +349,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!userData) return;
 
         // Update profile information
-        document.getElementById('display-name').value = userData.displayName || '';
-        document.getElementById('user-email').value = userData.email || '';
-        
+        const displayNameInput = document.getElementById('display-name');
+        if (displayNameInput) {
+            displayNameInput.value = userData.displayName || '';
+        }
+
         // Set profile picture
         const profilePicture = document.getElementById('user-avatar');
+        const photoURL = userData.photoURL || 'https://via.placeholder.com/150';
         if (profilePicture) {
-            profilePicture.src = userData.photoURL;
+            profilePicture.src = photoURL;
+            //profilePicture.alt = userData.displayName;
+            profilePicture.onerror = function() { this.src = 'https://via.placeholder.com/150'; this.onerror = null; };
         }
-        
+
         // Update subscription details
         const currentPlanElement = document.getElementById('current-plan');
         if (currentPlanElement) {
@@ -413,7 +418,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     });
                 }
                 hideLoading();
-                showToast('Profile updated successfully', 'success');
+                showToast('Profile updated successfully  ', 'success');
                 // Refresh page after a short delay to reflect updated display name and photo
                 setTimeout(() => window.location.reload(), 1000);
             } catch (error) {

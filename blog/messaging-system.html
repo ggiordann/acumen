@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Messaging System Coming Soon - Acumen Blog</title>
+    <link rel="stylesheet" href="blog.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="../acumen.ico">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="main-navbar">
+      <div class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+      </div>
+      
+      <a href="../app/index.html" class="navbar-brand" id="brand-logo">acumen</a>
+      <div class="navbar-links" id="nav-links">
+        <!-- Features Dropdown -->
+        <div class="nav-item" id="features-dropdown">
+          <span>Features</span>
+          <i class="dropdown-arrow fas fa-chevron-down"></i>
+          <div class="dropdown-content">
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-search-plus"></i>
+              </div>
+              <div class="content">
+                <span class="title">Generate item specifications</span>
+                <span class="description">Turn an image into a listing within seconds</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-balance-scale"></i>
+              </div>
+              <div class="content">
+                <span class="title">Compare item values</span>
+                <span class="description">Compare your item's value across platforms</span>
+              </div>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Pricing Link -->
+        <div class="nav-item">
+          <a href="../membership_pages/subscription.html" style="color: inherit; text-decoration: none;">
+            <span>Pricing</span>
+          </a>
+        </div>
+        
+        <!-- Resources Dropdown -->
+        <div class="nav-item" id="resources-dropdown">
+          <span>Resources</span>
+          <i class="dropdown-arrow fas fa-chevron-down"></i>
+          <div class="dropdown-content">
+            <a href="../blog/blog.html" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-blog"></i>
+              </div>
+              <div class="content">
+                <span class="title">Blog</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fas fa-info-circle"></i>
+              </div>
+              <div class="content">
+                <span class="title">About</span>
+              </div>
+            </a>
+            <a href="#" class="dropdown-item">
+              <div class="icon">
+                <i class="fab fa-discord"></i>
+              </div>
+              <div class="content">
+                <span class="title">Community Discord</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="auth-container" id="auth-buttons">
+        <div class="user-profile-menu" id="user-profile-menu" style="display: none;">
+          <div class="user-profile-toggle">
+            <div class="user-avatar">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <span class="user-name" id="user-name">User</span>
+            <i class="dropdown-arrow fas fa-chevron-down"></i>
+          </div>
+          <div class="profile-dropdown">
+            <a href="../app/index.html" class="profile-dropdown-item">
+              <i class="fas fa-home"></i>
+              <span>Dashboard</span>
+            </a>
+            <a href="../membership_pages/account-settings.html" class="profile-dropdown-item">
+              <i class="fas fa-cog"></i>
+              <span>Account Settings</span>
+            </a>
+            <a href="#" class="profile-dropdown-item" id="logout-button">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Log Out</span>
+            </a>
+          </div>
+        </div>
+        <button class="auth-btn login-btn" id="login-button" onclick="window.location.href='../membership_pages/subs.html'">
+          Log In
+        </button>
+        <button class="auth-btn signup-btn" id="signup-button" onclick="window.location.href='../membership_pages/subs.html'">
+          Sign Up
+        </button>
+      </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="mobile-close" id="mobile-close">
+        <i class="fas fa-times"></i>
+      </div>
+      <div class="mobile-menu-header">acumen</div>
+      
+      <div class="mobile-section">
+        <div class="mobile-section-title">Features</div>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-search-plus"></i>
+          </div>
+          <span>Generate item specifications</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-balance-scale"></i>
+          </div>
+          <span>Compare item values</span>
+        </a>
+      </div>
+      
+      <div class="mobile-section">
+        <div class="mobile-section-title">Resources</div>
+        <a href="../blog/blog.html" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-blog"></i>
+          </div>
+          <span>Blog</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <span>About</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fab fa-discord"></i>
+          </div>
+          <span>Community Discord</span>
+        </a>
+      </div>
+      
+      <div class="mobile-section">
+        <div class="mobile-section-title">Pricing</div>
+        <a href="../membership_pages/subscription.html" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-tags"></i>
+          </div>
+          <span>View Plans</span>
+        </a>
+      </div>
+      
+      <div class="mobile-section" id="mobile-auth-section">
+        <a href="../membership_pages/subs.html" class="auth-btn login-btn" style="display: block; text-align: center; margin-bottom: 1rem;">
+          Log In
+        </a>
+        <a href="../membership_pages/subs.html" class="auth-btn signup-btn" style="display: block; text-align: center;">
+          Sign Up
+        </a>
+      </div>
+      <div class="mobile-section" id="mobile-user-section" style="display: none;">
+        <div class="mobile-section-title">Account</div>
+        <a href="../app/index.html" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-home"></i>
+          </div>
+          <span>Dashboard</span>
+        </a>
+        <a href="../membership_pages/account-settings.html" class="mobile-nav-item">
+          <div class="icon">
+            <i class="fas fa-cog"></i>
+          </div>
+          <span>Account Settings</span>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobile-logout">
+          <div class="icon">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          <span>Log Out</span>
+        </a>
+      </div>
+    </div>
+    
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
+    <!-- Article Content -->
+    <div class="content-container">
+        <div class="article-container">
+            <a href="blog.html" class="back-to-blog">
+                <i class="fas fa-arrow-left"></i> Back to Blog
+            </a>
+
+            <div class="article-header">
+                <span class="blog-category">Development</span>
+                <h1 class="article-title">New Messaging System Coming Soon</h1>
+                <div class="article-meta">
+                    <div class="article-author">
+                        <img src="https://avatars.githubusercontent.com/u/40554409?v=4" alt="Giordan Masen">
+                        <div>
+                            <strong>Giordan Masen</strong>
+                            <span>| Lead Developer</span>
+                        </div>
+                    </div>
+                    <div class="article-date">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>April 17, 2025</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="article-hero">
+                <img src="https://www.shutterstock.com/shutterstock/videos/3563814027/thumb/7.jpg?ip=x480" alt="Messaging System" class="article-image">
+            </div>
+
+            <div class="article-content">
+                <p>We're excited to announce that our team is developing a comprehensive messaging system that will allow direct communication between sellers across all integrated marketplaces. This highly requested feature is currently in active development and set to launch in late May 2025.</p>
+
+                <h2>Unified Communication Hub</h2>
+                <p>One of the biggest challenges sellers face today is managing conversations across multiple platforms. Our new messaging system aims to solve this problem by creating a central hub where you can interact with all your customer messages from different marketplaces in one place.</p>
+
+                <p>No more switching between apps or websites to respond to potential buyers. Whether a message comes from eBay, Facebook Marketplace, or any of our other integrated platforms, you'll be able to view and respond to it directly from your Acumen dashboard.</p>
+
+                <h2>Key Features</h2>
+                <p>Our messaging system will include several powerful features designed to streamline your communication workflow:</p>
+
+                <ul>
+                    <li><strong>Unified Inbox:</strong> All messages from all platforms in one centralized location</li>
+                    <li><strong>Auto-Categorization:</strong> Messages will be automatically sorted by platform, item, and conversation status</li>
+                    <li><strong>Template Responses:</strong> Create and save template messages for common questions</li>
+                    <li><strong>AI-Assisted Replies:</strong> Get suggestions for professional responses based on customer inquiries</li>
+                    <li><strong>Conversation History:</strong> Complete message history for each buyer, organized by listing</li>
+                    <li><strong>Mobile Notifications:</strong> Receive alerts for new messages on your mobile device</li>
+                </ul>
+
+                <h2>Current Development Status</h2>
+                <p>Our development team has completed the core messaging infrastructure and is currently focused on integrating with each individual marketplace API. We've successfully connected with eBay's messaging system and are now working on Facebook Marketplace integration.</p>
+
+                <p>The user interface design is complete, and we're conducting initial usability testing with a small group of beta users. Early feedback has been overwhelmingly positive, with testers particularly appreciating the streamlined workflow and time savings.</p>
+
+                <div class="article-quote">
+                    <p>"The messaging system has already saved me hours of work. Being able to respond to all customer inquiries from one dashboard is a game-changer for my business."</p>
+                    <cite>— Beta Tester, Professional Seller</cite>
+                </div>
+
+                <h2>Implementation Timeline</h2>
+                <p>Here's our current development schedule:</p>
+
+                <ul>
+                    <li><strong>April 17-30:</strong> Complete Facebook Marketplace integration</li>
+                    <li><strong>May 1-14:</strong> Integrate remaining marketplaces and finalize notification system</li>
+                    <li><strong>May 15-25:</strong> Extended beta testing and bug fixes</li>
+                    <li><strong>May 26:</strong> Full release to all Acumen users</li>
+                </ul>
+
+                <h2>Accessibility Across All Plans</h2>
+                <p>The basic version of our messaging system will be available to all Acumen users, including those on the free tier. Premium features like AI-assisted replies and advanced templates will be exclusive to our paid subscription plans.</p>
+
+                <h2>Looking Forward</h2>
+                <p>This messaging system represents a significant step in our mission to create the ultimate all-in-one platform for online sellers. By centralizing communications alongside our existing tools for listings creation and management, we're making it easier than ever to run a successful e-commerce business.</p>
+
+                <p>We're committed to continuous improvement, and we'll be closely monitoring user feedback after launch to identify areas for enhancement. Future updates may include bulk messaging capabilities, automated follow-ups, and additional AI tools to help you communicate more effectively with customers.</p>
+
+                <p>Stay tuned for more updates as we get closer to the official launch. We can't wait for you to experience how this new system will transform your selling workflow.</p>
+
+                <div class="article-cta">
+                    <h3>Want early access?</h3>
+                    <p>We're expanding our beta testing program. Sign up below to be considered for early access.</p>
+                    <div class="beta-signup">
+                        <input type="email" placeholder="Your email address" class="beta-input">
+                        <button class="beta-button">Join Beta</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="article-tags">
+                <span class="article-tag">Messaging</span>
+                <span class="article-tag">New Features</span>
+                <span class="article-tag">Development</span>
+                <span class="article-tag">Marketplace Integration</span>
+            </div>
+
+            <div class="article-navigation">
+                <a href="depop-integration.html" class="article-nav-next">
+                    <span>Next Article</span>
+                    <h4>Depop Integration Coming in May</h4>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for mobile menu toggle and authentication -->
+    <script>
+        $(document).ready(function() {
+            // Add loading state as soon as the page loads
+            $(".auth-container").addClass("loading");
+            $(".auth-container").append('<div class="auth-loading-overlay"></div>');
+            
+            // Mobile menu toggle
+            $("#mobile-menu-toggle").click(function() {
+                $("#mobile-menu").addClass("active");
+                $("#mobile-overlay").addClass("active");
+                $("body").css("overflow", "hidden"); // Prevent scrolling
+            });
+            
+            // Close mobile menu
+            $("#mobile-close, #mobile-overlay").click(function() {
+                $("#mobile-menu").removeClass("active");
+                $("#mobile-overlay").removeClass("active");
+                $("body").css("overflow", ""); // Allow scrolling again
+            });
+            
+            // Toggle user profile dropdown
+            $(".user-profile-toggle").click(function() {
+                $(".profile-dropdown").toggleClass("active");
+            });
+            
+            // Close dropdown when clicking elsewhere
+            $(document).click(function(event) {
+                if (!$(event.target).closest(".user-profile-menu").length) {
+                    $(".profile-dropdown").removeClass("active");
+                }
+            });
+            
+            // Beta signup form (demo only)
+            $(".beta-button").click(function() {
+                const email = $(".beta-input").val();
+                if (email) {
+                    alert("Thanks for your interest! If selected for the beta program, we'll contact you at " + email);
+                    $(".beta-input").val("");
+                } else {
+                    alert("Please enter your email address");
+                }
+            });
+        });
+    </script>
+    
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Initialize Firebase with dynamic config
+        (async function() {
+            try {
+                const resp = await fetch('http://localhost:1989/get-api-key');
+                const data = await resp.json();
+                firebase.initializeApp(data.firebaseConfig);
+                
+                // Check authentication state
+                firebase.auth().onAuthStateChanged(user => {
+                    // Remove loading state
+                    $(".auth-container").removeClass("loading");
+                    $(".auth-loading-overlay").remove();
+                    
+                    if (user) {
+                        // User is signed in
+                        $("#login-button, #signup-button").hide();
+                        $("#user-profile-menu").css("display", "flex");
+                        $("#user-name").text(user.displayName || user.email || "User");
+                        
+                        // Update mobile menu
+                        $("#mobile-auth-section").hide();
+                        $("#mobile-user-section").show();
+                    } else {
+                        // User is signed out
+                        $("#login-button, #signup-button").show();
+                        $("#user-profile-menu").hide();
+                        
+                        // Update mobile menu
+                        $("#mobile-auth-section").show();
+                        $("#mobile-user-section").hide();
+                    }
+                });
+                
+                // Handle logout
+                $("#logout-button, #mobile-logout").click(function(e) {
+                    e.preventDefault();
+                    firebase.auth().signOut().then(() => {
+                        window.location.href = '../membership_pages/subs.html';
+                    }).catch(error => {
+                        console.error("Error signing out:", error);
+                    });
+                });
+                
+            } catch (err) {
+                console.error('Error initializing Firebase:', err);
+                // Remove loading state in case of error
+                $(".auth-container").removeClass("loading");
+                $(".auth-loading-overlay").remove();
+            }
+        })();
+    </script>
+</body>
+</html>
