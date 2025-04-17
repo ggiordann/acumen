@@ -216,12 +216,27 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Function to highlight the user's current subscription plan
     function highlightCurrentPlan(plan) {
-        // Remove existing highlight from all plans
-        $(".pricing-option").removeClass("current-plan");
+        console.log(`Setting current plan to: ${plan}`);
         
-        // Add highlight to current plan
-        $(`.pricing-option[data-plan="${plan}"]`).addClass("current-plan");
-        console.log(`Highlighted plan: ${plan}`);
+        // First reset all buttons to "Buy Now"
+        const allPlanButtons = document.querySelectorAll('.plan-button');
+        allPlanButtons.forEach(btn => {
+            const btnPlan = btn.getAttribute('data-plan');
+            if (btnPlan !== plan) {
+                btn.querySelector('span').textContent = btnPlan === 'free' ? 'Free Plan' : 'Buy Now';
+                btn.classList.remove('current');
+            }
+        });
+        
+        // Set the current plan button to "Current Plan"
+        const currentPlanButton = document.querySelector(`.plan-button[data-plan="${plan}"]`);
+        if (currentPlanButton) {
+            currentPlanButton.querySelector('span').textContent = 'Current Plan';
+            currentPlanButton.classList.add('current');
+            console.log(`Highlighted plan button: ${plan}`);
+        } else {
+            console.error(`Could not find button for plan: ${plan}`);
+        }
     }
     
     // Initialize Firebase when the page loads

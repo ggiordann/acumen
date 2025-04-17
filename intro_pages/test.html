@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>acumen</title>
     <link rel="stylesheet" href="test.css">
+    <!--<link rel="stylesheet" href="../membership_pages/subscription.css">-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="../acumen.ico">
     <script>
@@ -81,19 +82,27 @@
                 </div>
                 <div class="hero-stats reveal-element">
                     <div class="stat-card">
-                        <span class="stat-number" data-count="95">0</span>%
+                        <span class="stat-number" data-count="95">0</span><span class="stat-symbol"> %</span>
                         <p>Time saved on listing creation</p>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-number" data-count="3">0</span>+
+                        <span class="stat-number" data-count="3">0</span><span class="stat-symbol"> +</span>
                         <p>Marketplace integrations</p>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-number" data-count="10000">0</span>+
+                        <span id="active-users" class="stat-number" data-count="0">0</span><span class="stat-symbol"> +</span>
                         <p>Active users</p>
                     </div>
                 </div>
             </section>
+
+            <div class="demo-video-container">
+                <h2 class="section-title accent" id="demoTitle">Demo</h2>
+                <video controls class="demo-video">
+                    <source src="../sahur.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
 
             <!-- Features Section -->
             <section id="features" class="features-section">
@@ -495,6 +504,46 @@
             }
         }
     </script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <!-- Initialize Firebase -->
+    <script>
+      (async function() {
+        try {
+          const resp = await fetch('http://localhost:1989/get-api-key');
+          const data = await resp.json();
+          firebase.initializeApp(data.firebaseConfig);
+          console.log('Firebase initialized for intro pages');
+        } catch (err) {
+          console.error('Error initializing Firebase for intro pages:', err);
+        }
+      })();
+    </script>
+    <!-- Fetch active users count after Firestore init -->
+    <script>
+      (async function updateActiveUsers() {
+        // Wait until Firebase app is initialized
+        while (!firebase.apps.length) {
+          await new Promise(res => setTimeout(res, 100));
+        }
+        try {
+          const snapshot = await firebase.firestore().collection('users').get();
+          const count = snapshot.size;
+          const el = document.getElementById('active-users');
+          if (el) {
+            el.dataset.count = count;
+            el.textContent = count;
+          }
+        } catch (err) {
+          console.error('Error fetching active users count:', err);
+        }
+      })();
+    </script>
+    <!-- Main script -->
     <script type="module" src="test.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../membership_pages/subscription.js"></script>
 </body>
 </html>

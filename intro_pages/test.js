@@ -401,6 +401,20 @@ function initContentFeatures() {
     initPricingCards();
 
     handleTransitionScrollPast();
+
+    // Fetch active users count from Firestore
+    if (firebase && firebase.firestore) {
+        firebase.firestore().collection('users').get()
+            .then(snapshot => {
+                const count = snapshot.size;
+                const span = document.getElementById('active-users');
+                if (span) {
+                    span.dataset.count = count;
+                    span.textContent = count;
+                }
+            })
+            .catch(err => console.error('Error fetching active users count:', err));
+    }
 }
 
 // Initialize mobile menu functionality

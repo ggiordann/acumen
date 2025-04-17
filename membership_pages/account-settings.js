@@ -105,14 +105,13 @@ document.addEventListener('DOMContentLoaded', async function() {
                 // Get user photo URL or use placeholder || 'https://via.placeholder.com/30'
                 const photoURL = user.photoURL;
                 
-                // on error onerror="this.src='https://via.placeholder.com/30'; this.onerror=null;"
                 // Add user profile UI with improved error handling
                 authContainer.innerHTML = `
                     <div class="user-profile-container">
                         <button class="user-profile-btn">
-                            <img src="${photoURL}" alt="${user.displayName}" class="user-avatar" 
-                                 >
-                            <span>${user.displayName}</span>
+                            <img src="${photoURL}" alt="${user.displayName}" class="user-avatar">
+                            <span class="user-name">${user.displayName}</span>
+                            <span class="subscription-badge ${subscriptionData.subscriptionLevel}-badge">${subscriptionData.subscriptionLevel.toUpperCase()}</span>
                         </button>
                         <div class="user-dropdown">
                             <a href="../app/index.html" class="dropdown-item">Dashboard</a>
@@ -122,15 +121,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                         </div>
                     </div>
                 `;
-                
-                // Add subscription badge
-                const badgeClass = `${subscriptionData.subscriptionLevel}-badge`;
-                const planName = subscriptionData.subscriptionLevel.toUpperCase();
-                const planBadge = document.createElement('span');
-                planBadge.className = `subscription-badge ${badgeClass}`;
-                planBadge.textContent = planName;
-                document.querySelector('.user-profile-btn span').appendChild(document.createTextNode(' '));
-                document.querySelector('.user-profile-btn span').appendChild(planBadge);
                 
                 // Initialize dropdown toggle
                 document.querySelector('.user-profile-btn').addEventListener('click', function(e) {
@@ -362,22 +352,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('display-name').value = userData.displayName || '';
         document.getElementById('user-email').value = userData.email || '';
         
-        // Set profile picture with error handling
+        // Set profile picture
         const profilePicture = document.getElementById('user-avatar');
         if (profilePicture) {
-            if (userData.photoURL) {
-                console.log("Setting profile picture to:", userData.photoURL);
-                profilePicture.src = userData.photoURL;
-            } else {
-                console.log("No profile picture found, using placeholder");
-                profilePicture.src = 'https://via.placeholder.com/150';
-            }
-            
-            profilePicture.onerror = function() {
-                console.log("Failed to load profile image, using placeholder");
-                this.src = 'https://via.placeholder.com/150';
-                this.onerror = null;
-            };
+            profilePicture.src = userData.photoURL;
         }
         
         // Update subscription details

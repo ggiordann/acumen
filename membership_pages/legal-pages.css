@@ -1,0 +1,341 @@
+/* CSS Variables */
+:root {
+    --accent-green: #00ff9d;
+    --bg-dark: #111111;
+    --card-bg-dark: #1a1a1a;
+    --card-highlight: #222222;
+    --text-light: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --spacing: 1.5rem;
+    --border-radius: 12px;
+    --shadow-subtle: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.2);
+    --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.3);
+    --shadow-accent: 0 10px 30px rgba(0, 255, 157, 0.15);
+}
+  
+/* Global styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Base Styles */
+body {
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navigation Message Styles */
+.navigation-message {
+    background-color: rgba(0, 255, 157, 0.1);
+    color: var(--text-light);
+    text-align: center;
+    padding: 12px;
+    width: 100%;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(0, 255, 157, 0.2);
+    margin-bottom: 1rem;
+}
+  
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background-color: rgba(17, 17, 17, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00ff9d 0%, #00cc7d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+}
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+}
+
+.nav-item {
+    margin: 0 0.8rem;
+    position: relative;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Mobile menu */
+.mobile-menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    height: 100%;
+    background-color: var(--bg-dark);
+    z-index: 2000;
+    padding: 2rem;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+}
+
+.mobile-menu.active {
+    left: 0;
+}
+
+.mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1999;
+    display: none;
+}
+
+.mobile-overlay.active {
+    display: block;
+}
+
+.mobile-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.mobile-menu-header {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #00ff9d 0%, #00cc7d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.mobile-section {
+    margin-bottom: 2rem;
+}
+
+.mobile-section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mobile-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 0;
+    font-size: 1.1rem;
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.mobile-nav-item .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--card-highlight);
+    margin-right: 1rem;
+}
+
+/* Legal content container */
+.legal-container {
+    max-width: 900px;
+    width: 100%;
+    padding: 2rem 1.5rem;
+    margin: 0 auto;
+    flex-grow: 1;
+}
+
+.legal-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.legal-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #00ff9d 0%, #00cc7d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.legal-header p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.legal-content {
+    background-color: var(--card-bg-dark);
+    border-radius: var(--border-radius);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-card);
+}
+
+.legal-section {
+    margin-bottom: 3rem;
+}
+
+.legal-section:last-child {
+    margin-bottom: 0;
+}
+
+.legal-section h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    color: var(--accent-green);
+}
+
+.legal-section h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.8rem;
+}
+
+.legal-section p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.legal-section ul, .legal-section ol {
+    margin: 1rem 0 1.5rem 1.5rem;
+}
+
+.legal-section li {
+    margin-bottom: 0.5rem;
+    line-height: 1.7;
+}
+
+/* Footer styles */
+.legal-footer {
+    width: 100%;
+    background-color: var(--card-bg-dark);
+    padding: 2rem 1.5rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.footer-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin: 0 1rem;
+    padding: 0.3rem 0;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--accent-green);
+}
+
+.footer-links a.active {
+    color: var(--accent-green);
+}
+
+.footer-links a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--accent-green);
+}
+
+.footer-copyright {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .navbar-links {
+        display: none;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+    }
+    
+    .legal-content {
+        padding: 1.5rem;
+    }
+    
+    .legal-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .legal-section h3 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Links within legal text */
+.legal-section a {
+    color: var(--accent-green);
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.legal-section a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* Custom styles for blockquotes if needed */
+.legal-section blockquote {
+    border-left: 3px solid var(--accent-green);
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: var(--text-secondary);
+}

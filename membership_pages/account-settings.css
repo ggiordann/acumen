@@ -325,6 +325,12 @@ body::-webkit-scrollbar-thumb {
     color: var(--accent-green);
 }
 
+/* Larger font for navbar username only */
+.user-profile-btn .user-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
 /* Mobile user info */
 .mobile-user-info {
     display: flex;

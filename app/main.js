@@ -55,6 +55,8 @@ $(document).ready(function() {
         getUserSubscriptionData(user.uid);
       } else {
         console.log("No user is signed in");
+        // Redirect to login if not authenticated
+        window.location.href = "../membership_pages/subs.html";
         updateUIForSignedOutUser();
       }
     });

@@ -1039,11 +1039,12 @@ h1, h2, #analyzeBtn {
   justify-content: center;
   align-items: center;
   background: linear-gradient(to right, rgba(26, 26, 26, 0.9), rgba(34, 34, 34, 0.9));
-  border-bottom: 1px solid rgba(0, 255, 157, 0.1);
   padding: 0.8rem;
   backdrop-filter: blur(10px);
   position: relative;
   z-index: 10;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .listings-counter-content {

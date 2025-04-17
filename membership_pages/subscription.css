@@ -685,6 +685,58 @@ h2 {
 .pricing-card.free .plan-button:hover {
     background-color: rgba(0, 255, 157, 0.1);
 }
+
+/* Plan Button Current Styling */
+.plan-button.current {
+  background-color: transparent;
+  border: 2px solid var(--accent-green);
+  color: var(--accent-green);
+  position: relative;
+  overflow: hidden;
+}
+
+.plan-button.current::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 255, 157, 0.2),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+.pricing-card.premium .plan-button.current {
+  background-color: rgba(156, 39, 176, 0.1);
+  border: 2px solid #9C27B0;
+  color: var(--text-light);
+}
+
+.pricing-card.pro .plan-button.current {
+  background-color: rgba(33, 150, 243, 0.1);
+  border: 2px solid #2196F3;
+  color: var(--text-light);
+}
+
+.pricing-card.plus .plan-button.current {
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 2px solid #4CAF50;
+  color: var(--text-light);
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
   
 /* Guarantees Section */
 .guarantees {

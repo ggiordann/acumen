@@ -597,9 +597,19 @@ p {
     font-size: 3rem;
     font-weight: 700;
     color: var(--accent-green);
-    display: block;
-    margin-bottom: 0.5rem;
+    display: inline-block; /* allow symbol next to number */
+    margin-bottom: 0; /* no break below */
     text-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+    line-height: 1; /* ensure consistent baseline */
+}
+
+.stat-symbol {
+    font-size: 1.6rem; /* a bit smaller */
+    line-height: 1; /* same as number */
+    margin-left: 0.2rem;
+    vertical-align: baseline; /* inline at baseline */
+    position: relative;
+    top: -0.25rem; /* move upward */
 }
 
 .stat-card p {
@@ -610,20 +620,19 @@ p {
 /* Features Section */
 .features-section {
     padding: 8rem 2rem;
-    background-color: var(--bg-darker);
     position: relative;
+    /*background-color: var(--bg-dark); /* solid black */
 }
 
-.features-section::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 250px;
-    background: linear-gradient(to top, var(--bg-dark), transparent);
-    z-index: 1;
-    pointer-events: none;
+.features-section::before,
+.features-section::after,
+.how-it-works-section::before,
+.how-it-works-section::after,
+.pricing-section::before,
+.pricing-section::after,
+.faq-section::before,
+.faq-section::after {
+    display: none !important;
 }
 
 .features-grid {
@@ -691,6 +700,7 @@ p {
 .how-it-works-section {
     padding: 8rem 2rem;
     text-align: center;
+    background-color: var(--bg-darker); /* solid darker */
 }
 
 .steps-container {
@@ -699,7 +709,8 @@ p {
     align-items: flex-start;
     gap: 1rem;
     margin-top: 4rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* prevent wrapping so steps 1,2,3 align in one row */
+    overflow-x: auto; /* allow horizontal scroll if necessary */
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -775,30 +786,12 @@ p {
 /* Testimonials Section */
 .testimonials-section {
     padding: 8rem 2rem;
-    background-color: var(--bg-darker);
     position: relative;
 }
 
-.testimonials-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 200px;
-    background: linear-gradient(to bottom, var(--bg-dark), transparent);
-    z-index: 1;
-}
-
+.testimonials-section::before,
 .testimonials-section::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 200px;
-    background: linear-gradient(to top, var(--bg-dark), transparent);
-    z-index: 1;
+    display: none !important;
 }
 
 .testimonials-container {
@@ -886,7 +879,7 @@ p {
 /* Pricing Section */
 .pricing-section {
     padding: 8rem 2rem;
-    background-color: var(--bg-dark);
+    background-color: var(--bg-darker); /* solid darker */
 }
 
 .pricing-container {
@@ -1049,6 +1042,7 @@ p {
 /* FAQ Section */
 .faq-section {
     padding: 8rem 2rem;
+    background-color: var(--bg-dark); /* solid black */
 }
 
 .faq-container {
@@ -1148,6 +1142,27 @@ p {
     z-index: 1;
 }
 
+/* Demo Video Styles */
+.demo-video-container {
+    text-align: center;
+    margin: 2rem 0;
+    background-color: var(--bg-darker);
+    padding: 8rem 2rem;
+}
+
+.demo-video-container .section-title {
+    margin-bottom: 3rem; /* space between Demo title and video */
+}
+
+.demo-video {
+    width: 100%;
+    max-width: 1000px; /* adjust for much smaller appearance */
+    height: auto;
+    border-radius: var(--border-radius);
+    display: block;
+    margin: 0 auto; /* only add bottom space */
+}
+
 /* Footer */
 .main-footer {
     background-color: var(--bg-darker);
@@ -1233,6 +1248,96 @@ p {
     color: var(--accent-green);
     transform: translateY(-3px);
 }
+
+/* User Profile Dropdown Styles */
+.user-profile-container {
+  position: relative;
+  display: inline-block;
+}
+.user-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent;
+  color: var(--text-light);
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+.user-profile-btn span {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-green);
+  transition: all 0.2s ease;
+}
+.user-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+}
+.user-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: var(--card-bg-dark);
+  border-radius: var(--border-radius);
+  min-width: 180px;
+  box-shadow: var(--shadow-card);
+  padding: 0.5rem 0;
+  display: none;
+  z-index: 100;
+}
+.user-dropdown.show {
+  display: block;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+.user-dropdown .dropdown-item {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--text-light);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.user-dropdown .dropdown-item:hover {
+  background-color: var(--card-highlight);
+  color: var(--accent-green);
+}
+
+/* Mobile User Info */
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  margin-bottom: 0.5rem;
+}
+.mobile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-green);
+  margin-right: 12px;
+}
+
+/* Subscription Badge Styles */
+.subscription-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+  margin-left: 6px;
+}
+.free-badge { background-color: #6c757d; }
+.plus-badge { background-color: #4CAF50; }
+.pro-badge  { background-color: #2196F3; }
+.premium-badge { background-color: #9C27B0; }
 
 /* Animations */
 @keyframes pulse {
