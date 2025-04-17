@@ -860,6 +860,44 @@ app.get('/get-user-subscription', verifyToken, async (req, res) => {
   }
 });
 
+// Add endpoint to fetch monthly usage securely
+app.get('/get-monthly-usage', verifyToken, async (req, res) => {
+    const uidParam = req.query.uid;
+    if (!uidParam || uidParam !== req.user.uid) {
+        return res.status(403).json({ error: 'Unauthorized access to usage data' });
+    }
+    try {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        const snapshot = await db.collection('listings')
+            .where('uid', '==', uidParam)
+            .where('createdAt', '>=', start)
+            .get();
+        return res.json({ usage: snapshot.size });
+    } catch (error) {
+        console.error('Error in get-monthly-usage:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Record a new listing for usage tracking
+app.post('/record-listing', verifyToken, async (req, res) => {
+    const uidParam = req.body.uid;
+    if (!uidParam || uidParam !== req.user.uid) {
+        return res.status(403).json({ error: 'Unauthorized to record listing' });
+    }
+    try {
+        await db.collection('listings').add({
+            uid: uidParam,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Error recording listing:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Start the server on port 1989
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server listening on port ${port}`);

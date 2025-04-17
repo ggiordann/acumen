@@ -45,26 +45,9 @@ $(document).ready(function() {
       if (user) {
         console.log("User is signed in:", user.displayName);
         updateUIForSignedInUser(user);
-        // Try to read subscription level from ID token custom claims for immediate display
-        user.getIdTokenResult().then(idTokenResult => {
-          const claims = idTokenResult.claims || {};
-          if (claims.subscriptionLevel) {
-            const limits = { free: 5, plus: 100, pro: 500, premium: 1500 };
-            const level = claims.subscriptionLevel.toLowerCase();
-            const remaining = limits[level] || 0;
-            // Render badge and count immediately
-            updateUIWithSubscriptionData({ subscriptionLevel: level, remainingCredits: remaining });
-          }
-        });
-        // If we have cached subscription data, use it for immediate badge/counter
+        // If we have cached remaining credits, render immediately without recomputing
         const cached = JSON.parse(sessionStorage.getItem('acumen_user_subscription') || '{}');
-        if (cached.subscriptionLevel) {
-          // Compute initial credits based on plan limits and any stored usage
-          const planLimits = { free: 5, plus: 100, pro: 500, premium: 1500 };
-          const level = cached.subscriptionLevel.toLowerCase();
-          const maxAllowed = planLimits[level] || 0;
-          const usage = typeof cached.usedThisMonth === 'number' ? cached.usedThisMonth : 0;
-          cached.remainingCredits = Math.max(maxAllowed - usage, 0);
+        if (typeof cached.remainingCredits === 'number') {
           updateUIWithSubscriptionData(cached);
         }
         
@@ -100,11 +83,12 @@ $(document).ready(function() {
         const limits = { free: 5, plus: 100, pro: 500, premium: 1500 };
         const level = userData.subscription.subscriptionLevel.toLowerCase();
         const maxAllowed = limits[level] || 0;
+        userData.subscription.usedThisMonth = usage;
         userData.subscription.remainingCredits = Math.max(maxAllowed - usage, 0);
         
         updateUIWithSubscriptionData(userData.subscription);
         
-        // Store subscription info in session storage
+        // Store subscription info in session storage (including usage)
         sessionStorage.setItem('acumen_user_subscription', JSON.stringify(userData.subscription));
       } else {
         console.error("Error response from subscription endpoint:", response.status);
@@ -263,6 +247,53 @@ $(document).ready(function() {
     // Update credits display if it exists
     if ($(".credits-display").length) {
       $(".credits-display .count").text(credits);
+    }
+    
+    // Update the new listings counter
+    if ($("#listings-left").length) {
+      const $listingsCount = $("#listings-left");
+      const oldValue = parseInt($listingsCount.text()) || 0;
+      
+      // Animate count number change
+      $({ value: oldValue }).animate({ value: credits }, {
+        duration: 800,
+        easing: 'swing',
+        step: function() {
+          $listingsCount.text(Math.floor(this.value));
+        },
+        complete: function() {
+          $listingsCount.text(credits);
+        }
+      });
+      
+      // Calculate and update progress bar
+      // Get subscription level to determine max credits
+      const userData = JSON.parse(sessionStorage.getItem('acumen_user_subscription') || '{}');
+      const limits = { free: 5, plus: 100, pro: 500, premium: 1500 };
+      const level = userData.subscriptionLevel ? userData.subscriptionLevel.toLowerCase() : 'free';
+      const maxAllowed = limits[level] || 5;
+      const usedCredits = maxAllowed - credits;
+      const percentUsed = Math.min(100, Math.max(0, (usedCredits / maxAllowed) * 100));
+      const percentRemaining = 100 - percentUsed;
+      
+      // Update progress bar width with animation
+      $(".listings-progress-bar").css({
+        width: percentRemaining + "%", 
+        background: getProgressBarColor(percentRemaining)
+      });
+    }
+  }
+  
+  // Helper function to get color based on percentage remaining
+  function getProgressBarColor(percent) {
+    if (percent > 75) {
+      return "linear-gradient(90deg, var(--accent-green), #7dffc7)"; // Healthy green
+    } else if (percent > 40) {
+      return "linear-gradient(90deg, #ffda44, #ffe066)"; // Warning yellow
+    } else if (percent > 20) {
+      return "linear-gradient(90deg, #ff9800, #ffb74d)"; // Orange
+    } else {
+      return "linear-gradient(90deg, #f44336, #ef5350)"; // Danger red
     }
   }
   
@@ -572,6 +603,17 @@ $(document).ready(function() {
             $('#analyzeBtn').prop('disabled', true);
           }
         }
+        // Record listing usage on server
+        auth.currentUser.getIdToken().then(token => {
+          fetch('http://localhost:1989/record-listing', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ uid: auth.currentUser.uid })
+          }).catch(err => console.warn('Error recording listing on server:', err));
+        });
       }
     }
 
@@ -682,19 +724,20 @@ $(document).ready(function() {
       });
   });
 
-  // Fetch count of listings created this month for user
+  // Fetch count of listings created this month via secure server endpoint
   async function getMonthlyUsage(uid) {
     try {
-      if (!db) return 0;
-      const now = new Date();
-      const start = new Date(now.getFullYear(), now.getMonth(), 1);
-      const snapshot = await db.collection('listings')
-        .where('uid', '==', uid)
-        .where('createdAt', '>=', start)
-        .get();
-      return snapshot.size;
+      const idToken = await auth.currentUser.getIdToken(true);
+      const resp = await fetch(`http://localhost:1989/get-monthly-usage?uid=${uid}`, {
+        headers: { 'Authorization': `Bearer ${idToken}` }
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        return data.usage || 0;
+      }
+      return 0;
     } catch (e) {
-      console.error('Error calculating monthly usage:', e);
+      console.warn('Monthly usage fetch error:', e);
       return 0;
     }
   }
