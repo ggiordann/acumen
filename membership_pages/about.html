@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Acumen</title>
+    <!-- Navbar styling -->
+    <link rel="stylesheet" href="subscription.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        // Show loading square overlay on auth-buttons
+        $('.auth-container').addClass('loading');
+        $('.auth-container').append('<div class="auth-loading-overlay"></div>');
+      });
+    </script>
+    <link rel="icon" type="image/x-icon" href="../acumen.ico">
+    <!-- About page additional styles -->
+    <link rel="stylesheet" href="about.css">
+</head>
+<body>
+    <!-- Exact navbar and mobile menu from subscription.html -->
+    <nav class="navbar" id="main-navbar">
+      <div class="mobile-menu-toggle" id="mobile-menu-toggle"><i class="fas fa-bars"></i></div>
+      <a href="../app/index.html" class="navbar-brand" id="brand-logo">acumen</a>
+      <div class="navbar-links" id="nav-links">
+        <div class="nav-item" id="features-dropdown">
+          <span>Features</span>
+          <i class="dropdown-arrow fas fa-chevron-down"></i>
+          <div class="dropdown-content">
+            <a href="#" class="dropdown-item"><div class="icon"><i class="fas fa-search-plus"></i></div><div class="content"><span class="title">Generate item specifications</span><span class="description">Turn an image into a listing within seconds</span></div></a>
+            <a href="#" class="dropdown-item"><div class="icon"><i class="fas fa-balance-scale"></i></div><div class="content"><span class="title">Compare item values</span><span class="description">Compare your item's value across platforms</span></div></a>
+          </div>
+        </div>
+        <div class="nav-item"><a href="subscription.html" style="color: inherit; text-decoration: none;"><span>Pricing</span></a></div>
+        <div class="nav-item" id="resources-dropdown">
+          <span>Resources</span>
+          <i class="dropdown-arrow fas fa-chevron-down"></i>
+          <div class="dropdown-content">
+            <a href="../blog/blog.html" class="dropdown-item"><div class="icon"><i class="fas fa-blog"></i></div><div class="content"><span class="title">Blog</span></div></a>
+            <a href="#" class="dropdown-item"><div class="icon"><i class="fas fa-info-circle"></i></div><div class="content"><span class="title">About</span></div></a>
+            <a href="#" class="dropdown-item"><div class="icon"><i class="fab fa-discord"></i></div><div class="content"><span class="title">Community Discord</span></div></a>
+          </div>
+        </div>
+      </div>
+      <div class="auth-container" id="auth-buttons">
+        <button class="auth-btn login-btn pulse" id="login-button" onclick="window.location.href='subs.html'">Log In</button>
+        <button class="auth-btn signup-btn pulse" id="signup-button" onclick="window.location.href='subs.html'">Sign Up</button>
+      </div>
+    </nav>
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="mobile-close" id="mobile-close"><i class="fas fa-times"></i></div>
+      <div class="mobile-menu-header">acumen</div>
+      <div class="mobile-section"><div class="mobile-section-title">Features</div><a href="#" class="mobile-nav-item"><div class="icon"><i class="fas fa-search-plus"></i></div><span>Generate item specifications</span></a><a href="#" class="mobile-nav-item"><div class="icon"><i class="fas fa-balance-scale"></i></div><span>Compare item values</span></a></div>
+      <div class="mobile-section"><div class="mobile-section-title">Resources</div><a href="../blog/blog.html" class="mobile-nav-item"><div class="icon"><i class="fas fa-blog"></i></div><span>Blog</span></a><a href="#" class="mobile-nav-item"><div class="icon"><i class="fas fa-info-circle"></i></div><span>About</span></a><a href="#" class="mobile-nav-item"><div class="icon"><i class="fab fa-discord"></i></div><span>Community Discord</span></a></div>
+      <div class="mobile-section"><div class="mobile-section-title">Pricing</div><a href="subscription.html" class="mobile-nav-item"><div class="icon"><i class="fas fa-tags"></i></div><span>View Plans</span></a></div>
+      <div class="mobile-section"><a href="subs.html" class="auth-btn login-btn" style="display:block;text-align:center;margin-bottom:1rem;">Log In</a><a href="subs.html" class="auth-btn signup-btn" style="display:block;text-align:center;">Sign Up</a></div>
+    </div>
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
+    <!-- Demo section copied from test.html -->
+    <div class="demo-video-container">
+        <h2 class="section-title accent" id="demoTitle">Demo</h2>
+        <video controls class="demo-video">
+            <source src="../sahur.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- About the Team section -->
+    <section class="about-team">
+        <h2 class="section-title accent">About the Team</h2>
+        <div class="team-grid">
+            <div class="team-member" onclick="window.open('https://www.linkedin.com/in/gmasen/', '_blank')">
+                <img src="../images/giordan2.jpg" alt="Giordan Masen">
+                <h3>Giordan Masen</h3>
+                <p><strong>Lead Developer and Business Analyst, CEO</strong></p>
+                <p>Giordan has over 5 years of experience in the software industry as an API specialist and entrepreneur, having architected scalable platforms and launched multiple tech startups.</p>
+                <div class="social-icons">
+                    <a href="#" onclick="window.open('https://www.instagram.com/ggiordann/', '_blank')"><i class="fab fa-instagram"></i></a>
+                    <a href="#" onclick="window.open('https://www.linkedin.com/in/gmasen/', '_blank')"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="team-member" onclick="window.open('https://www.linkedin.com/in/apayanadan/', '_blank')">
+                <img src="../images/aditya.jpg" alt="Aditya Payanadan">
+                <h3>Aditya Payanadan</h3>
+                <p><strong>Developer and Integrations Specialist, CTO</strong></p>
+                <p>Aditya brings 3+ years of software development expertise, beginning in web technologies and evolving into automation solutions, driving innovation across early-stage startups.</p>
+                <div class="social-icons">
+                    <a href="#" onclick="window.open('https://www.instagram.com/ad1tya_payanadan', '_blank')"><i class="fab fa-instagram"></i></a>
+                    <a href="#" onclick="window.open('https://www.linkedin.com/in/apayanadan/', '_blank')"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="team-member" onclick="window.open('https://www.linkedin.com/in/ghazi-kazmi-3820ab263/', '_blank')">
+                <img src="../images/ghazi.jpg" alt="Ghazi Kazmi">
+                <h3>Ghazi Kazmi</h3>
+                <p><strong>Lead of Graphic Design and Marketing, CMO</strong></p>
+                <p>Ghazi contributes 2+ years of web development experience alongside 5 years of graphic design mastery, blending technical and creative skills to elevate brand identities and usability.</p>
+                <div class="social-icons">
+                    <a href="#" onclick="window.open('https://www.instagram.com/gxxviik/', '_blank')"><i class="fab fa-instagram"></i></a>
+                    <a href="#" onclick="window.open('https://www.linkedin.com/in/ghazi-kazmi-3820ab263/', '_blank')"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Legal Links -->
+    <section class="legal-links">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <span class="separator">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+      <a href="terms-of-service.html">Terms of Service</a>
+    </section>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script>
+      (async function() {
+        const resp = await fetch('http://localhost:1989/get-api-key');
+        const data = await resp.json();
+        firebase.initializeApp(data.firebaseConfig);
+        firebase.auth().onAuthStateChanged(user => {
+          if (!user) {
+            window.location.href = 'subs.html';
+          }
+        });
+      })();
+    </script>
+    <script src="../membership_pages/subscription.js"></script>
+</body>
+</html>

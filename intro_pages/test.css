@@ -419,9 +419,13 @@ body::-webkit-scrollbar-thumb {
 
 /* Adjust the CTA section to be full-width */
 .cta-section {
+    padding: 8rem 2rem; /* increased vertical space */
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    margin: 4rem 0;
     max-width: 100%;
     border-radius: 0;
-    margin: 4rem 0;
 }
 
 /* Typography & General Styles */
@@ -1098,17 +1102,6 @@ p {
     max-height: 500px;
 }
 
-/* CTA Section */
-.cta-section {
-    padding: 5rem 2rem;
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, rgba(0, 255, 157, 0.05), rgba(0, 0, 0, 0));
-    border-radius: var(--border-radius);
-    margin: 4rem 0;
-    max-width: 100%;
-    border-radius: 0;
-}
 
 .cta-content {
     text-align: center;

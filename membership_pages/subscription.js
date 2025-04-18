@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', async function() {
+    // Show loading square overlay on auth-buttons immediately
+    if ($('.auth-container').length) {
+        $('.auth-container').addClass('loading').append('<div class="auth-loading-overlay"></div>');
+    }
     // Mobile menu toggle
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -27,16 +31,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             // Check if user is already logged in
             firebase.auth().onAuthStateChanged(function(user) {
-                // Once auth state is determined (either way), remove loading overlay with smooth transition
-                setTimeout(function() {
-                    $(".auth-loading-overlay").css("opacity", "0");
-                    
-                    setTimeout(function() {
-                        $(".auth-container").removeClass("loading");
-                        $(".auth-loading-overlay").remove();
-                    }, 600); // Extended from 400ms to 600ms for longer fade-in effect
-                }, 500); // Extended from 300ms to 500ms for longer initial delay
-                
                 if (user) {
                     console.log("User is signed in:", user.displayName);
                     // Update UI to show user is logged in
@@ -48,8 +42,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                     });
                 } else {
                     console.log("No user is signed in");
-                    // Optionally redirect to login page
-                    // window.location.href = '../membership_pages/subs.html?redirect=subscription';
+                    // Redirect to login/subscription page if not authenticated
+                    window.location.href = 'subs.html?redirect=about';
                 }
             });
         } catch (error) {
@@ -467,5 +461,18 @@ document.addEventListener('DOMContentLoaded', async function() {
                 document.body.style.overflow = '';
             }
         });
+    });
+
+    // Remove loading overlay only after full page load
+    window.addEventListener('load', function() {
+        // delay slightly after load before fading out overlay
+        setTimeout(function() {
+            // fade out overlay
+            $(".auth-loading-overlay").css("opacity", "0");
+            setTimeout(function() {
+                $(".auth-container").removeClass("loading");
+                $(".auth-loading-overlay").remove();
+            }, 600);
+        }, 400); // little delay to ensure page content settles
     });
 });

@@ -1,0 +1,138 @@
+/* Demo Section Styles copied from intro_pages/test.css */
+.demo-video-container {
+    text-align: center;
+    margin: 1rem 0;
+    background-color: var(--bg-darker);
+    padding: 2rem 2rem;
+}
+.demo-video-container .section-title {
+    font-size: clamp(2.5rem, 5vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 3rem;
+}
+.demo-video {
+    width: 100%;
+    max-width: 1000px;
+    height: auto;
+    border-radius: var(--border-radius);
+    display: block;
+    margin: 0 auto;
+}
+
+/* Accent color from subscription.css variables */
+.accent {
+    color: var(--accent-green);
+}
+
+/* Section Title Style */
+.section-title {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+/* About Team Section Styles */
+.about-team {
+    padding: 4rem 2rem;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+}
+.about-team .section-title {
+    margin-bottom: 2rem;
+    font-size: clamp(2.5rem, 5vw, 3rem);
+    font-weight: 700;
+}
+
+/* Team Grid Layout */
+.team-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+/* Team Member Card */
+.team-member {
+    background: var(--card-bg-dark);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-subtle);
+    max-width: 300px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.team-member:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+.team-member img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto 1rem;
+}
+.team-member h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--accent-green);
+    margin-bottom: 0.5rem;
+}
+.team-member p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+.team-member p:nth-of-type(2) {
+    margin-top: 1rem;
+}
+
+/* Social icons styling */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.social-icons a {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    transition: color 0.2s ease;
+}
+.social-icons a:hover {
+    color: var(--accent-green);
+}
+
+/* Legal Links Buttons */
+.legal-links {
+    display: flex;
+    justify-content: center;
+}
+.legal-links a {
+    padding: 0.3rem 0.8rem;
+    border: none;
+    border-radius: var(--border-radius);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.legal-links .separator {
+    font-size: 1.4rem;
+    color: var(--text-secondary);
+    align-self: center;
+}
+.legal-links a:hover {
+    background-color: #ffffff;
+    color: var(--bg-dark);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .team-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+}

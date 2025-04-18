@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function() {
+    // Show loading overlay until account settings are initialized
+    showLoading('Loading account settings...');
     let auth, firebaseConfig, db, storage;
     let currentUser = null;
 
@@ -41,6 +43,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                         // Load user preferences
                         loadUserPreferences(user.uid);
                     });
+
+                    // Once UI update completes, hide loading after a short delay
+                    setTimeout(() => hideLoading(), 800);
                 } else {
                     console.log("No user is signed in");
                     // Redirect to login page
@@ -49,6 +54,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
         } catch (error) {
             console.error('Error initializing Firebase:', error);
+            // Hide loading and show error toast
+            hideLoading();
             showToast('Error connecting to services. Please try again later.', 'error');
         }
     }

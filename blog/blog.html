@@ -219,8 +219,8 @@
                     <span class="blog-category">Development</span>
                     <h3 class="blog-card-title">New Messaging System Coming Soon</h3>
                     <div class="blog-meta">
-                        <span class="author">By Giordan Masen</span>
-                        <span class="date">April 17, 2025</span>
+                        <span class="author">By Giordan Masen | April 17, 2025</span>
+                        <span class="date"></span>
                     </div>
                     <p class="blog-excerpt">We're excited to announce that our team is developing a comprehensive messaging system that will allow direct communication between sellers across all integrated marketplaces.</p>
                     <a href="messaging-system.html" class="blog-read-more">Read more <i class="fas fa-arrow-right"></i></a>
@@ -234,8 +234,8 @@
                     <span class="blog-category">Platform Updates</span>
                     <h3 class="blog-card-title">Depop Integration Coming in May</h3>
                     <div class="blog-meta">
-                        <span class="author">By Aditya Payanadan</span>
-                        <span class="date">April 10, 2025</span>
+                        <span class="author">By Aditya Payanadan | April 10, 2025</span>
+                        <span class="date"></span>
                     </div>
                     <p class="blog-excerpt">Our development team is working on integrating Depop into our platform, allowing users to automatically post their listings to this popular fashion marketplace with a single click.</p>
                     <a href="depop-integration.html" class="blog-read-more">Read more <i class="fas fa-arrow-right"></i></a>
@@ -276,65 +276,22 @@
                     $(".profile-dropdown").removeClass("active");
                 }
             });
+
+            // Attach click handlers so whole card acts as a link
+            document.querySelectorAll('.blog-card').forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', e => {
+                    const targetLink = card.querySelector('.blog-read-more');
+                    if (targetLink) window.location.href = targetLink.href;
+                });
+            });
         });
     </script>
     
-    <!-- Add Firebase SDK -->
+    <!-- Replace inline Firebase SDK and auth init with subscription.js -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    
-    <script>
-        // Initialize Firebase with dynamic config
-        (async function() {
-            try {
-                const resp = await fetch('http://localhost:1989/get-api-key');
-                const data = await resp.json();
-                firebase.initializeApp(data.firebaseConfig);
-                
-                // Check authentication state
-                firebase.auth().onAuthStateChanged(user => {
-                    // Remove loading state
-                    $(".auth-container").removeClass("loading");
-                    $(".auth-loading-overlay").remove();
-                    
-                    if (user) {
-                        // User is signed in
-                        $("#login-button, #signup-button").hide();
-                        $("#user-profile-menu").css("display", "flex");
-                        $("#user-name").text(user.displayName || user.email || "User");
-                        
-                        // Update mobile menu
-                        $("#mobile-auth-section").hide();
-                        $("#mobile-user-section").show();
-                    } else {
-                        // User is signed out
-                        $("#login-button, #signup-button").show();
-                        $("#user-profile-menu").hide();
-                        
-                        // Update mobile menu
-                        $("#mobile-auth-section").show();
-                        $("#mobile-user-section").hide();
-                    }
-                });
-                
-                // Handle logout
-                $("#logout-button, #mobile-logout").click(function(e) {
-                    e.preventDefault();
-                    firebase.auth().signOut().then(() => {
-                        window.location.href = '../membership_pages/subs.html';
-                    }).catch(error => {
-                        console.error("Error signing out:", error);
-                    });
-                });
-                
-            } catch (err) {
-                console.error('Error initializing Firebase:', err);
-                // Remove loading state in case of error
-                $(".auth-container").removeClass("loading");
-                $(".auth-loading-overlay").remove();
-            }
-        })();
-    </script>
+    <script src="../membership_pages/subscription.js"></script>
 </body>
 </html>

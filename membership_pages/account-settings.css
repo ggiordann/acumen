@@ -112,6 +112,54 @@ body::-webkit-scrollbar-thumb {
     color: var(--accent-green);
 }
 
+/* Dropdown Menu Styles */
+.nav-item {
+    position: relative;
+}
+.dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--card-bg-dark);
+    border-radius: var(--border-radius);
+    min-width: 220px;
+    box-shadow: var(--shadow-card);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all 0.2s ease;
+    z-index: 100;
+    padding: 0.5rem 0;
+}
+.nav-item:hover .dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+.dropdown-item .icon {
+    margin-right: 0.8rem;
+    color: var(--accent-green);
+}
+.dropdown-item:hover {
+    background-color: var(--card-highlight);
+    color: var(--accent-green);
+}
+.dropdown-arrow {
+    margin-left: 0.3rem;
+    transition: transform 0.2s ease;
+}
+.nav-item:hover .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
 /* Auth Button Styles */
 .auth-container {
     display: flex;
@@ -152,6 +200,22 @@ body::-webkit-scrollbar-thumb {
     opacity: 0.9;
     transform: translateY(-2px);
     box-shadow: var(--shadow-accent);
+}
+
+/* Pulse animation for auth buttons */
+.pulse {
+    animation: pulse-light 1.5s infinite;
+}
+@keyframes pulse-light {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 10px 10px rgba(0, 255, 157, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 255, 157, 0);
+    }
 }
 
 /* Mobile Menu Styles */

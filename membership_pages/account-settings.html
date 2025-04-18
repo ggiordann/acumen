@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Settings - Acumen</title>
+    <link rel="stylesheet" href="../app/style.css">  <!-- main app navbar & dropdown styles -->
     <link rel="stylesheet" href="account-settings.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="../acumen.ico">
@@ -18,21 +19,46 @@
         <div class="navbar-container">
             <a href="../app/index.html" class="navbar-brand">acumen</a>
             <div class="navbar-links">
-                <div class="nav-item">
-                    <a href="../app/index.html">Dashboard</a>
+                <!-- Features Dropdown -->
+                <div class="nav-item" id="features-dropdown">
+                    <span>Features</span>
+                    <i class="dropdown-arrow fas fa-chevron-down"></i>
+                    <div class="dropdown-content">
+                        <a href="#" class="dropdown-item">
+                            <div class="icon"><i class="fas fa-search-plus"></i></div>
+                            <div class="content"><span class="title">Generate item specifications</span><span class="description">Turn an image into a listing within seconds</span></div>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <div class="icon"><i class="fas fa-balance-scale"></i></div>
+                            <div class="content"><span class="title">Compare item values</span><span class="description">Compare your item's value across platforms</span></div>
+                        </a>
+                    </div>
                 </div>
+                <!-- Pricing Link -->
                 <div class="nav-item">
-                    <a href="subscription.html">Subscription</a>
+                    <a href="subscription.html"><span>Subscription</span></a>
                 </div>
+                <!-- Resources Dropdown -->
+                <div class="nav-item" id="resources-dropdown">
+                    <span>Resources</span>
+                    <i class="dropdown-arrow fas fa-chevron-down"></i>
+                    <div class="dropdown-content">
+                        <a href="../blog/blog.html" class="dropdown-item"><div class="icon"><i class="fas fa-blog"></i></div><div class="content"><span class="title">Blog</span></div></a>
+                        <a href="about.html" class="dropdown-item"><div class="icon"><i class="fas fa-info-circle"></i></div><div class="content"><span class="title">About</span></div></a>
+                        <a href="#" class="dropdown-item"><div class="icon"><i class="fab fa-discord"></i></div><div class="content"><span class="title">Community Discord</span></div></a>
+                    </div>
+                </div>
+                <!-- Account Link -->
                 <div class="nav-item">
-                    <a href="account-settings.html">Account</a>
+                    <a href="account-settings.html"><span>Account</span></a>
                 </div>
             </div>
             <div class="mobile-menu-toggle" id="mobile-menu-toggle">
                 <i class="fas fa-bars"></i>
             </div>
-            <div class="auth-container">
-                <!-- This will be populated by JS -->
+            <div class="auth-container loading" id="auth-buttons">
+                <button class="auth-btn login-btn pulse" id="login-button" onclick="window.location.href='subs.html'">Log In</button>
+                <button class="auth-btn signup-btn pulse" id="signup-button" onclick="window.location.href='subs.html'">Sign Up</button>
             </div>
         </div>
     </nav>
@@ -59,7 +85,30 @@
             </a>
         </div>
         <div class="mobile-section">
-            <!-- Will be populated by JS for auth info -->
+            <div class="mobile-section-title">Features</div>
+            <a href="#" class="mobile-nav-item">
+                <div class="icon"><i class="fas fa-search-plus"></i></div>
+                <span>Generate item specifications</span>
+            </a>
+            <a href="#" class="mobile-nav-item">
+                <div class="icon"><i class="fas fa-balance-scale"></i></div>
+                <span>Compare item values</span>
+            </a>
+        </div>
+        <div class="mobile-section">
+            <div class="mobile-section-title">Resources</div>
+            <a href="../blog/blog.html" class="mobile-nav-item">
+                <div class="icon"><i class="fas fa-blog"></i></div>
+                <span>Blog</span>
+            </a>
+            <a href="about.html" class="mobile-nav-item">
+                <div class="icon"><i class="fas fa-info-circle"></i></div>
+                <span>About</span>
+            </a>
+            <a href="#" class="mobile-nav-item">
+                <div class="icon"><i class="fab fa-discord"></i></div>
+                <span>Community Discord</span>
+            </a>
         </div>
     </div>
     <div class="mobile-overlay" id="mobile-overlay"></div>
@@ -232,6 +281,8 @@
         <p>Updating your settings...</p>
     </div>
 
+    <script src="../app/main.js"></script>  <!-- main app dropdown & mobile menu logic -->
+    <script src="subscription.js"></script>
     <script src="account-settings.js"></script>
 </body>
 </html>
