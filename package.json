@@ -34,6 +34,11 @@
     "playwright": "^1.50.1",
     "playwright-extra": "^4.3.6",
     "playwright-stealth": "^0.0.1",
+    "pupeteer": "^0.0.1",
+    "puppeteer": "^24.6.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-anonymize-ua": "^2.4.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "stripe": "^17.7.0"
   },
   "devDependencies": {
