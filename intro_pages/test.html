@@ -73,7 +73,7 @@
             <!-- Hero Section -->
             <section class="hero-section">
                 <div class="hero-content reveal-element">
-                    <h1 class="hero-title">Revolutionize Your <span class="accent">Online Selling</span></h1>
+                    <h1 class="hero-title">Revolutionise Your <span class="accent">Online Selling</span></h1>
                     <p class="hero-subtitle">AI-powered platform that transforms product photos into professional marketplace listings in seconds</p>
                     <div class="hero-cta">
                         <a href="../membership_pages/subs.html" class="btn-primary">Get Started</a>
@@ -107,7 +107,7 @@
             <!-- Features Section -->
             <section id="features" class="features-section">
                 <h2 class="section-title reveal-element">Powerful <span class="accent">AI Features</span></h2>
-                <p class="section-subtitle reveal-element">Everything you need to optimize your online sales process</p>
+                <p class="section-subtitle reveal-element">Everything you need to optimise your online sales process</p>
                 
                 <div class="features-grid">
                     <div class="feature-card reveal-element">
@@ -115,7 +115,7 @@
                             <i class="fas fa-camera"></i>
                         </div>
                         <h3>Automated Listing Creation</h3>
-                        <p>Upload up to 10 photos and let our AI analyze visual details to craft compelling product descriptions.</p>
+                        <p>Upload up to 10 photos and let our AI analyse visual details to craft compelling product descriptions.</p>
                     </div>
                     <div class="feature-card reveal-element" data-delay="200">
                         <div class="feature-icon">
@@ -508,23 +508,23 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <!-- Initialize Firebase -->
+    <!-- Initialise Firebase -->
     <script>
       (async function() {
         try {
           const resp = await fetch('http://localhost:1989/get-api-key');
           const data = await resp.json();
           firebase.initializeApp(data.firebaseConfig);
-          console.log('Firebase initialized for intro pages');
+          console.log('Firebase initialised for intro pages');
         } catch (err) {
-          console.error('Error initializing Firebase for intro pages:', err);
+          console.error('Error initialising Firebase for intro pages:', err);
         }
       })();
     </script>
     <!-- Fetch active users count after Firestore init -->
     <script>
       (async function updateActiveUsers() {
-        // Wait until Firebase app is initialized
+        // Wait until Firebase app is initialised
         while (!firebase.apps.length) {
           await new Promise(res => setTimeout(res, 100));
         }

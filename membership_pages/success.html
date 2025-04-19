@@ -108,13 +108,13 @@
             if (sessionId) {
                 console.log("Payment completed with session ID:", sessionId);
                 
-                // Initialize Firebase to refresh subscription data
+                // Initialise Firebase to refresh subscription data
                 try {
                     const response = await fetch('http://localhost:1989/get-api-key');
                     const data = await response.json();
                     const firebaseConfig = data.firebaseConfig;
                     
-                    // Initialize Firebase
+                    // Initialise Firebase
                     if (!firebase.apps.length) {
                         firebase.initializeApp(firebaseConfig);
                     }
@@ -266,7 +266,7 @@
                                         document.querySelector('.success-container h1').innerText = 
                                             `Processing Your Subscription (${attempts}/${maxAttempts})`;
                                         document.querySelector('.success-container p').innerText = 
-                                            'Please wait while we finalize your subscription details.';
+                                            'Please wait while we finalise your subscription details.';
                                             
                                         setTimeout(checkSubscription, delayMs);
                                     } else {
@@ -331,7 +331,7 @@
                 const shape = shapes[Math.floor(Math.random() * shapes.length)];
                 confetti.className = `confetti confetti-${shape}`;
                 
-                // Randomize position, size and animation
+                // Randomise position, size and animation
                 confetti.style.left = Math.random() * 100 + '%';
                 confetti.style.width = Math.random() * 15 + 5 + 'px';
                 confetti.style.height = confetti.style.width;

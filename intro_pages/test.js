@@ -226,7 +226,7 @@ loader.load(
 
 // Function to update camera position based on animation progress
 function updateCameraPosition(progress) {
-    // Normalize progress to 0-1 range
+    // Normalise progress to 0-1 range
     const normalizedProgress = progress / totalDuration;
     
     // Interpolate position
@@ -297,7 +297,7 @@ function prepareContentTransition() {
         window.scrollTo(0, 0);
         contentPage.scrollTop = 0;
         
-        // Initialize content page features
+        // Initialise content page features
         initContentFeatures();
     }, 50);
 }
@@ -380,24 +380,24 @@ window.addEventListener('resize', () => {
 
 // ============== Content Page Feature Initialization =============== //
 
-// Initialize all content features
+// Initialise all content features
 function initContentFeatures() {
-    // Initialize mobile menu functionality
+    // Initialise mobile menu functionality
     initMobileMenu();
     
-    // Initialize reveal animations for elements
+    // Initialise reveal animations for elements
     initRevealAnimations();
     
-    // Initialize statistics counter animations
+    // Initialise statistics counter animations
     initStatCounters();
     
-    // Initialize FAQ accordion functionality
+    // Initialise FAQ accordion functionality
     initFaqAccordion();
     
-    // Initialize smooth scrolling for navigation
+    // Initialise smooth scrolling for navigation
     initSmoothScroll();
     
-    // Initialize pricing card interactivity
+    // Initialise pricing card interactivity
     initPricingCards();
 
     handleTransitionScrollPast();
@@ -417,7 +417,7 @@ function initContentFeatures() {
     }
 }
 
-// Initialize mobile menu functionality
+// Initialise mobile menu functionality
 function initMobileMenu() {
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mobileMenu = document.querySelector('.mobile-menu');
@@ -449,7 +449,7 @@ function initMobileMenu() {
     }
 }
 
-// Initialize reveal animations for elements as they scroll into view
+// Initialise reveal animations for elements as they scroll into view
 function initRevealAnimations() {
     const observerOptions = {
         threshold: 0.15,
@@ -528,7 +528,7 @@ function initStatCounters() {
     });
 }
 
-// Initialize FAQ accordion functionality
+// Initialise FAQ accordion functionality
 function initFaqAccordion() {
     const faqItems = document.querySelectorAll('.faq-item');
     
@@ -549,7 +549,7 @@ function initFaqAccordion() {
     });
 }
 
-// Initialize smooth scrolling for navigation links
+// Initialise smooth scrolling for navigation links
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -571,7 +571,7 @@ function initSmoothScroll() {
     });
 }
 
-// Initialize pricing card effects and interactions
+// Initialise pricing card effects and interactions
 function initPricingCards() {
     const pricingCards = document.querySelectorAll('.pricing-card');
     

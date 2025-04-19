@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', async function() {
-    // Show loading overlay until account settings are initialized
+    // Show loading overlay until account settings are initialised
     showLoading('Loading account settings...');
     let auth, firebaseConfig, db, storage;
     let currentUser = null;
 
-    // Initialize Firebase
+    // Initialise Firebase
     initFirebase();
 
     async function initFirebase() {
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const data = await response.json();
             firebaseConfig = data.firebaseConfig;
             
-            // Initialize Firebase
+            // Initialise Firebase
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             auth = firebase.auth();
             db = firebase.firestore();
             
-            // Initialize Firebase storage if needed for profile pictures
+            // Initialise Firebase storage if needed for profile pictures
             if (firebase.storage) {
                 storage = firebase.storage();
             }
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             });
         } catch (error) {
-            console.error('Error initializing Firebase:', error);
+            console.error('Error initialising Firebase:', error);
             // Hide loading and show error toast
             hideLoading();
             showToast('Error connecting to services. Please try again later.', 'error');
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     </div>
                 `;
                 
-                // Initialize dropdown toggle
+                // Initialise dropdown toggle
                 document.querySelector('.user-profile-btn').addEventListener('click', function(e) {
                     e.stopPropagation();
                     document.querySelector('.user-dropdown').classList.toggle('show');
@@ -776,7 +776,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const cancelActionBtn = document.getElementById('cancel-action');
     const closeModalButtons = document.querySelectorAll('.close-modal');
     
-    // Initialize subscription management UI elements and event listeners
+    // Initialise subscription management UI elements and event listeners
     function initSubscriptionManagement() {
         // Cancel subscription button
         if (cancelSubscriptionBtn) {
@@ -1025,6 +1025,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
-    // Initialize subscription management after DOM content is loaded
+    // Initialise subscription management after DOM content is loaded
     initSubscriptionManagement();
 });

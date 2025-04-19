@@ -3,7 +3,7 @@ let previewImages = [];
 let currentImageIndex = 0;
 
 $(document).ready(function() {
-  // Initialize Firebase
+  // Initialise Firebase
   let auth, firebaseConfig, db;
   
   // Get Firebase config
@@ -25,7 +25,7 @@ $(document).ready(function() {
       firebase.initializeApp(firebaseConfig);
     }
     auth = firebase.auth();
-    // Initialize Firestore
+    // Initialise Firestore
     if (firebase.firestore) {
       db = firebase.firestore();
     }
@@ -126,7 +126,7 @@ $(document).ready(function() {
       </div>
     `);
     
-    // Initialize dropdown toggle
+    // Initialise dropdown toggle
     $(".user-profile-btn").click(function(e) {
       e.stopPropagation();
       $(".user-dropdown").toggleClass("show");
@@ -524,7 +524,7 @@ $(document).ready(function() {
     $("#lightbox-img").attr("src", src);
   }
 
-  // Initially disable analyze until subscription data arrives
+  // Initially disable analyse until subscription data arrives
   $("#analyzeBtn").prop('disabled', true);
 
   $("#analyzeBtn").click(function() {

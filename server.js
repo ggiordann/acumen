@@ -1,9 +1,12 @@
+// import dotenv for loading .env in ES module scope
+import dotenv from 'dotenv'
+dotenv.config()
+
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import OpenAI from 'openai';
 import { chromium } from 'playwright';
-import dotenv from 'dotenv';
 import path from 'path';
 import { exec } from 'child_process';
 import fs from 'fs';
@@ -14,16 +17,66 @@ import { fileURLToPath } from "url";
 import { Buffer } from "buffer";
 import Stripe from 'stripe';
 
-// IF ERROR REMOVE IMAGES UPLOAD
+// server.js: main express app that handles routes for file uploads, ai analysis, auth, stripe payments, and webhooks
+// - loads env vars (dotenv) for secure secret management
+// - initialises firebase-admin for auth and firestore access
+// - sets up stripe client for checkout sessions and webhooks
+// - defines middleware for parsing json and raw webhook payloads
+// - serves static frontend assets from app/ and root
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Load environment variables
-dotenv.config();
-
+// initialise stripe client using secret key from environment
+// stripe methods will be called for creating checkout sessions, managing subscriptions, and sending receipts
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Initialize Firebase
+const app = express();
+// define port and base url for redirects
+const PORT = process.env.PORT || 1989;
+const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
+
+// Middleware setup
+// middleware setup explanation:
+// bodyParser.json with verify hook lets us capture rawBody for /webhook before JSON parsing
+// bodyParser.urlencoded supports form submissions
+// cors enables cross-origin resource sharing for frontend requests
+// express.json is available for other endpoints as fallback
+app.use(bodyParser.json({
+  limit: '25mb',
+  // verify raw body for webhook signature verification
+  verify: (req, res, buf) => {
+    if (req.originalUrl === '/webhook') {
+      req.rawBody = buf;
+    }
+  }
+}));
+app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
+app.use(cors());
+app.use(express.json());
+
+app.use(express.static(path.join(process.cwd(), 'app'))); // comment out if not over network
+app.use(express.static(path.join(process.cwd()))); // Serve files from project root
+
+// File upload configuration
+const uploadDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function(req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({
+  storage: storage,
+  limits: { files: 10 }
+});
+
+// Initialise Firebase
 const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SECRETKEY_BASE64, "base64").toString("utf-8"));
 
 admin.initializeApp({
@@ -31,10 +84,6 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-
-// Main Express app (port 1989)
-const app = express();
-const port = 1989; // Changed from 5500 to 1989
 
 //initialise globals
 var uid, email, fullName = null;
@@ -58,40 +107,12 @@ async function verifyToken(req, res, next) {
     }
 }
 
-// Middleware setup
-app.use(bodyParser.json({ limit: '25mb' }));
-app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
-app.use(cors());
-app.use(express.json());
-
-// Around line 83 in server.js
-app.use(express.static(path.join(process.cwd(), 'app'))); // comment out if not over network
-app.use(express.static(path.join(process.cwd()))); // Serve files from project root
-
-
-// File upload configuration
-const uploadDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+// map plan names to our price IDs for stripe
+const priceIds = {
+  plus: 'price_1R4Az1IMPfgQ2CBGgRnSEebU',
+  pro: 'price_1R4AzuIMPfgQ2CBGakghtEhV',
+  premium: 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ'
 }
-
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function(req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-const upload = multer({
-  storage: storage,
-  limits: { files: 10 }
-});
-
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 // ============== ENDPOINTS FROM SERVER.JS ==============
 
@@ -285,6 +306,108 @@ app.get('/run-ebay-login', (req, res) => {
   });
 });
 
+// stripe webhook endpoint must be placed after raw body capture but before any json parsers in effect for this route
+
+/*
+
+terminal output unhandled explanation:
+
+“unhandled stripe event type: invoice.payment_succeeded” is just our default‐case log 
+letting us know we didn’t write any custom logic for that specific event. 
+it isn’t an error—stripe delivered the webhook (200 in the cli)
+it  means “i got this event but i don’t know what to do with it"
+if we need to react to invoice.payment_succeeded (e.g. grant access, send email, update billing records),
+add a case 'invoice.payment_succeeded': block in our webhook handler. 
+otherwise we can safely ignore unhandled events.
+
+
+*/
+
+// note: stripe cli must be running to forward webhook events locally
+
+//====================================================
+// stripe listen --forward-to localhost:1989/webhook
+//====================================================
+
+// stripe cli creates a public tunnel so stripe's servers can reach our localhost endpoint
+// we need to restart this command whenever we restart our server or reconnect our internet
+// without the tunnel, stripe cannot deliver events to our development environment
+
+// webhook handler logic:
+// 1. stripe CLI creates tunnel and forwards webhook POST to /webhook
+// 2. verify signature using rawBody and STRIPE_WEBHOOK_SECRET
+// 3. switch on event.type to handle:
+//    - checkout.session.completed: cancel previous subscription to avoid double billing, update firestore
+//    - invoice.payment_succeeded: send email receipt via stripe.charges.sendReceipt
+//    - default: log unhandled events safely without error
+// 4. respond with 200 to acknowledge receipt and prevent retries
+app.post('/webhook', async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    // use rawBody captured by bodyParser.verify when content-type is application/json
+    event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('webhook signature verification failed:', err.message);
+    return res.status(400).send(`webhook error: ${err.message}`);
+  }
+
+  // handle different stripe event types here
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object;
+      const { userId, plan } = session.metadata || {};
+      const newSubscriptionId = session.subscription;
+      if (userId) {
+        const userRef = db.collection('users').doc(userId);
+        const userDoc = await userRef.get();
+        const oldSubscriptionId = userDoc.data()?.subscription?.id;
+        if (oldSubscriptionId && oldSubscriptionId !== newSubscriptionId) {
+          try {
+            // cancel previous subscription immediately to avoid double billing
+            await stripe.subscriptions.del(oldSubscriptionId);
+            console.log(`cancelled old subscription ${oldSubscriptionId} for user ${userId}`);
+          } catch (cancelErr) {
+            console.error(`error cancelling old subscription ${oldSubscriptionId}:`, cancelErr);
+          }
+        }
+        // update firestore with new subscription details
+        await userRef.update({
+          stripeCustomerId: session.customer,
+          subscription: {
+            id: newSubscriptionId,
+            subscriptionLevel: plan,
+            status: 'active',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          }
+        });
+        console.log(`updated user ${userId} with new subscription ${newSubscriptionId}`);
+      }
+      break;
+    }
+    // send email receipts when invoice payment succeeds
+    case 'invoice.payment_succeeded': {
+      const invoice = event.data.object;
+      const chargeId = invoice.charge;
+      if (chargeId) {
+        try {
+          await stripe.charges.sendReceipt(chargeId);
+          console.log(`sent receipt for charge ${chargeId}`);
+        } catch (sendErr) {
+          console.error(`error sending receipt for charge ${chargeId}:`, sendErr);
+        }
+      }
+      break;
+    }
+    // other event types: subscription updates, payment intent, etc.
+    default:
+      console.log(`unhandled stripe event type: ${event.type}`);
+  }
+
+  // acknowledge receipt of event
+  res.status(200).send('received');
+});
+
 // ============== ENDPOINTS FROM SUBSERVER.JS ==============
 
 app.post("/save-user", verifyToken, async (req, res) => {
@@ -363,65 +486,40 @@ app.get("/get-user-id", async (req, res) => {
 
 // =============== STRIPE ENDPOINTS ===============
 
-// Create checkout session endpoint
+// create-checkout-session route logic:
+// 1. read plan and uid from client request body
+// 2. fetch user email from firestore to prefill checkout
+// 3. create stripe checkout.session with subscription mode, line items, success/cancel URLs
+// 4. attach client_reference_id and metadata for identifying user in webhook
+// 5. return session id and url so frontend can redirect customer to hosted checkout page
 app.post('/create-checkout-session', async (req, res) => {
-  const { plan, uid } = req.body;
+  const { plan, uid } = req.body
 
-  console.log(`Creating checkout session for user ${uid}, plan: ${plan}`);
-
-  //get user from firestore
-  const userRef = db.collection('users').doc(uid);
-  const userDoc = await userRef.get();
-  
-  //just in case user doesn't exist
-  if (!userDoc.exists) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-
-  const userData = userDoc.data();
-  const { email, name } = userData;
-  const currentPlan = userData.subscription?.subscriptionLevel || 'free';
-  
-  console.log(`User current plan: ${currentPlan}, upgrading to: ${plan}`);
-
-  // Map plan names to price IDs
-  const priceIds = {
-    plus: 'price_1R4Az1IMPfgQ2CBGgRnSEebU',
-    pro: 'price_1R4AzuIMPfgQ2CBGakghtEhV',
-    premium: 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ'
-  };
-  
-  console.log(process.env.STRIPE_SECRET_KEY);
+  // look up the customer email securely from firestore
+  const userSnap = await db.collection('users').doc(uid).get()
+  const customerEmail = userSnap.data().email
 
   try {
+    // create a checkout session in stripe
+    // mode is required when we use price IDs for subscriptions
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: priceIds[plan],
-          quantity: 1,
-        },
-      ],
-      customer_email: email,
-      mode: 'subscription',
-      success_url: `http://localhost:5501/acumen-1/membership_pages/success.html?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
-      cancel_url: `http://localhost:5501/acumen-1/membership_pages/subscription.html`,
-      client_reference_id: req.body.userId, // Add user ID for webhook
-      metadata: {
-        plan: plan,
-        userId: uid,
-        name: name,
-        previousPlan: currentPlan,
-        isUpgrade: currentPlan !== plan ? 'true' : 'false'
-      }
-    });
+      mode: 'subscription',                // recurring billing mode
+      line_items: [{ price: priceIds[plan], quantity: 1 }],
+      customer_email: customerEmail,       // prefill email in checkout
+      client_reference_id: uid,            // identify user in webhook events
+      metadata: { plan, userId: uid },     // extra data for webhook payload
+      success_url: `${BASE_URL}/membership_pages/success.html?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
+      cancel_url: `${BASE_URL}/membership_pages/subscription.html`
+    })
 
-    res.json({ id: session.id, url: session.url });
-  } catch (error) {
-    console.error('Error creating checkout session:', error);
-    res.status(500).json({ error: error.message });
+    // respond with session id and url so client can redirect
+    res.json({ id: session.id, url: session.url })
+  } catch (err) {
+    console.error('error creating checkout session:', err.message)
+    res.status(500).json({ error: err.message })
   }
-});
+})
 
 //when customer clicks cancel subscription button. 
 //rn it instantly deletes for testing but later we can make it end at period end
@@ -460,121 +558,6 @@ app.post('/cancel-subscription', async (req, res) => {
     return res.status(500).send({ error: 'Internal server error' });
   }
 })
-
-// Stripe webhook endpoint to handle subscription events
-app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
-  } catch (err) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  // Handle the event
-  switch (event.type) {
-    // Handle checkout session completion
-    case 'checkout.session.completed':
-      const session = event.data.object;
-      // Extract metadata from the session
-      const { userId, plan } = session.metadata || {};
-      console.log(`Checkout session completed for user ${userId}, plan: ${plan}`);
-      
-      if (userId) {
-        // Get or create Stripe customer
-        let customerId = session.customer;
-        let subscriptionId = session.subscription;
-        
-        if (customerId && subscriptionId) {
-          try {
-            // Update the user's Firestore document with Stripe customer ID and subscription details
-            await db.collection('users').doc(userId).update({
-              stripeCustomerId: customerId,
-              subscription: {
-                id: subscriptionId,
-                subscriptionLevel: plan,
-                status: 'active',
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-              }
-            });
-            console.log(`Updated user ${userId} with subscription ${subscriptionId}`);
-          } catch (error) {
-            console.error(`Error updating user ${userId}:`, error);
-          }
-        }
-      }
-      break;
-      
-    // Handle subscription updates  
-    case 'customer.subscription.updated':
-      const subscription = event.data.object;
-      const customerId = subscription.customer;
-      
-      // Get subscription details including the plan
-      try {
-        const subscriptionData = await stripe.subscriptions.retrieve(subscription.id);
-        const planId = subscriptionData.items.data[0].plan.id;
-        
-        // Map plan ID to plan name
-        let planName = "free";
-        if (planId === 'price_1R4Az1IMPfgQ2CBGgRnSEebU') planName = "plus";
-        else if (planId === 'price_1R4AzuIMPfgQ2CBGakghtEhV') planName = "pro";
-        else if (planId === 'price_1R4B0WIMPfgQ2CBGJSZnF7oJ') planName = "premium";
-        
-        // Find users with this Stripe customer ID
-        const usersSnapshot = await db.collection('users')
-          .where('stripeCustomerId', '==', customerId)
-          .get();
-          
-        if (!usersSnapshot.empty) {
-          usersSnapshot.forEach(doc => {
-            doc.ref.update({
-              subscription: {
-                id: subscription.id,
-                subscriptionLevel: planName,
-                status: subscription.status,
-                periodStart: subscription.current_period_start,
-                periodEnd: subscription.current_period_end,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-              }
-            });
-            console.log(`Updated subscription for user ${doc.id} to ${planName}`);
-          });
-        }
-      } catch (error) {
-        console.error('Error processing subscription update:', error);
-      }
-      break;
-    
-    //Handle invoice payments  
-    case 'invoice.paid':
-      var invoice = event.data.object;
-      var subscriptionId = invoice.subscription;
-
-      updateCustomerSubscription(invoice.customer, subscriptionId, invoice);
-      break;
-      
-    case 'customer.subscription.deleted':
-      const deletedSubscription = event.data.object;
-      updateCustomerSubscription(deletedSubscription.customer, deletedSubscription.id, "cancelled");
-      break;
-      
-    case 'invoice.payment_failed':
-      var failedInvoice = event.data.object;
-      var failedSubscriptionId = failedInvoice.subscription;
-
-      updateCustomerSubscription(failedInvoice.customer, failedSubscriptionId, "cancelled");
-      break;
-  }
-
-  // Return a 200 response to acknowledge receipt of the event
-  res.send();
-});
 
 // Verify a Stripe session status directly
 app.get('/verify-session', verifyToken, async (req, res) => {
@@ -656,7 +639,7 @@ app.post('/force-update-subscription', verifyToken, async (req, res) => {
     
     // Make sure this is the same user making the request or an admin
     if (uid !== req.user.uid) {
-      return res.status(403).json({ error: 'Unauthorized access' });
+      return res.status(403).json({ error: 'Unauthorised access' });
     }
     
     console.log(`Force updating subscription for user ${uid} to plan ${plan}`);
@@ -838,7 +821,7 @@ app.get('/get-user-subscription', verifyToken, async (req, res) => {
     
     // Make sure this is the same user making the request
     if (uid !== req.user.uid) {
-      return res.status(403).json({ error: 'Unauthorized access to subscription data' });
+      return res.status(403).json({ error: 'Unauthorised access to subscription data' });
     }
     
     // Get user data from Firestore
@@ -864,7 +847,7 @@ app.get('/get-user-subscription', verifyToken, async (req, res) => {
 app.get('/get-monthly-usage', verifyToken, async (req, res) => {
     const uidParam = req.query.uid;
     if (!uidParam || uidParam !== req.user.uid) {
-        return res.status(403).json({ error: 'Unauthorized access to usage data' });
+        return res.status(403).json({ error: 'Unauthorised access to usage data' });
     }
     try {
         const now = new Date();
@@ -884,7 +867,7 @@ app.get('/get-monthly-usage', verifyToken, async (req, res) => {
 app.post('/record-listing', verifyToken, async (req, res) => {
     const uidParam = req.body.uid;
     if (!uidParam || uidParam !== req.user.uid) {
-        return res.status(403).json({ error: 'Unauthorized to record listing' });
+        return res.status(403).json({ error: 'Unauthorised to record listing' });
     }
     try {
         await db.collection('listings').add({
@@ -898,7 +881,7 @@ app.post('/record-listing', verifyToken, async (req, res) => {
     }
 });
 
-// Start the server on port 1989
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server listening on port ${port}`);
+// Start the server on defined PORT
+app.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`);
 });

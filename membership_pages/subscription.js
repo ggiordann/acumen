@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             const data = await response.json();
             const firebaseConfig = data.firebaseConfig;
             
-            // Initialize Firebase
+            // Initialise Firebase
             firebase.initializeApp(firebaseConfig);
-            console.log('Firebase initialized successfully');
+            console.log('Firebase initialised successfully');
             
             // Set persistence to LOCAL for persistent login across browser restarts
             firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             });
         } catch (error) {
-            console.error('Error initializing Firebase:', error);
+            console.error('Error initialising Firebase:', error);
         }
     }
     
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     const planBadge = $(`<span class="subscription-badge ${badgeClass}">${planName}</span>`);
                     $(".user-profile-btn span").append(" ").append(planBadge);
                     
-                    // Initialize dropdown toggle
+                    // Initialise dropdown toggle
                     $(".user-profile-btn").click(function(e) {
                         e.stopPropagation();
                         $(".user-dropdown").toggleClass("show");
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
-    // Initialize Firebase when the page loads
+    // Initialise Firebase when the page loads
     initFirebase();
     
     if (mobileMenuToggle) {
@@ -333,9 +333,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 // Add button animation
                 button.classList.add('clicked');
                 
-                // Check if Firebase is initialized
+                // Check if Firebase is initialised
                 if (typeof firebase === 'undefined') {
-                    console.error('Firebase is not initialized yet');
+                    console.error('Firebase is not initialised yet');
                     alert('Authentication service is not ready yet. Please try again in a moment.');
                     button.classList.remove('clicked');
                     return;
@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
-    // Initialize animations on scroll for guarantees section
+    // Initialise animations on scroll for guarantees section
     const guarantees = document.querySelectorAll('.guarantee-item');
     const guaranteeObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
