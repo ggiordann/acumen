@@ -5,7 +5,10 @@ let currentImageIndex = 0;
 $(document).ready(function() {
   // Initialise Firebase
   let auth, firebaseConfig, db;
-  
+
+  // tracker to avoid repeating low-credit warnings
+  window.lastCredits = Infinity;
+
   // Get Firebase config
   fetchFirebaseConfig();
 
@@ -246,6 +249,12 @@ $(document).ready(function() {
   
   function updateRemainingCredits(credits) {
     console.log("Updating remaining credits:", credits);
+    // show warning toast when credits drop to 3 or fewer for the first time
+    if (credits > 0 && credits <= 3 && window.lastCredits > 3) {
+      showUploadToast(`Hurry! Only ${credits} listings left this month.`);
+    }
+    window.lastCredits = credits;
+
     // Update credits display if it exists
     if ($(".credits-display").length) {
       $(".credits-display .count").text(credits);
@@ -447,53 +456,72 @@ $(document).ready(function() {
   });
 
   // file input handler
-  $('#fileInput').change(function(event) {
-    const files = event.target.files;
+  $('#fileInput').change(async function(event) {
+    let rawFiles = Array.from(event.target.files || []);
+    // convert HEIC to JPEG
+    const files = await Promise.all(rawFiles.map(async file => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (ext === 'heic' || file.type === 'image/heic') {
+        try {
+          const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.8 });
+          return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+        } catch (e) {
+          console.error('HEIC conversion failed:', e);
+          return file;
+        }
+      }
+      return file;
+    }));
+
     if (files.length > 10) {
       showUploadToast('10 file upload limit exceeded');
-      $(this).val('');                          // clear selection
-      return;                                   // abort further processing
+      $(this).val(null);
+      return;
     }
 
-    base64Data = "";
+    base64Data = '';
     previewImages = [];
-    $("#preview-container").empty();
+    $('#preview-container').empty();
 
-    if (files.length) {
-      const readFilePromises = Array.from(files).map((file, index) => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            $("#preview-container").append(`<img src="${e.target.result}" data-index="${index}" class="preview-image" />`);
-            previewImages.push(e.target.result.split(",")[1]);
-            resolve();
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      });
+    // reuse existing preview/upload logic with converted files
+    const readFilePromises = files.map((file,index) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        $('#preview-container').append(`<img src="${e.target.result}" data-index="${index}" class="preview-image" />`);
+        previewImages.push(e.target.result.split(',')[1]);
+        resolve();
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    }));
 
-      Promise.all(readFilePromises)
-        .then(() => {
-          base64Data = previewImages.length > 0 ? previewImages[0] : '';
-          let formData = new FormData();
-          for (let i = 0; i < files.length; i++) {
-            formData.append("files", files[i]);
-          }
-          return fetch("http://localhost:1989/upload", { // Changed from 5500 to 1989
-            method: "POST",
-            body: formData
-          });
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log("Files uploaded successfully:", data);
-        })
-        .catch(err => {
-          console.error("Error reading files or uploading:", err);
-        });
-    }
+    Promise.all(readFilePromises).then(() => {
+      base64Data = previewImages[0] || '';
+      const formData = new FormData();
+      files.forEach(f => formData.append('files', f));
+      return fetch('http://localhost:1989/upload', { method: 'POST', body: formData });
+    })
+    .then(res => res.json())
+    .then(data => console.log('Files uploaded successfully:', data))
+    .catch(err => console.error('Error reading files or uploading:', err));
   });
+
+  // drag-and-drop support on the #dragDropArea
+  $('#dragDropArea')
+    .on('dragover', function(e) {
+      e.preventDefault();
+      $(this).addClass('dragover');
+    })
+    .on('dragleave drop', function(e) {
+      e.preventDefault();
+      $(this).removeClass('dragover');
+      if (e.type === 'drop') {
+        const files = e.originalEvent.dataTransfer.files;
+        // assign dropped files to the input and trigger change
+        $('#fileInput')[0].files = files;
+        $('#fileInput').trigger('change');
+      }
+    });
 
   $("#preview-container").on("click", "img.preview-image", function() {
     currentImageIndex = parseInt($(this).attr("data-index"));
@@ -647,6 +675,7 @@ $(document).ready(function() {
           .catch(err => {
             console.error("Error posting to Facebook:", err);
             $("#analysisOutput").append("\nError posting to Facebook.");
+            showUploadToast('Facebook post failed.');
           })
           .finally(() => {
             checkOverlay();
@@ -692,6 +721,7 @@ $(document).ready(function() {
           .catch(err => {
             console.error("Error posting to eBay:", err);
             $("#analysisOutput").append("\nError posting to eBay.");
+            showUploadToast('eBay post failed.');
           })
           .finally(() => {
             checkOverlay();
@@ -736,6 +766,7 @@ $(document).ready(function() {
           .catch(err => {
             console.error("Error posting to Gumtree:", err);
             $("#analysisOutput").append("\nError posting to Gumtree.");
+            showUploadToast('Gumtree post failed.');
           })
           .finally(() => checkOverlay());
         } catch(e) {

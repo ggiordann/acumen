@@ -441,6 +441,20 @@ input[type="file"]:hover {
   border-color: rgba(0, 255, 157, 0.3);
 }
 
+/* Drag & drop file upload area */
+#dragDropArea {
+  border: none; /* removed dotted border */
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+#dragDropArea.dragover {
+  background-color: var(--card-highlight);
+  /* no border color change since border removed */
+}
+
 /* Button Styles */
 button {
   border: none;
@@ -476,8 +490,16 @@ button:hover {
   max-width: 220px; /* Shortened width */
   margin: 0.7rem 0.5rem;
   text-align: center;
-  padding: 0.8rem 1rem;
-  display: inline-block;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-hover);
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#analyzeBtn:hover, .action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
 }
 
 /* Create button container for horizontal alignment */

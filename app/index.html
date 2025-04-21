@@ -6,6 +6,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Load HEIC conversion library -->
+    <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
+    <!-- Modern Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="main.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -187,10 +191,10 @@
       <h2>Image upload:</h2>
 
       <!-- Allow multiple image selection -->
-      <div class="file-upload-container">
-        <input type="file" id="fileInput" accept="image/*" multiple>
+      <div class="file-upload-container" id="dragDropArea">
+        <input type="file" id="fileInput" accept=".heic,image/*" multiple>
         <label for="fileInput" class="file-upload-label">
-          <i class="fas fa-upload"></i> Browse files
+          <i class="fas fa-upload"></i> Drag & drop files here or browse
         </label>
       </div>
 

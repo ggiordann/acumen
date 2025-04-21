@@ -192,7 +192,7 @@ app.post('/analyze-ebay', async (req, res) => {
                     DO NOT USE ANY EMOJIS IN THE LISTING.
 
                     Fill it out in RAW JSON format with the following fields exactly:
-                    - Title – a short, descriptive title for the listing.
+                    - Title – a descriptive title for the listing 80 characters max, include details such as brand, colour, size, specs, condition, etc but still keep concise.
                     - Price – a price estimate for the product in AUD.
                     - Condition for different Categories – one of:
 
