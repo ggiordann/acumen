@@ -427,7 +427,7 @@
         <!-- Add Firebase guard for authentication -->
         <script>
         (async function() {
-          const resp = await fetch('http://localhost:1989/get-api-key');
+          const resp = await fetch('/get-api-key');
           const data = await resp.json();
           firebase.initializeApp(data.firebaseConfig);
           firebase.auth().onAuthStateChanged(user => {

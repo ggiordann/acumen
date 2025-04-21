@@ -110,7 +110,7 @@
                 
                 // Initialise Firebase to refresh subscription data
                 try {
-                    const response = await fetch('http://localhost:1989/get-api-key');
+                    const response = await fetch('/get-api-key');
                     const data = await response.json();
                     const firebaseConfig = data.firebaseConfig;
                     
@@ -147,7 +147,7 @@
                             const verifyStripeSession = async () => {
                                 try {
                                     const idToken = await user.getIdToken(true);
-                                    const verifyResponse = await fetch(`http://localhost:1989/verify-session?session_id=${sessionId}`, {
+                                    const verifyResponse = await fetch(`/verify-session?session_id=${sessionId}`, {
                                         headers: { 'Authorization': `Bearer ${idToken}` }
                                     });
                                     
@@ -166,7 +166,7 @@
                             const forceUpdateSubscription = async (plan) => {
                                 try {
                                     const idToken = await user.getIdToken(true);
-                                    const updateResponse = await fetch(`http://localhost:1989/force-update-subscription`, {
+                                    const updateResponse = await fetch(`/force-update-subscription`, {
                                         method: 'POST',
                                         headers: { 
                                             'Authorization': `Bearer ${idToken}`,
@@ -196,7 +196,7 @@
                                     
                                     // Force token refresh each time
                                     const idToken = await user.getIdToken(true);
-                                    const subResponse = await fetch(`http://localhost:1989/get-user-subscription?uid=${user.uid}`, {
+                                    const subResponse = await fetch(`/get-user-subscription?uid=${user.uid}`, {
                                         headers: { 'Authorization': `Bearer ${idToken}` }
                                     });
                                     

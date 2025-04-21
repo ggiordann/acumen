@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     //function to initialise firebase
     async function initFirebase() {
         try {
-            const response = await fetch('http://localhost:1989/get-api-key');
+            const response = await fetch('/get-api-key');
             const data = await response.json();
             const firebaseConfig = data.firebaseConfig;
             
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             // Get user's subscription data from the backend
             const idToken = await user.getIdToken(true);
-            const response = await fetch(`http://localhost:1989/get-user-subscription?uid=${user.uid}`, {
+            const response = await fetch(`/get-user-subscription?uid=${user.uid}`, {
                 headers: { 'Authorization': `Bearer ${idToken}` }
             });
             
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
                     
                     // Create checkout session
-                    const response = await fetch('http://localhost:1989/create-checkout-session', {
+                    const response = await fetch('/create-checkout-session', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

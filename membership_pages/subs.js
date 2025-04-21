@@ -7,7 +7,7 @@ $(document).ready(async function() {
     
     console.log("before fetch");
     try {
-        const response = await fetch("http://localhost:1989/get-api-key");
+        const response = await fetch("/get-api-key");
         const data = await response.json();
         console.log("API Key received:", data.firebaseConfig); // changed to get full config
         firebaseConfig = data.firebaseConfig; // store full config
@@ -34,7 +34,7 @@ $(document).ready(async function() {
 
                         //Save user data to firestore
                         $.ajax({
-                            url: "http://localhost:1989/save-user",
+                            url: "/save-user",
                             type: "POST",
                             headers: { Authorization: `Bearer ${idToken}` },
                             success: () => {
