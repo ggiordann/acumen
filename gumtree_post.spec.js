@@ -1,142 +1,95 @@
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import UAPlugin from 'puppeteer-extra-plugin-anonymize-ua';
+import { webkit } from 'playwright';
 import path from 'path';
 import fs from 'fs';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-puppeteer.use(StealthPlugin());
-puppeteer.use(UAPlugin({ customFn: ua => ua.replace(/Headless/, '') }));
-
-// removed fingerprint plugin (not published) – rely on stealth + humanization
-
-// helper for realistic delays
-function randomDelay(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+const inputArg = process.argv[2];
+if (!inputArg) {
+  console.error("no ad data provided, JSON is not being passed");
+  process.exit(1);
 }
 
-// sleep helper since page.waitForTimeout is unavailable in this Puppeteer version
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+let adData;
+try {
+  adData = JSON.parse(inputArg);
+} catch (e) {
+  console.error("Invalid JSON input:", e);
+  process.exit(1);
 }
 
-(async () => {
-  const inputArg = process.argv[2];
-  if (!inputArg) {
-    console.error('No ad data provided');
-    process.exit(1);
-  }
-  let adData;
-  try { adData = JSON.parse(inputArg); } catch (e) {
-    console.error('Invalid JSON input:', e);
-    process.exit(1);
-  }
+async function postListingGumtree(adData) {
+  const savePath = path.join(process.cwd(), 'gumtree_session.json');
+  // launch WebKit with UI, DevTools, and slowMo for visibility
+  const browser = await webkit.launch({ headless: false, devtools: true, slowMo: 100 });
+  const context = await browser.newContext({ storageState: savePath });
+  const page = await context.newPage();
 
-  const launchArgs = [
-    '--disable-blink-features=AutomationControlled',
-    '--no-sandbox'
-  ];
-
-  // use development or production proxy based on NODE_ENV
-  const proxy = process.env.NODE_ENV === 'development' ? process.env.GUMTREE_PROXY_TEST : process.env.GUMTREE_PROXY;
-  if (proxy) {
-    launchArgs.push(`--proxy-server=${proxy}`);
-  }
-
-  const browser = await puppeteer.launch({
-    headless: false,
-    channel: 'chrome',
-    args: launchArgs
-  });
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });
-  const realUA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15';
-  await page.setUserAgent(realUA);
-  await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' });
-  await page.emulateTimezone('Australia/Sydney');
-
-  await page.evaluateOnNewDocument(() => {
+  // spoof navigator properties
+  await page.evaluate(() => {
     Object.defineProperty(navigator, 'webdriver', { get: () => false });
-    window.navigator.chrome = { runtime: {} };
-    Object.defineProperty(navigator, 'languages', { get: () => ['en-US','en'] });
-    Object.defineProperty(navigator, 'plugins', { get: () => [1,2,3,4] });
-    Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
-    Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
-    Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 });
-    Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 0 });
-    Object.defineProperty(navigator, 'connection', { get: () => ({ downlink: 10, effectiveType: '4g' }) });
   });
 
-  // initial navigation with delay
-  await page.goto('https://www.gumtree.com.au/', { waitUntil: 'networkidle2' });
-  await sleep(randomDelay(1000, 2000));
+  await page.goto('https://www.gumtree.com.au/');
+  const profileBtn = page.locator('.header__my-gumtree-portrait').first();
+  await profileBtn.click();
+  // wait for Manage Ads link to appear and click first instance
+  const manageAdsLink = page.getByRole('link', { name: 'Manage Ads' }).first();
+  await manageAdsLink.waitFor({ state: 'visible', timeout: 60000 });
+  await manageAdsLink.click();
 
-  await page.waitForSelector('.nav-my-gumtree > [href="/m-my-ads.html?c=1"]');
-  await sleep(randomDelay(500, 1000));
-  await page.click('.nav-my-gumtree > [href="/m-my-ads.html?c=1"]');
-  await page.waitForNavigation({ waitUntil: 'networkidle2' });
+  // wait for Post an ad link and click first instance
+  const postAdLink = page.getByRole('link', { name: 'Post an ad', exact: true }).first();
+  await postAdLink.waitFor({ state: 'visible', timeout: 60000 });
+  await postAdLink.click();
 
-  await page.waitForSelector('[href="/p-post-ad.html"]:nth-child(2)');
-  await sleep(randomDelay(500, 1000));
-  await page.click('[href="/p-post-ad.html"]:nth-child(2)');
-  await page.waitForNavigation({ waitUntil: 'networkidle2' });
-
-  await page.waitForSelector('[name="preSyiTitle"]');
-  await sleep(randomDelay(500, 1000));
-  await page.click('[name="preSyiTitle"]');
-  await page.type('[name="preSyiTitle"]', adData.Title || '', { delay: randomDelay(50, 150) });
-
-  await sleep(randomDelay(500, 1000));
-  await page.click('.css-1mqk92z-Box');
-  await page.waitForNavigation({ waitUntil: 'networkidle2' });
-
-  if (adData.Category) {
-    await sleep(randomDelay(500, 1000));
-    await page.click('.css-1jascer-Box');
-    await sleep(randomDelay(200, 500));
-    const [opt] = await page.$x(`//button[contains(., '${adData.Category}')]`);
-    if (opt) await opt.click();
+  await page.getByRole('link', { name: 'Select a category' }).locator('a').click();
+  if (Array.isArray(adData.CategoryPath)) {
+    for (const cat of adData.CategoryPath) {
+      await page.getByRole('button', { name: cat }).click();
+    }
   }
+  await page.getByRole('button', { name: 'Next' }).click();
 
-  // determine condition index: 1 for Used, 2 for New
-  const condIndex = adData.Condition === 'New' ? 2 : 1;
-  await sleep(randomDelay(500, 1000));
-  await page.click(`.css-bc1f5v-Box:nth-child(${condIndex})`);
+  await page.getByTestId('20046_TEXT_FIELD_ad_title').fill(adData.Title || '');
+  await page.getByPlaceholder('Enter your price').fill(adData.Price ? String(adData.Price) : '');
 
-  if (adData.Price) {
-    await sleep(randomDelay(500, 1000));
-    await page.click('[name="price.amount"]');
-    await page.type('[name="price.amount"]', String(adData.Price), { delay: randomDelay(50, 150) });
-  }
-
-  // upload images
+  // upload photos
   const uploadDir = path.join(process.cwd(), 'uploads');
   const files = fs.readdirSync(uploadDir).map(f => path.join(uploadDir, f));
-  if (!files.length) {
-    console.error('No files found in uploads'); process.exit(1);
+  if (files.length === 0) {
+    console.error('No files found in uploads directory');
+    process.exit(1);
   }
-  const fileChooserPromise = page.waitForFileChooser();
-  await page.click('[aria-label="upload-button"]');
-  const fileChooser = await fileChooserPromise;
-  await fileChooser.accept(files);
+  const [fileChooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByRole('button', { name: 'upload-button' }).click()
+  ]);
+  await fileChooser.setFiles(files);
 
-  // description
-  await sleep(randomDelay(500, 1000));
-  await page.click('textarea');
-  await page.type('textarea', adData.Description || '', { delay: randomDelay(50, 150) });
+  await page.getByTestId('20046_TEXT_AREA_ad_description').fill(adData.Description || '');
+  if (adData.Condition) {
+    await page.getByRole('radio', { name: adData.Condition }).click();
+  }
+  // click the first Post ad button, wait for it, and confirm navigation
+  // no post!!
+ // const postBtn = page.getByRole('button', { name: 'Post ad' }).first();
+  await postBtn.waitFor({ state: 'visible', timeout: 60000 });
+  await postBtn.click();
+  await page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 });
 
-  // use current location
-  await sleep(randomDelay(500, 1000));
-  await page.click('[data-testid="useCurrentLoc"]');
-  await sleep(1000);
+  console.log('Ad posted, confirmation page loaded');
 
-  // post
-  await sleep(randomDelay(500, 1000));
-  await page.click('.css-1gvwt6k-Box');
-  await sleep(3000);
-
+  await page.waitForTimeout(5000);
   await browser.close();
   console.log('Listing posted successfully');
-})();
+
+  // cleanup uploaded files
+  files.forEach(f => fs.unlinkSync(f));
+  return 'Listing posted successfully';
+}
+
+postListingGumtree(adData)
+  .then(res => console.log(res))
+  .catch(err => {
+    console.error('Error posting to Gumtree:', err);
+    process.exit(1);
+  });

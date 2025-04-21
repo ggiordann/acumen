@@ -708,6 +708,48 @@ $(document).ready(function() {
         checkOverlay();
       });
     }
+
+    if (platforms.includes("gumtree")) {
+      // Analyze via Gumtree AI endpoint
+      fetch("http://localhost:1989/analyze-gumtree", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageData: base64Data })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`Gumtree analysis failed: ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        $("#analysisOutput").append("\nGumtree Analysis result: " + data.response);
+        try {
+          const adData = JSON.parse(data.response);
+          fetch("http://localhost:1989/post-gumtree", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(adData)
+          })
+          .then(postRes => postRes.text())
+          .then(postData => {
+            $("#analysisOutput").append("\nGumtree Post: " + postData);
+          })
+          .catch(err => {
+            console.error("Error posting to Gumtree:", err);
+            $("#analysisOutput").append("\nError posting to Gumtree.");
+          })
+          .finally(() => checkOverlay());
+        } catch(e) {
+          console.error("Error parsing Gumtree AI output:", e);
+          $("#analysisOutput").append("\nError parsing Gumtree AI output. Response was: " + data.response);
+          checkOverlay();
+        }
+      })
+      .catch(err => {
+        console.error("Error calling analyze-gumtree endpoint:", err);
+        $("#analysisOutput").append("\nAn error occurred during Gumtree analysis: " + err.message);
+        checkOverlay();
+      });
+    }
   });
 
   $("#connectFB").click(function() {
@@ -733,6 +775,20 @@ $(document).ready(function() {
       .catch(err => {
         console.error("Error executing ebay_login.spec.js:", err);
         alert("Error executing ebay_login.spec.js.");
+      });
+  });
+
+  // Connect to Gumtree
+  $("#connectGU").click(function() {
+    fetch("http://localhost:1989/run-gumtree-login") // Changed from 5500 to 1989
+      .then(response => response.text())
+      .then(data => {
+        console.log("gumtree_login.spec.js output:", data);
+        alert("Authentication executed successfully.");
+      })
+      .catch(err => {
+        console.error("Error executing gumtree_login.spec.js:", err);
+        alert("Error executing gumtree_login.spec.js.");
       });
   });
 
