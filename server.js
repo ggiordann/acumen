@@ -59,6 +59,15 @@ app.use(express.json());
 // Serve intro_pages directory at root for test assets
 app.use(express.static(path.join(__dirname, 'intro_pages')));
 
+// Serve membership pages at root
+app.use(express.static(path.join(__dirname, 'membership_pages')));
+
+// Endpoint to return active user count without needing Firestore client rules
+app.get('/active-users', async (req, res) => {
+  const snapshot = await db.collection('users').get();
+  res.json({ count: snapshot.size });
+});
+
 // Serve the test intro page as the root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'intro_pages', 'test.html'));

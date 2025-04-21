@@ -212,7 +212,7 @@ loader.load(
             setTimeout(() => {
                 loadingScreen.style.display = 'none';
             }, 1000);
-        }, 500);
+        }, 3000);  // extended initial delay to 3s for slower deployments
     },
     (xhr) => {
         // Update loading bar
