@@ -3,6 +3,9 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import UAPlugin from 'puppeteer-extra-plugin-anonymize-ua';
 import path from 'path';
 import fs from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 puppeteer.use(StealthPlugin());
 puppeteer.use(UAPlugin({ customFn: ua => ua.replace(/Headless/, '') }));
@@ -35,9 +38,13 @@ async function sleep(ms) {
     '--disable-blink-features=AutomationControlled',
     '--no-sandbox'
   ];
-  if (process.env.GUMTREE_PROXY) {
-    launchArgs.push(`--proxy-server=${process.env.GUMTREE_PROXY}`);
+
+  // use development or production proxy based on NODE_ENV
+  const proxy = process.env.NODE_ENV === 'development' ? process.env.GUMTREE_PROXY_TEST : process.env.GUMTREE_PROXY;
+  if (proxy) {
+    launchArgs.push(`--proxy-server=${proxy}`);
   }
+
   const browser = await puppeteer.launch({
     headless: false,
     channel: 'chrome',

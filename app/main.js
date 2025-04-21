@@ -625,7 +625,12 @@ $(document).ready(function() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Analysis request failed with status ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
         $("#analysisOutput").text("Facebook Analysis result: " + data.response);
         try {
@@ -648,13 +653,13 @@ $(document).ready(function() {
           });
         } catch (e) {
           console.error("Error parsing Facebook AI output:", e);
-          $("#analysisOutput").append("\nError parsing Facebook AI output.");
+          $("#analysisOutput").append("\nError parsing Facebook AI output. Response was: " + data.response);
           checkOverlay();
         }
       })
       .catch(err => {
-        console.error("Error calling analyze endpoint:", err);
-        $("#analysisOutput").text("An error occurred during Facebook analysis.");
+        console.error("Error calling analyze endpoint for Facebook:", err);
+        $("#analysisOutput").text("An error occurred during Facebook analysis: " + err.message);
         checkOverlay();
       });
     }
@@ -665,7 +670,12 @@ $(document).ready(function() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`eBay analysis request failed with status ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
         $("#analysisOutput").append("\neBay Analysis result: " + data.response);
         try {
@@ -688,13 +698,13 @@ $(document).ready(function() {
           });
         } catch (e) {
           console.error("Error parsing eBay AI output:", e);
-          $("#analysisOutput").append("\nError parsing eBay AI output.");
+          $("#analysisOutput").append("\nError parsing eBay AI output. Response was: " + data.response);
           checkOverlay();
         }
       })
       .catch(err => {
         console.error("Error calling analyze-ebay endpoint:", err);
-        $("#analysisOutput").append("\nAn error occurred during eBay analysis.");
+        $("#analysisOutput").append("\nAn error occurred during eBay analysis: " + err.message);
         checkOverlay();
       });
     }

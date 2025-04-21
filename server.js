@@ -29,6 +29,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // initialise stripe client using secret key from environment
 // stripe methods will be called for creating checkout sessions, managing subscriptions, and sending receipts
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Initialise OpenAI client using API key from environment
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const app = express();
 // define port and base url for redirects
