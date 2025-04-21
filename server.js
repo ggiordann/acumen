@@ -56,6 +56,11 @@ app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
 app.use(cors());
 app.use(express.json());
 
+// Serve the test intro page as the root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'intro_pages', 'test.html'));
+});
+
 app.use(express.static(path.join(process.cwd(), 'app'))); // comment out if not over network
 app.use(express.static(path.join(process.cwd()))); // Serve files from project root
 

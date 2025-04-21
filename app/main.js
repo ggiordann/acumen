@@ -14,7 +14,7 @@ $(document).ready(function() {
 
   async function fetchFirebaseConfig() {
     try {
-      const response = await fetch("http://localhost:1989/get-api-key");
+      const response = await fetch("/get-api-key");
       const data = await response.json();
       firebaseConfig = data.firebaseConfig;
       initializeFirebase();
@@ -73,7 +73,7 @@ $(document).ready(function() {
       const idToken = await auth.currentUser.getIdToken(true);
       console.log("Token refreshed, fetching subscription data");
       
-      const response = await fetch(`http://localhost:1989/get-user-subscription?uid=${uid}`, {
+      const response = await fetch(`/get-user-subscription?uid=${uid}`, {
         headers: { 
           'Authorization': `Bearer ${idToken}`
         }
@@ -499,7 +499,7 @@ $(document).ready(function() {
       base64Data = previewImages[0] || '';
       const formData = new FormData();
       files.forEach(f => formData.append('files', f));
-      return fetch('http://localhost:1989/upload', { method: 'POST', body: formData });
+      return fetch("/upload", { method: 'POST', body: formData });
     })
     .then(res => res.json())
     .then(data => console.log('Files uploaded successfully:', data))
@@ -635,7 +635,7 @@ $(document).ready(function() {
         }
         // Record listing usage on server
         auth.currentUser.getIdToken().then(token => {
-          fetch('http://localhost:1989/record-listing', {
+          fetch('/record-listing', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -648,7 +648,7 @@ $(document).ready(function() {
     }
 
     if (platforms.includes("facebook")) {
-      fetch("http://localhost:1989/analyze", { // Changed from 5500 to 1989
+      fetch("/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -663,7 +663,7 @@ $(document).ready(function() {
         $("#analysisOutput").text("Facebook Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("http://localhost:1989/post-facebook", { // Changed from 5500 to 1989
+          fetch("/post-facebook", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -694,7 +694,7 @@ $(document).ready(function() {
     }
 
     if (platforms.includes("ebay")) {
-      fetch("http://localhost:1989/analyze-ebay", { // Changed from 5500 to 1989
+      fetch("/analyze-ebay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -709,7 +709,7 @@ $(document).ready(function() {
         $("#analysisOutput").append("\neBay Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("http://localhost:1989/post-ebay", { // Changed from 5500 to 1989
+          fetch("/post-ebay", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -741,7 +741,7 @@ $(document).ready(function() {
 
     if (platforms.includes("gumtree")) {
       // Analyze via Gumtree AI endpoint
-      fetch("http://localhost:1989/analyze-gumtree", {
+      fetch("/analyze-gumtree", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -754,7 +754,7 @@ $(document).ready(function() {
         $("#analysisOutput").append("\nGumtree Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("http://localhost:1989/post-gumtree", {
+          fetch("/post-gumtree", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -784,7 +784,7 @@ $(document).ready(function() {
   });
 
   $("#connectFB").click(function() {
-    fetch("http://localhost:1989/run-fb-login") // Changed from 5500 to 1989
+    fetch("/run-fb-login")
       .then(response => response.text())
       .then(data => {
         console.log("fb_login.spec.js output:", data);
@@ -797,7 +797,7 @@ $(document).ready(function() {
   });
 
   $("#connectEB").click(function() {
-    fetch("http://localhost:1989/run-ebay-login") // Changed from 5500 to 1989
+    fetch("/run-ebay-login")
       .then(response => response.text())
       .then(data => {
         console.log("ebay_login.spec.js output:", data);
@@ -811,7 +811,7 @@ $(document).ready(function() {
 
   // Connect to Gumtree
   $("#connectGU").click(function() {
-    fetch("http://localhost:1989/run-gumtree-login") // Changed from 5500 to 1989
+    fetch("/run-gumtree-login")
       .then(response => response.text())
       .then(data => {
         console.log("gumtree_login.spec.js output:", data);
@@ -827,7 +827,7 @@ $(document).ready(function() {
   async function getMonthlyUsage(uid) {
     try {
       const idToken = await auth.currentUser.getIdToken(true);
-      const resp = await fetch(`http://localhost:1989/get-monthly-usage?uid=${uid}`, {
+      const resp = await fetch(`/get-monthly-usage?uid=${uid}`, {
         headers: { 'Authorization': `Bearer ${idToken}` }
       });
       if (resp.ok) {
