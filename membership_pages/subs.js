@@ -22,53 +22,40 @@ $(document).ready(async function() {
         auth = firebase.auth();
         provider = new firebase.auth.GoogleAuthProvider();
         console.log("Initialised Firebase");
+
+        auth.getRedirectResult()
+            .then(async (result) => {
+                if (result.user) {
+                    user = result.user;
+                    const idToken = await user.getIdToken();
+                    // Save user data to backend
+                    $.ajax({
+                        url: "/save-user",
+                        type: "POST",
+                        headers: { Authorization: `Bearer ${idToken}` },
+                        success: () => {
+                            console.log("User saved via redirect");
+                            $("#email").text(`Welcome ${user.displayName}`);
+                            if (redirect === 'subscription') {
+                                setTimeout(() => window.location.href = '../membership_pages/subscription.html', 1000);
+                            } else {
+                                setTimeout(() => window.location.href = '../app/index.html', 1000);
+                            }
+                        },
+                        error: (xhr) => console.error("Error saving user", xhr)
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Redirect auth error:", error);
+            });
     }
     
-    $("#login").click(()=>{
+    $("#login").off('click').on('click', () => {
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             .then(() => {
-                return auth.signInWithPopup(provider)
-                    .then(async (result) => {
-                        user = result.user;
-                        const idToken = await user.getIdToken();
-
-                        //Save user data to firestore
-                        $.ajax({
-                            url: "/save-user",
-                            type: "POST",
-                            headers: { Authorization: `Bearer ${idToken}` },
-                            success: () => {
-                                console.log("User saved");
-                                
-                                // Display welcome message
-                                $("#email").text(`Welcome ${user.displayName}`);
-                                
-                                // If there was a redirect parameter, go back to that page
-                                if (redirect === 'subscription') {
-                                    console.log("Redirecting back to subscription page");
-                                    setTimeout(() => {
-                                        window.location.href = '../membership_pages/subscription.html';
-                                    }, 1000); // Short delay to show welcome message
-                                } else {
-                                    // Otherwise redirect to app.html
-                                    console.log("Redirecting to app page");
-                                    setTimeout(() => {
-                                        window.location.href = '../app/index.html';
-                                    }, 1000);
-                                }
-                            },
-                            error: (xhr) => console.error("Error saving user", xhr)
-                        });
-
-                        // schlawg we need to use allat somewhere else $("#email").text(`Welcome ${user.displayName}`);
-                    }) 
-                    .catch(error =>{
-                        console.error("Authentication error:", error);
-                        console.error("Error code:", error.code);
-                        console.error("Error message:", error.message);
-                        console.log("Current domain:", window.location.hostname);
-                        console.log("Full URL:", window.location.href);
-                    });
+                // Redirect to Google for authentication instead of popup
+                return auth.signInWithRedirect(provider);
             });
-    })
+    });
 })
