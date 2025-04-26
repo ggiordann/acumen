@@ -13,7 +13,6 @@ $(document).ready(async function() {
         const data = await response.json();
         console.log("API Key received:", data.firebaseConfig); // changed to get full config
         firebaseConfig = data.firebaseConfig; // store full config
-        // removed authDomain override to prevent argument-error
         await initialiseFirebase();
     } catch (error) {
         console.error("Error fetching API key:", error);
@@ -32,14 +31,16 @@ $(document).ready(async function() {
             .then(() => console.log('Persistence set to LOCAL on init'))
             .catch(err => console.error('Persistence error:', err));
         console.log("Initialised Firebase");
+        // Flag to prevent double redirect
+        let redirectHandled = false;
         // Handle redirect result (for mobile redirect flow)
         auth.getRedirectResult()
             .then(async (result) => {
                 console.log("getRedirectResult returned", result);
                 if (result.user) {
+                    redirectHandled = true;
                     user = result.user;
                     const idToken = await user.getIdToken();
-                    // Save user then redirect
                     await $.ajax({ url: "/save-user", type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
                     if (redirect === 'subscription') {
                         window.location.href = '../membership_pages/subscription.html';
@@ -49,19 +50,12 @@ $(document).ready(async function() {
                 }
             })
             .catch(error => console.error("Redirect auth error:", error));
-    }
-    
-    // Subscription plan login button: popup on desktop, redirect on mobile
-    $("#login").off('click').on('click', async () => {
-        try {
-            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            if (isMobile) {
-                console.log('Mobile detected — using redirect');
-                return auth.signInWithRedirect(provider);
-            } else {
-                console.log('Desktop detected — using popup');
-                const result = await auth.signInWithPopup(provider);
-                user = result.user;
+        // Fallback: listen for auth state change after redirect
+        auth.onAuthStateChanged(async (loggedUser) => {
+            console.log("onAuthStateChanged called", loggedUser, "handled?", redirectHandled);
+            if (loggedUser && !redirectHandled) {
+                redirectHandled = true;
+                user = loggedUser;
                 const idToken = await user.getIdToken();
                 await $.ajax({ url: "/save-user", type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
                 if (redirect === 'subscription') {
@@ -70,6 +64,15 @@ $(document).ready(async function() {
                     window.location.href = '../app/index.html';
                 }
             }
+        });
+    }
+    
+    // Subscription plan login button: always redirect to Google
+    $("#login").off('click').on('click', async () => {
+        try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            console.log('Using redirect for sign-in');
+            auth.signInWithRedirect(provider);
         } catch (error) {
             console.error('Authentication error:', error);
         }
