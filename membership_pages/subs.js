@@ -21,7 +21,7 @@ $(document).ready(async function() {
     }
 
     // Detect mobile devices for redirect flow
-    const isMobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); // Made case-insensitive
 
     async function initialiseFirebase() {
         firebase.initializeApp(firebaseConfig);
@@ -68,23 +68,22 @@ $(document).ready(async function() {
         });
     }
     
-    // Subscription plan login button: always redirect to Google
+    // Google Sign In logic
     $("#login").off('click').on('click', async () => {
+        console.log('Login button clicked');
         try {
+            // Ensure persistence is set before sign-in attempt
             await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            console.log('Using redirect for sign-in');
-            auth.signInWithRedirect(provider);
-        } catch (error) {
-            console.error('Authentication error:', error);
-        }
-    });
+            console.log('Persistence set to LOCAL');
 
-    // When using a popup for login
-    $('#login').off('click').on('click', async () => {
-        console.log('Login button clicked, signing in with popup');
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .then(() => auth.signInWithPopup(provider))
-            .then(async (result) => {
+            if (isMobile) {
+                console.log('Mobile device detected, using signInWithRedirect');
+                auth.signInWithRedirect(provider);
+                // Redirect happens here, no further code in this block will execute on mobile after this line
+            } else {
+                console.log('Desktop device detected, using signInWithPopup');
+                const result = await auth.signInWithPopup(provider);
+                console.log("Popup sign-in successful", result);
                 user = result.user;
                 const idToken = await user.getIdToken();
                 // Save user to backend with updated API URL
@@ -93,13 +92,24 @@ $(document).ready(async function() {
                     type: 'POST',
                     headers: { Authorization: `Bearer ${idToken}` }
                 });
+                console.log("User saved to backend");
                 // Redirect after successful save
                 if (redirect === 'subscription') {
                     window.location.href = '/membership_pages/subscription.html';
                 } else {
                     window.location.href = '/app/index.html';
                 }
-            })
-            .catch(error => console.error('Authentication error:', error));
+            }
+        } catch (error) {
+            console.error('Authentication error:', error);
+            // Handle specific errors like popup blocked if needed
+            if (error.code === 'auth/popup-blocked') {
+                alert('Popup blocked. Please allow popups for this site and try again.');
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                console.log('Popup closed by user.');
+            } else {
+                alert(`Login failed: ${error.message}`);
+            }
+        }
     });
 })
