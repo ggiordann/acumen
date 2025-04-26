@@ -57,7 +57,7 @@ $(document).ready(async function() {
             await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
             if (isMobile) {
                 console.log('Mobile detected — using redirect');
-                auth.signInWithRedirect(provider);
+                return auth.signInWithRedirect(provider);
             } else {
                 console.log('Desktop detected — using popup');
                 const result = await auth.signInWithPopup(provider);
