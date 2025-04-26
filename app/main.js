@@ -6,6 +6,9 @@ $(document).ready(function() {
   // Initialise Firebase
   let auth, firebaseConfig, db;
 
+  // Define API base URL for production
+  const apiBaseUrl = "https://useacumen.co";
+
   // tracker to avoid repeating low-credit warnings
   window.lastCredits = Infinity;
 
@@ -14,7 +17,7 @@ $(document).ready(function() {
 
   async function fetchFirebaseConfig() {
     try {
-      const response = await fetch("/get-api-key");
+      const response = await fetch(`${apiBaseUrl}/get-api-key`);
       const data = await response.json();
       firebaseConfig = data.firebaseConfig;
       initializeFirebase();
@@ -73,7 +76,7 @@ $(document).ready(function() {
       const idToken = await auth.currentUser.getIdToken(true);
       console.log("Token refreshed, fetching subscription data");
       
-      const response = await fetch(`/get-user-subscription?uid=${uid}`, {
+      const response = await fetch(`${apiBaseUrl}/get-user-subscription?uid=${uid}`, {
         headers: { 
           'Authorization': `Bearer ${idToken}`
         }
@@ -499,7 +502,7 @@ $(document).ready(function() {
       base64Data = previewImages[0] || '';
       const formData = new FormData();
       files.forEach(f => formData.append('files', f));
-      return fetch("/upload", { method: 'POST', body: formData });
+      return fetch(`${apiBaseUrl}/upload`, { method: 'POST', body: formData });
     })
     .then(res => res.json())
     .then(data => console.log('Files uploaded successfully:', data))
@@ -634,21 +637,12 @@ $(document).ready(function() {
           }
         }
         // Record listing usage on server
-        auth.currentUser.getIdToken().then(token => {
-          fetch('/record-listing', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ uid: auth.currentUser.uid })
-          }).catch(err => console.warn('Error recording listing on server:', err));
-        });
+        recordListing(auth.currentUser.uid);
       }
     }
 
     if (platforms.includes("facebook")) {
-      fetch("/analyze", {
+      fetch(`${apiBaseUrl}/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -663,7 +657,7 @@ $(document).ready(function() {
         $("#analysisOutput").text("Facebook Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("/post-facebook", {
+          fetch(`${apiBaseUrl}/post-facebook`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -694,7 +688,7 @@ $(document).ready(function() {
     }
 
     if (platforms.includes("ebay")) {
-      fetch("/analyze-ebay", {
+      fetch(`${apiBaseUrl}/analyze-ebay`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -709,7 +703,7 @@ $(document).ready(function() {
         $("#analysisOutput").append("\neBay Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("/post-ebay", {
+          fetch(`${apiBaseUrl}/post-ebay`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -741,7 +735,7 @@ $(document).ready(function() {
 
     if (platforms.includes("gumtree")) {
       // Analyze via Gumtree AI endpoint
-      fetch("/analyze-gumtree", {
+      fetch(`${apiBaseUrl}/analyze-gumtree`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageData: base64Data })
@@ -754,7 +748,7 @@ $(document).ready(function() {
         $("#analysisOutput").append("\nGumtree Analysis result: " + data.response);
         try {
           const adData = JSON.parse(data.response);
-          fetch("/post-gumtree", {
+          fetch(`${apiBaseUrl}/post-gumtree`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(adData)
@@ -784,7 +778,7 @@ $(document).ready(function() {
   });
 
   $("#connectFB").click(function() {
-    fetch("/run-fb-login")
+    fetch(`${apiBaseUrl}/run-fb-login`)
       .then(response => response.text())
       .then(data => {
         console.log("fb_login.spec.js output:", data);
@@ -797,7 +791,7 @@ $(document).ready(function() {
   });
 
   $("#connectEB").click(function() {
-    fetch("/run-ebay-login")
+    fetch(`${apiBaseUrl}/run-ebay-login`)
       .then(response => response.text())
       .then(data => {
         console.log("ebay_login.spec.js output:", data);
@@ -811,7 +805,7 @@ $(document).ready(function() {
 
   // Connect to Gumtree
   $("#connectGU").click(function() {
-    fetch("/run-gumtree-login")
+    fetch(`${apiBaseUrl}/run-gumtree-login`)
       .then(response => response.text())
       .then(data => {
         console.log("gumtree_login.spec.js output:", data);
@@ -827,7 +821,7 @@ $(document).ready(function() {
   async function getMonthlyUsage(uid) {
     try {
       const idToken = await auth.currentUser.getIdToken(true);
-      const resp = await fetch(`/get-monthly-usage?uid=${uid}`, {
+      const resp = await fetch(`${apiBaseUrl}/get-monthly-usage?uid=${uid}`, {
         headers: { 'Authorization': `Bearer ${idToken}` }
       });
       if (resp.ok) {
@@ -839,5 +833,19 @@ $(document).ready(function() {
       console.warn('Monthly usage fetch error:', e);
       return 0;
     }
+  }
+  
+  // Record listing usage on server
+  function recordListing(uid) {
+    auth.currentUser.getIdToken().then(token => {
+      fetch(`${apiBaseUrl}/record-listing`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ uid: uid })
+      }).catch(err => console.warn('Error recording listing on server:', err));
+    });
   }
 });

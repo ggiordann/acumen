@@ -4,12 +4,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     let auth, firebaseConfig, db, storage;
     let currentUser = null;
 
+    // Define API base URL for production
+    const apiBaseUrl = "https://useacumen.co";
+
     // Initialise Firebase
     initFirebase();
 
     async function initFirebase() {
         try {
-            const response = await fetch('http://localhost:1989/get-api-key');
+            const response = await fetch(`${apiBaseUrl}/get-api-key`);
             const data = await response.json();
             firebaseConfig = data.firebaseConfig;
             
@@ -229,7 +232,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Fetch user subscription data from the backend
     async function loadUserSubscriptionData(uid, idToken) {
         try {
-            const response = await fetch(`http://localhost:1989/get-user-subscription?uid=${uid}`, {
+            const response = await fetch(`${apiBaseUrl}/get-user-subscription?uid=${uid}`, {
                 headers: { 'Authorization': `Bearer ${idToken}` }
             });
             
@@ -801,7 +804,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
                 try {
                     const idToken = await currentUser.getIdToken(true);
-                    const response = await fetch('http://localhost:1989/cancel-subscription', {
+                    const response = await fetch(`${apiBaseUrl}/cancel-subscription`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -912,7 +915,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     
                     // For downgrading to free plan, use cancel-subscription endpoint
                     if (selectedPlan === 'free') {
-                        const response = await fetch('http://localhost:1989/cancel-subscription', {
+                        const response = await fetch(`${apiBaseUrl}/cancel-subscription`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -930,7 +933,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         }
                     } else {
                         // For downgrading to a different paid plan, use force-update-subscription endpoint
-                        const response = await fetch('http://localhost:1989/force-update-subscription', {
+                        const response = await fetch(`${apiBaseUrl}/force-update-subscription`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

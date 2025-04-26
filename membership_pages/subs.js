@@ -5,11 +5,12 @@ $(document).ready(async function() {
     const redirect = urlParams.get('redirect');
     console.log("Redirect parameter:", redirect);
     
-    // Determine if running in local dev
-    const isLocal = window.location.hostname.includes('localhost');
+    // Define API base URL - use useacumen.co for production
+    const apiBaseUrl = "https://useacumen.co";
+    
     console.log("before fetch");
     try {
-        const response = await fetch("/get-api-key");
+        const response = await fetch(`${apiBaseUrl}/get-api-key`);
         const data = await response.json();
         console.log("API Key received:", data.firebaseConfig); // changed to get full config
         firebaseConfig = data.firebaseConfig; // store full config
@@ -41,11 +42,11 @@ $(document).ready(async function() {
                     redirectHandled = true;
                     user = result.user;
                     const idToken = await user.getIdToken();
-                    await $.ajax({ url: "/save-user", type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
+                    await $.ajax({ url: `${apiBaseUrl}/save-user`, type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
                     if (redirect === 'subscription') {
-                        window.location.href = '../membership_pages/subscription.html';
+                        window.location.href = '/membership_pages/subscription.html';
                     } else {
-                        window.location.href = '../app/index.html';
+                        window.location.href = '/app/index.html';
                     }
                 }
             })
@@ -57,11 +58,11 @@ $(document).ready(async function() {
                 redirectHandled = true;
                 user = loggedUser;
                 const idToken = await user.getIdToken();
-                await $.ajax({ url: "/save-user", type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
+                await $.ajax({ url: `${apiBaseUrl}/save-user`, type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
                 if (redirect === 'subscription') {
-                    window.location.href = '../membership_pages/subscription.html';
+                    window.location.href = '/membership_pages/subscription.html';
                 } else {
-                    window.location.href = '../app/index.html';
+                    window.location.href = '/app/index.html';
                 }
             }
         });
@@ -76,5 +77,29 @@ $(document).ready(async function() {
         } catch (error) {
             console.error('Authentication error:', error);
         }
+    });
+
+    // When using a popup for login
+    $('#login').off('click').on('click', async () => {
+        console.log('Login button clicked, signing in with popup');
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => auth.signInWithPopup(provider))
+            .then(async (result) => {
+                user = result.user;
+                const idToken = await user.getIdToken();
+                // Save user to backend with updated API URL
+                await $.ajax({
+                    url: `${apiBaseUrl}/save-user`,
+                    type: 'POST',
+                    headers: { Authorization: `Bearer ${idToken}` }
+                });
+                // Redirect after successful save
+                if (redirect === 'subscription') {
+                    window.location.href = '/membership_pages/subscription.html';
+                } else {
+                    window.location.href = '/app/index.html';
+                }
+            })
+            .catch(error => console.error('Authentication error:', error));
     });
 })
