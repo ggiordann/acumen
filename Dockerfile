@@ -5,25 +5,22 @@ FROM mcr.microsoft.com/playwright:v1.44.0-jammy
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available) first
-# This leverages Docker layer caching
-COPY package.json ./
-# If you have a package-lock.json, uncomment the next line
-# COPY package-lock.json ./
+# Copy package.json AND package-lock.json first for cache efficiency if possible
+COPY package*.json ./
 
-# Install Node.js dependencies
-# Use --omit=dev if you have devDependencies you don't need in production
+# Install ALL dependencies (including devDependencies if needed for build, but omit for production)
+# We will run install again after copying all code to be sure
 RUN npm install --omit=dev
 
 # Copy the rest of your application code into the container
-# This includes server.js, your .spec.js files, and any session files
 COPY . .
 
+# Re-run npm install AFTER copying all code to ensure all dependencies are met
+# This catches dependencies added in package.json that weren't present in the first copy
+RUN npm install --omit=dev
+
 # Expose the port the app runs on. Render will set the PORT env variable automatically.
-# Your server.js already uses process.env.PORT || 1989, which is good.
-EXPOSE 10000 
-# Render expects services to listen on port 10000 by default, but it sets PORT env var.
+EXPOSE 10000
 
 # Command to run the application
-# Since server.js uses ES Modules, we just run it with node
 CMD ["node", "server.js"]
