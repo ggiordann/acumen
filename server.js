@@ -16,6 +16,7 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { Buffer } from "buffer";
 import Stripe from 'stripe';
+import { createProxyMiddleware } from 'http-proxy-middleware'; // Import the proxy middleware
 
 // server.js: main express app that handles routes for file uploads, ai analysis, auth, stripe payments, and webhooks
 // - loads env vars (dotenv) for secure secret management
@@ -36,6 +37,22 @@ const app = express();
 // define port and base url for redirects
 const PORT = process.env.PORT || 1989;
 const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
+
+// --- Firebase Auth Proxy Setup ---
+// Proxy requests to /__/auth/* to your Firebase project's auth handler
+// This makes the auth flow appear to come from your domain, avoiding third-party cookie issues.
+const firebaseAuthProxyTarget = 'https://acumen-2ead9.firebaseapp.com'; // Your Firebase project's default auth domain
+app.use('/__/auth', createProxyMiddleware({
+  target: firebaseAuthProxyTarget,
+  changeOrigin: true, // Important: Needed for virtual hosted sites like Firebase Hosting
+  logLevel: 'info', // Optional: Change to 'debug' for more verbose proxy logging
+  pathRewrite: {'^/__/auth' : '/__/auth'}, // Ensure the path is correctly forwarded
+  onProxyReq: (proxyReq, req, res) => {
+    // Add the host header expected by Firebase
+    proxyReq.setHeader('Host', new URL(firebaseAuthProxyTarget).host);
+  }
+}));
+// --- End Firebase Auth Proxy Setup ---
 
 // Middleware setup
 // middleware setup explanation:

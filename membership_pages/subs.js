@@ -12,8 +12,11 @@ $(document).ready(async function() {
     try {
         const response = await fetch(`${apiBaseUrl}/get-api-key`);
         const data = await response.json();
-        console.log("API Key received:", data.firebaseConfig); // changed to get full config
-        firebaseConfig = data.firebaseConfig; // store full config
+        console.log("API Key received:", data.firebaseConfig);
+        firebaseConfig = data.firebaseConfig;
+        // *** IMPORTANT: Update authDomain to your actual domain for the proxy to work ***
+        firebaseConfig.authDomain = "useacumen.co"; 
+        console.log("Using authDomain:", firebaseConfig.authDomain);
         await initialiseFirebase();
     } catch (error) {
         console.error("Error fetching API key:", error);
@@ -21,16 +24,28 @@ $(document).ready(async function() {
     }
 
     // Detect mobile devices for redirect flow
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); // Made case-insensitive
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
     async function initialiseFirebase() {
         firebase.initializeApp(firebaseConfig);
         auth = firebase.auth();
         provider = new firebase.auth.GoogleAuthProvider();
-        // Set persistence once on init
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .then(() => console.log('Persistence set to LOCAL on init'))
-            .catch(err => console.error('Persistence error:', err));
+        
+        // *** IMPORTANT: Set persistence BEFORE potential redirect and use SESSION ***
+        try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION); // Use SESSION (browserSessionPersistence)
+            console.log('Persistence set to SESSION on init');
+        } catch (err) {
+            console.error('Persistence error:', err);
+            // Fallback to inMemory if SESSION fails (less likely but safe)
+            try {
+                 await auth.setPersistence(firebase.auth.Auth.Persistence.NONE); // Use NONE (inMemoryPersistence)
+                 console.log('Persistence fallback to IN_MEMORY');
+            } catch (memErr) {
+                 console.error('In-memory persistence error:', memErr);
+            }
+        }
+
         console.log("Initialised Firebase");
         // Flag to prevent double redirect
         let redirectHandled = false;
@@ -72,9 +87,7 @@ $(document).ready(async function() {
     $("#login").off('click').on('click', async () => {
         console.log('Login button clicked');
         try {
-            // Ensure persistence is set before sign-in attempt
-            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            console.log('Persistence set to LOCAL');
+            // Persistence is now set during initialiseFirebase, no need to set it here again
 
             if (isMobile) {
                 console.log('Mobile device detected, using signInWithRedirect');
