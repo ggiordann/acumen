@@ -402,7 +402,17 @@ function initContentFeatures() {
 
     handleTransitionScrollPast();
 
+    // Initialise Authentication State Handling
+    initAuthStateObserver();
+
     // Fetch active users count from Firestore
+    /*
+    // !!! SECURITY & PERFORMANCE WARNING !!!
+    // Reading the entire 'users' collection from the client is insecure and inefficient.
+    // This will likely fail due to Firestore security rules (Missing or insufficient permissions).
+    // RECOMMENDED APPROACH: Use a Cloud Function triggered by user creation/deletion 
+    // to maintain a counter in a separate document (e.g., /metadata/userCount).
+    // Then, read only that single document here.
     if (firebase && firebase.firestore) {
         firebase.firestore().collection('users').get()
             .then(snapshot => {
@@ -411,10 +421,125 @@ function initContentFeatures() {
                 if (span) {
                     span.dataset.count = count;
                     span.textContent = count;
+                    // Re-initialize the counter animation if needed
+                    // initStatCounters(); 
                 }
             })
             .catch(err => console.error('Error fetching active users count:', err));
     }
+    */
+}
+
+// ============== Authentication State Handling =============== //
+
+function initAuthStateObserver() {
+    if (!firebase || !firebase.auth) {
+        console.error("Firebase Auth not initialized.");
+        return;
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+        updateNavbarUI(user);
+        if (user) {
+            fetchUserSubscription(user.uid);
+        }
+    });
+}
+
+function updateNavbarUI(user) {
+    const authContainer = document.querySelector('.auth-container');
+    const loginBtn = authContainer.querySelector('.login-btn');
+    const signupBtn = authContainer.querySelector('.signup-btn');
+    const userProfileContainer = authContainer.querySelector('.user-profile-container');
+    const userProfileBtn = userProfileContainer.querySelector('.user-profile-btn');
+    const userAvatar = userProfileContainer.querySelector('.user-avatar');
+    const userNameSpan = userProfileBtn.querySelector('span:not(.subscription-badge)');
+    const userDropdown = userProfileContainer.querySelector('.user-dropdown');
+    const logoutButton = userDropdown.querySelector('#logout-button-intro');
+
+    // Mobile elements
+    const mobileAuthButtons = document.querySelector('.mobile-auth-buttons');
+    const mobileUserInfo = document.querySelector('.mobile-user-info');
+    const mobileAvatar = mobileUserInfo.querySelector('.mobile-avatar');
+    const mobileUsername = mobileUserInfo.querySelector('.mobile-username');
+    const mobileAccountLinks = document.querySelector('.mobile-account-links');
+    const mobileLogoutButton = mobileAccountLinks.querySelector('#mobile-logout-button-intro');
+
+    if (user) {
+        // User is signed in
+        loginBtn.style.display = 'none';
+        signupBtn.style.display = 'none';
+        userProfileContainer.style.display = 'block';
+
+        userAvatar.src = user.photoURL || '../images/default-avatar.png'; // Add a default avatar image
+        userNameSpan.textContent = user.displayName || 'User';
+
+        // Mobile UI
+        if (mobileAuthButtons) mobileAuthButtons.style.display = 'none';
+        if (mobileUserInfo) mobileUserInfo.style.display = 'flex';
+        if (mobileAccountLinks) mobileAccountLinks.style.display = 'block';
+        if (mobileAvatar) mobileAvatar.src = user.photoURL || '../images/default-avatar.png';
+        if (mobileUsername) mobileUsername.textContent = user.displayName || 'User';
+
+        // Add dropdown toggle
+        userProfileBtn.onclick = () => userDropdown.classList.toggle('show');
+        // Close dropdown if clicked outside
+        window.onclick = (event) => {
+            if (!userProfileContainer.contains(event.target)) {
+                userDropdown.classList.remove('show');
+            }
+        };
+
+        // Add logout functionality
+        logoutButton.onclick = () => firebase.auth().signOut();
+        if (mobileLogoutButton) mobileLogoutButton.onclick = () => firebase.auth().signOut();
+
+    } else {
+        // User is signed out
+        loginBtn.style.display = 'block';
+        signupBtn.style.display = 'block';
+        userProfileContainer.style.display = 'none';
+        userDropdown.classList.remove('show'); // Ensure dropdown is hidden
+
+        // Mobile UI
+        if (mobileAuthButtons) mobileAuthButtons.style.display = 'block';
+        if (mobileUserInfo) mobileUserInfo.style.display = 'none';
+        if (mobileAccountLinks) mobileAccountLinks.style.display = 'none';
+
+        // Remove listeners if they exist to prevent memory leaks
+        userProfileBtn.onclick = null;
+        logoutButton.onclick = null;
+        if (mobileLogoutButton) mobileLogoutButton.onclick = null;
+        window.onclick = null; // Be careful if other click listeners are needed
+    }
+}
+
+async function fetchUserSubscription(userId) {
+    if (!firebase || !firebase.firestore) return;
+
+    const userDocRef = firebase.firestore().collection('users').doc(userId);
+    try {
+        const docSnap = await userDocRef.get();
+        let plan = 'free'; // Default to free
+        if (docSnap.exists) {
+            plan = docSnap.data().subscriptionPlan || 'free';
+        }
+        updateSubscriptionBadge(plan);
+    } catch (error) {
+        console.error("Error fetching user subscription:", error);
+        updateSubscriptionBadge('free'); // Default to free on error
+    }
+}
+
+function updateSubscriptionBadge(plan) {
+    const badgeElements = document.querySelectorAll('.subscription-badge');
+    badgeElements.forEach(badge => {
+        if (!badge) return;
+        badge.textContent = plan;
+        badge.className = 'subscription-badge'; // Reset classes
+        badge.classList.add(`${plan.toLowerCase()}-badge`); // Add specific plan class from style.css
+        badge.style.display = 'inline-block';
+    });
 }
 
 // Initialise mobile menu functionality

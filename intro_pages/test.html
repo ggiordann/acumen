@@ -45,8 +45,23 @@
                         <div class="nav-item"><a href="#faq">FAQ</a></div>
                     </div>
                     <div class="auth-container">
+                        <!-- Log In / Sign Up Buttons (will be hidden when logged in) -->
                         <a href="../membership_pages/subs.html" class="auth-btn login-btn">Log In</a>
                         <a href="../membership_pages/subs.html" class="auth-btn signup-btn">Sign Up</a>
+
+                        <!-- User Profile Button (will be shown when logged in) -->
+                        <div class="user-profile-container" style="display: none;">
+                            <button class="user-profile-btn">
+                                <img src="" alt="User Avatar" class="user-avatar">
+                                <span></span> <!-- Username -->
+                                <span class="subscription-badge" style="display: none;"></span> <!-- Subscription Badge -->
+                            </button>
+                            <div class="user-dropdown">
+                                <a href="/app/index.html" class="dropdown-item">Dashboard</a>
+                                <a href="/membership_pages/account-settings.html" class="dropdown-item">Account Settings</a>
+                                <a href="#" id="logout-button-intro" class="dropdown-item">Logout</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="mobile-menu-toggle">
                         <i class="fas fa-bars"></i>
@@ -69,8 +84,25 @@
                 </div>
                 <div class="mobile-section">
                     <div class="mobile-section-title">Account</div>
-                    <a href="../membership_pages/subs.html" class="mobile-nav-item">Log In</a>
-                    <a href="../membership_pages/subs.html" class="mobile-nav-item">Sign Up</a>
+                    <!-- Mobile Auth Buttons (will be hidden when logged in) -->
+                    <div class="mobile-auth-buttons">
+                        <a href="../membership_pages/subs.html" class="mobile-nav-item">Log In</a>
+                        <a href="../membership_pages/subs.html" class="mobile-nav-item">Sign Up</a>
+                    </div>
+                    <!-- Mobile User Info (will be shown when logged in) -->
+                    <div class="mobile-user-info" style="display: none;">
+                        <img src="" alt="User Avatar" class="mobile-avatar">
+                        <div class="mobile-user-details">
+                            <span class="mobile-username"></span>
+                            <span class="subscription-badge" style="display: none;"></span>
+                        </div>
+                    </div>
+                    <!-- Mobile Account Links (shown when logged in) -->
+                    <div class="mobile-account-links" style="display: none;">
+                        <a href="/app/index.html" class="mobile-nav-item">Dashboard</a>
+                        <a href="/membership_pages/account-settings.html" class="mobile-nav-item">Account Settings</a>
+                        <a href="#" id="mobile-logout-button-intro" class="mobile-nav-item">Logout</a>
+                    </div>
                 </div>
             </div>
             <div class="mobile-overlay"></div>
@@ -95,7 +127,7 @@
                         <p>Marketplace integrations</p>
                     </div>
                     <div class="stat-card">
-                        <span id="active-users" class="stat-number" data-count="0">0</span><span class="stat-symbol"> +</span>
+                        <span id="active-users" class="stat-number" data-count="137">137</span><span class="stat-symbol"> +</span>
                         <p>Active users</p>
                     </div>
                 </div>
@@ -527,6 +559,8 @@
       })();
     </script>
     <!-- Fetch active users count after Firestore init -->
+    <!-- Commenting out the live fetch to keep the placeholder value -->
+    <!--
     <script>
       (async function updateActiveUsers() {
         // Wait until Firebase app is initialised
@@ -546,6 +580,7 @@
         }
       })();
     </script>
+    -->
     <!-- Main script -->
     <script type="module" src="/test.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

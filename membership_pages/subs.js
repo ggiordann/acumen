@@ -59,9 +59,9 @@ $(document).ready(async function() {
                     const idToken = await user.getIdToken();
                     await $.ajax({ url: `${apiBaseUrl}/save-user`, type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
                     if (redirect === 'subscription') {
-                        window.location.href = '/membership_pages/subscription.html';
+                        redirectWithLoading('/membership_pages/subscription.html');
                     } else {
-                        window.location.href = '/app/index.html';
+                        redirectWithLoading('/app/index.html');
                     }
                 }
             })
@@ -75,9 +75,9 @@ $(document).ready(async function() {
                 const idToken = await user.getIdToken();
                 await $.ajax({ url: `${apiBaseUrl}/save-user`, type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
                 if (redirect === 'subscription') {
-                    window.location.href = '/membership_pages/subscription.html';
+                    redirectWithLoading('/membership_pages/subscription.html');
                 } else {
-                    window.location.href = '/app/index.html';
+                    redirectWithLoading('/app/index.html');
                 }
             }
         });
@@ -108,9 +108,9 @@ $(document).ready(async function() {
                 console.log("User saved to backend");
                 // Redirect after successful save
                 if (redirect === 'subscription') {
-                    window.location.href = '/membership_pages/subscription.html';
+                    redirectWithLoading('/membership_pages/subscription.html');
                 } else {
-                    window.location.href = '/app/index.html';
+                    redirectWithLoading('/app/index.html');
                 }
             }
         } catch (error) {
@@ -125,4 +125,33 @@ $(document).ready(async function() {
             }
         }
     });
+
+    // Add a loading overlay to the body
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'loading-overlay';
+    loadingOverlay.innerHTML = `
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+      </div>
+    `;
+    document.body.appendChild(loadingOverlay);
+
+    // Function to show the loading overlay
+    function showLoading() {
+      loadingOverlay.style.display = 'flex';
+    }
+
+    // Function to hide the loading overlay
+    function hideLoading() {
+      loadingOverlay.style.display = 'none';
+    }
+
+    // Show loading animation before redirect
+    function redirectWithLoading(url) {
+      showLoading();
+      setTimeout(() => {
+        window.location.href = url;
+      }, 500); // Add a slight delay for the animation to be visible
+    }
 })
