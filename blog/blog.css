@@ -94,6 +94,14 @@ body {
     color: var(--accent-green);
 }
 
+.navbar-links .nav-item a {
+    color: inherit;
+    text-decoration: none;
+}
+.navbar-links .nav-item a:hover {
+    color: var(--accent-green);
+}
+
 .dropdown-arrow {
     font-size: 0.7rem;
     margin-left: 0.3rem;
@@ -618,4 +626,12 @@ body {
     .blog-title {
         font-size: 2rem;
     }
+}
+
+/* Extend loading pulse duration and button pulse for blog */
+.auth-loading-overlay {
+    animation-duration: 3s;
+}
+.pulse {
+    animation-duration: 3s;
 }

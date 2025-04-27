@@ -37,9 +37,18 @@
             <!-- Navbar added here -->
             <nav id="main-navbar" class="navbar">
                 <div class="navbar-container">
-                    <a href="#" class="navbar-brand">acumen</a>
-                    <div class="navbar-links">
-                        <div class="nav-item"><a href="#features">Features</a></div>
+                    <a href="#" class="navbar-brand" id="brand-logo">acumen</a>
+                    <div class="navbar-links" id="nav-links">
+                        <div class="nav-item">
+                            <a href="../intro_pages/test.html" style="color: inherit; text-decoration: none;"><span>Home</span></a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="../app/index.html" style="color: inherit; text-decoration: none;"><span>Dashboard</span></a>
+                        </div>
+                        <!-- Features Dropdown -->
+                        <div class="nav-item" id="features-dropdown">
+                            <a href="#features">Features</a>
+                        </div>
                         <div class="nav-item"><a href="#benefits">Benefits</a></div>
                         <div class="nav-item"><a href="#pricing">Pricing</a></div>
                         <div class="nav-item"><a href="#faq">FAQ</a></div>
@@ -75,6 +84,16 @@
                     <i class="fas fa-times"></i>
                 </div>
                 <div class="mobile-menu-header">acumen</div>
+                <div class="mobile-section">
+                    <a href="../intro_pages/test.html" class="mobile-nav-item">
+                        <div class="icon"><i class="fas fa-home"></i></div>
+                        <span>Home</span>
+                    </a>
+                    <a href="../app/index.html" class="mobile-nav-item">
+                        <div class="icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
                 <div class="mobile-section">
                     <div class="mobile-section-title">Navigation</div>
                     <a href="#features" class="mobile-nav-item">Features</a>

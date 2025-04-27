@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function() {
     // Show loading overlay until account settings are initialised
-    showLoading('Loading account settings...');
+    showLoading(); // Remove message argument
     let auth, firebaseConfig, db, storage;
     let currentUser = null;
 
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         saveProfileBtn.addEventListener('click', async function() {
             if (!currentUser) return;
             
-            showLoading('Updating your profile...');
+            showLoading();
             
             try {
                 const newDisplayName = document.getElementById('display-name').value;
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
             
-            showLoading('Updating your password...');
+            showLoading();
             
             try {
                 await currentUser.updatePassword(newPassword);
@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
             
-            showLoading('Uploading profile picture...');
+            showLoading();
             
             try {
                 // If Firebase storage is available, use it to upload the profile picture
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         confirmDeleteBtn.addEventListener('click', async function() {
             if (!currentUser) return;
             
-            showLoading('Deleting your account...');
+            showLoading();
             
             try {
                 // In a real app, you should also delete user data from Firestore
@@ -746,21 +746,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Loading overlay functionality
-    function showLoading(message = 'Loading...') {
-        const loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay) {
-            const messageElement = loadingOverlay.querySelector('p');
-            if (messageElement) {
-                messageElement.textContent = message;
-            }
-            loadingOverlay.classList.add('show');
+    function showLoading() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.classList.add('visible');
         }
     }
     
     function hideLoading() {
-        const loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay) {
-            loadingOverlay.classList.remove('show');
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.classList.remove('visible');
         }
     }
 
@@ -800,7 +796,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             confirmCancelSubscriptionBtn.addEventListener('click', async function() {
                 if (!currentUser) return;
                 
-                showLoading('Canceling your subscription...');
+                showLoading();
                 
                 try {
                     const idToken = await currentUser.getIdToken(true);
@@ -908,7 +904,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     return;
                 }
                 
-                showLoading('Processing your downgrade request...');
+                showLoading();
                 
                 try {
                     const idToken = await currentUser.getIdToken(true);

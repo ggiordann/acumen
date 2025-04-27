@@ -515,16 +515,41 @@ function updateNavbarUI(user) {
 }
 
 async function fetchUserSubscription(userId) {
-    if (!firebase || !firebase.firestore) return;
-
-    const userDocRef = firebase.firestore().collection('users').doc(userId);
     try {
-        const docSnap = await userDocRef.get();
-        let plan = 'free'; // Default to free
-        if (docSnap.exists) {
-            plan = docSnap.data().subscriptionPlan || 'free';
+        // Use the same API endpoint that is used in other parts of the app
+        const apiBaseUrl = "https://useacumen.co";
+        const user = firebase.auth().currentUser;
+        
+        if (!user) return;
+        
+        // Force token refresh to get latest claims
+        const idToken = await user.getIdToken(true);
+        
+        const response = await fetch(`${apiBaseUrl}/get-user-subscription?uid=${userId}`, {
+            headers: { 'Authorization': `Bearer ${idToken}` }
+        });
+        
+        if (response.ok) {
+            const userData = await response.json();
+            const subscription = userData.subscription;
+            
+            // Determine correct display level - ensure Premium is shown properly
+            let displayLevel = subscription.subscriptionLevel.toLowerCase();
+            
+            // If the plan is stored as 'pro' but should be 'premium', correct it
+            if (displayLevel === 'pro' && (
+                (subscription.features && subscription.features.includes('premium')) || 
+                (subscription.price && subscription.price > 15)
+            )) {
+                displayLevel = 'premium';
+                console.log("Corrected subscription level from 'pro' to 'premium'");
+            }
+            
+            updateSubscriptionBadge(displayLevel);
+        } else {
+            console.error("Error response from subscription endpoint:", response.status);
+            updateSubscriptionBadge('free'); // Default to free on error
         }
-        updateSubscriptionBadge(plan);
     } catch (error) {
         console.error("Error fetching user subscription:", error);
         updateSubscriptionBadge('free'); // Default to free on error

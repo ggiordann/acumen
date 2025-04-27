@@ -136,3 +136,60 @@
         align-items: center;
     }
 }
+
+/* Override navbar link colors for About page */
+.navbar .navbar-links .nav-item a:link,
+.navbar .navbar-links .nav-item a:visited {
+    color: var(--text-light) !important;
+    text-decoration: none !important;
+}
+.navbar .navbar-links .nav-item a:hover,
+.navbar .navbar-links .nav-item a:active {
+    color: var(--accent-green) !important;
+}
+
+/* Enforce nav link colors on About page */
+#main-navbar .navbar-links .nav-item > a:link,
+#main-navbar .navbar-links .nav-item > a:visited {
+  color: var(--text-light) !important;
+}
+#main-navbar .navbar-links .nav-item > a:hover,
+#main-navbar .navbar-links .nav-item > a:active {
+  color: var(--accent-green) !important;
+}
+
+/* Force all nav links to use text-light and override browser default visited color */
+nav#main-navbar a,
+nav#main-navbar a:visited {
+  color: var(--text-light) !important;
+  text-decoration: none !important;
+}
+nav#main-navbar a:hover,
+nav#main-navbar a:active {
+  color: var(--accent-green) !important;
+}
+
+/* Force nav and mobile links to text-light and accent-green on hover */
+nav#main-navbar .nav-item > a:link,
+nav#main-navbar .nav-item > a:visited,
+.mobile-nav-item:link,
+.mobile-nav-item:visited {
+    color: var(--text-light) !important;
+    text-decoration: none !important;
+}
+nav#main-navbar .nav-item > a:hover,
+nav#main-navbar .nav-item > a:active,
+.mobile-nav-item:hover {
+    color: var(--accent-green) !important;
+}
+
+/* Enforce Home/Dashboard nav anchor colors (white) and hover accent-green */
+.navbar-links .nav-item > a,
+.navbar-links .nav-item > a:visited {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+.navbar-links .nav-item > a:hover,
+.navbar-links .nav-item > a:active {
+    color: var(--accent-green) !important;
+}

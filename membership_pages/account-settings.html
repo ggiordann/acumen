@@ -19,6 +19,12 @@
         <div class="navbar-container">
             <a href="../app/index.html" class="navbar-brand">acumen</a>
             <div class="navbar-links">
+                <div class="nav-item">
+                    <a href="../intro_pages/test.html"><span>Home</span></a>
+                </div>
+                <div class="nav-item">
+                    <a href="../app/index.html"><span>Dashboard</span></a>
+                </div>
                 <!-- Features Dropdown -->
                 <div class="nav-item" id="features-dropdown">
                     <span>Features</span>
@@ -48,10 +54,6 @@
                         <a href="#" class="dropdown-item"><div class="icon"><i class="fab fa-discord"></i></div><div class="content"><span class="title">Community Discord</span></div></a>
                     </div>
                 </div>
-                <!-- Account Link -->
-                <div class="nav-item">
-                    <a href="account-settings.html"><span>Account</span></a>
-                </div>
             </div>
             <div class="mobile-menu-toggle" id="mobile-menu-toggle">
                 <i class="fas fa-bars"></i>
@@ -71,6 +73,10 @@
         <div class="mobile-menu-header">Acumen</div>
         <div class="mobile-section">
             <div class="mobile-section-title">Menu</div>
+            <a href="../intro_pages/test.html" class="mobile-nav-item">
+                <div class="icon"><i class="fas fa-home"></i></div>
+                <span>Home</span>
+            </a>
             <a href="../app/index.html" class="mobile-nav-item">
                 <div class="icon"><i class="fas fa-home"></i></div>
                 <span>Dashboard</span>
@@ -276,9 +282,8 @@
     </div>
 
     <!-- Loading overlay -->
-    <div id="loading-overlay" class="full-loading-overlay">
+    <div id="loading-overlay">
         <div class="spinner"></div>
-        <p>Updating your settings...</p>
     </div>
 
     <script src="../app/main.js"></script>  <!-- main app dropdown & mobile menu logic -->

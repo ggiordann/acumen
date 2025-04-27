@@ -233,6 +233,16 @@ body {
   visibility: visible;
 }
 
+/* Pulse effect for auth loading overlay */
+@keyframes pulse-overlay {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 157, 0.8); }
+  50% { box-shadow: 0 0 40px rgba(0, 255, 157, 1); }
+}
+
+.auth-container.loading .auth-loading-overlay {
+  animation: pulse-overlay 2s ease-in-out infinite;
+}
+
 @keyframes fade-in-green {
   0% {
     background: #000000;

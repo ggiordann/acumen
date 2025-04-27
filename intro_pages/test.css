@@ -83,6 +83,34 @@ body::-webkit-scrollbar-thumb {
     transition: all 0.2s ease;
 }
 
+/* Pulsing effect for brand */
+.pulsing-brand {
+    animation: pulse 2s infinite ease-in-out;
+}
+
+/* Keyframes for pulsing animation */
+@keyframes pulse {
+     0% { opacity: 0.8; transform: scale(1); }
+     50% { opacity: 1; transform: scale(1.05); }
+     100% { opacity: 0.8; transform: scale(1); }
+}
+
+@keyframes pulse-green {
+    0% {
+        opacity: 0.8;
+        text-shadow: 0 0 8px rgba(0, 255, 157, 0.4);
+    }
+    50% {
+        opacity: 1;
+        text-shadow: 0 0 16px rgba(0, 255, 157, 0.7);
+    }
+    100% {
+        opacity: 0.8;
+        text-shadow: 0 0 8px rgba(0, 255, 157, 0.4);
+    }
+}
+
+/* Navbar Links */
 .navbar-links {
     display: flex;
     margin-left: 2rem;
@@ -309,6 +337,7 @@ body::-webkit-scrollbar-thumb {
     text-align: center;
     background: linear-gradient(to right, var(--text-light), var(--accent-green));
     -webkit-background-clip: text;
+    background-clip: text; /* Add standard property */
     -webkit-text-fill-color: transparent;
     animation: gradientFlow 3s ease infinite;
     background-size: 200% auto;
@@ -509,6 +538,7 @@ p {
     margin-bottom: 1.5rem;
     background: linear-gradient(to right, var(--text-light) 0%, var(--accent-green) 100%);
     -webkit-background-clip: text;
+    background-clip: text; /* Add standard property */
     -webkit-text-fill-color: transparent;
     background-size: 200% auto;
     animation: textGradient 6s linear infinite;
@@ -1334,14 +1364,9 @@ p {
 
 /* Animations */
 @keyframes pulse {
-    0%, 100% {
-        opacity: 0.5;
-        transform: scale(0.8);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.1);
-    }
+     0% { opacity: 0.8; transform: scale(1); }
+     50% { opacity: 1; transform: scale(1.05); }
+     100% { opacity: 0.8; transform: scale(1); }
 }
 
 @keyframes loading-shimmer {
