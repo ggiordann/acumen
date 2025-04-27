@@ -286,3 +286,128 @@
     margin-bottom: 2rem;
   }
   }
+
+/* Loading Overlay Styles */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+    backdrop-filter: blur(5px); /* Optional: Add a blur effect */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Ensure it's on top */
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.3s ease-in-out;
+}
+
+#loading-overlay.visible {
+    opacity: 1; /* Fade in when visible */
+}
+
+/* Spinner Animation */
+.spinner {
+    border: 6px solid rgba(255, 255, 255, 0.2); /* Light grey border */
+    border-top: 6px solid var(--accent-green); /* Accent color for the spinning part */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loading Spinner Animation */
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    display: flex; /* Use flexbox for centering */
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Ensure it's on top */
+    backdrop-filter: blur(5px); /* Optional: blur background */
+    opacity: 0; /* Start hidden */
+    visibility: hidden; /* Start hidden */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition */
+}
+
+#loadingOverlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spinner {
+    border: 6px solid rgba(255, 255, 255, 0.3); /* Light grey border */
+    border-top: 6px solid var(--accent-green); /* Accent color for spinner top */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Ensure spinner is above other content if needed */
+#loadingOverlay .loading-spinner {
+  z-index: 10001; /* Above the overlay background */
+}
+
+/* Ensure other content is below the overlay */
+body.loading-active {
+  overflow: hidden; /* Prevent scrolling while loading */
+}
+
+/* Ensure spinner is above other content if needed */
+#loadingOverlay .loading-spinner {
+  z-index: 10001; /* Above the overlay background */
+}
+
+/* Loading Overlay Styles */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000; /* Ensure it's on top */
+  opacity: 0; /* Start hidden */
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.loading-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3); /* Light border */
+  border-top-color: var(--accent-green); /* Accent color for spinner top */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

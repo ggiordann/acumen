@@ -1,0 +1,11 @@
+test.html:
+
+PRODUCTION:
+
+ <script type="module" src="/test.js"></script> 
+ <link rel="stylesheet" href="/test.css">
+ 
+TESTING:
+
+ <script type="module" src="./test.js"></script> 
+ <link rel="stylesheet" href="./test.css">

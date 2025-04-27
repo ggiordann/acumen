@@ -59,13 +59,16 @@ $(document).ready(async function() {
                     const idToken = await user.getIdToken();
                     await $.ajax({ url: `${apiBaseUrl}/save-user`, type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
                     if (redirect === 'subscription') {
-                        redirectWithLoading('/membership_pages/subscription.html');
+                        window.location.href = '/membership_pages/subscription.html';
                     } else {
-                        redirectWithLoading('/app/index.html');
+                        window.location.href = '/app/index.html';
                     }
                 }
             })
-            .catch(error => console.error("Redirect auth error:", error));
+            .catch(error => {
+                console.error("Redirect auth error:", error);
+                hideLoading();
+            });
         // Fallback: listen for auth state change after redirect
         auth.onAuthStateChanged(async (loggedUser) => {
             console.log("onAuthStateChanged called", loggedUser, "handled?", redirectHandled);
@@ -75,9 +78,9 @@ $(document).ready(async function() {
                 const idToken = await user.getIdToken();
                 await $.ajax({ url: `${apiBaseUrl}/save-user`, type: "POST", headers: { Authorization: `Bearer ${idToken}` } });
                 if (redirect === 'subscription') {
-                    redirectWithLoading('/membership_pages/subscription.html');
+                    window.location.href = '/membership_pages/subscription.html';
                 } else {
-                    redirectWithLoading('/app/index.html');
+                    window.location.href = '/app/index.html';
                 }
             }
         });
@@ -91,10 +94,12 @@ $(document).ready(async function() {
 
             if (isMobile) {
                 console.log('Mobile device detected, using signInWithRedirect');
+                showLoading();
                 auth.signInWithRedirect(provider);
                 // Redirect happens here, no further code in this block will execute on mobile after this line
             } else {
                 console.log('Desktop device detected, using signInWithPopup');
+                showLoading();
                 const result = await auth.signInWithPopup(provider);
                 console.log("Popup sign-in successful", result);
                 user = result.user;
@@ -108,13 +113,14 @@ $(document).ready(async function() {
                 console.log("User saved to backend");
                 // Redirect after successful save
                 if (redirect === 'subscription') {
-                    redirectWithLoading('/membership_pages/subscription.html');
+                    window.location.href = '/membership_pages/subscription.html';
                 } else {
-                    redirectWithLoading('/app/index.html');
+                    window.location.href = '/app/index.html';
                 }
             }
         } catch (error) {
             console.error('Authentication error:', error);
+            hideLoading();
             // Handle specific errors like popup blocked if needed
             if (error.code === 'auth/popup-blocked') {
                 alert('Popup blocked. Please allow popups for this site and try again.');
@@ -123,35 +129,24 @@ $(document).ready(async function() {
             } else {
                 alert(`Login failed: ${error.message}`);
             }
+        } finally {
+            hideLoading();
         }
     });
 
-    // Add a loading overlay to the body
+    // Create loading overlay element dynamically
     const loadingOverlay = document.createElement('div');
-    loadingOverlay.id = 'loading-overlay';
-    loadingOverlay.innerHTML = `
-      <div class="spinner-container">
-        <div class="spinner"></div>
-        <p>Loading...</p>
-      </div>
-    `;
+    loadingOverlay.id = 'loadingOverlay';
+    loadingOverlay.innerHTML = '<div class="spinner"></div>';
     document.body.appendChild(loadingOverlay);
 
     // Function to show the loading overlay
     function showLoading() {
-      loadingOverlay.style.display = 'flex';
+      loadingOverlay.classList.add('visible');
     }
 
     // Function to hide the loading overlay
     function hideLoading() {
-      loadingOverlay.style.display = 'none';
+      loadingOverlay.classList.remove('visible');
     }
-
-    // Show loading animation before redirect
-    function redirectWithLoading(url) {
-      showLoading();
-      setTimeout(() => {
-        window.location.href = url;
-      }, 500); // Add a slight delay for the animation to be visible
-    }
-})
+});
