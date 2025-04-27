@@ -42,14 +42,22 @@ const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
 // Proxy requests to /__/auth/* to your Firebase project's auth handler
 // This makes the auth flow appear to come from your domain, avoiding third-party cookie issues.
 const firebaseAuthProxyTarget = 'https://acumen-2ead9.firebaseapp.com'; // Your Firebase project's default auth domain
-app.use('/__/auth', createProxyMiddleware({
+app.use('/__/auth/', createProxyMiddleware({ // <--- Added trailing slash to match /__/auth/handler and other paths
   target: firebaseAuthProxyTarget,
   changeOrigin: true, // Important: Needed for virtual hosted sites like Firebase Hosting
-  logLevel: 'info', // Optional: Change to 'debug' for more verbose proxy logging
-  pathRewrite: {'^/__/auth' : '/__/auth'}, // Ensure the path is correctly forwarded
+  logLevel: 'debug', // Changed to debug for more detailed proxy logs during troubleshooting
+  // No pathRewrite needed if the target path structure matches
   onProxyReq: (proxyReq, req, res) => {
     // Add the host header expected by Firebase
     proxyReq.setHeader('Host', new URL(firebaseAuthProxyTarget).host);
+    console.log(`[Proxy] Forwarding ${req.method} ${req.originalUrl} to ${firebaseAuthProxyTarget}${req.url}`); // Added logging
+  },
+  onError: (err, req, res) => { // Added error logging
+    console.error('[Proxy] Error:', err);
+    res.writeHead(500, {
+      'Content-Type': 'text/plain'
+    });
+    res.end('Proxy error occurred.');
   }
 }));
 // --- End Firebase Auth Proxy Setup ---
