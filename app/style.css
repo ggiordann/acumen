@@ -172,9 +172,43 @@ body {
   position: relative; /* Ensures the overlay is positioned correctly */
 }
 
-.auth-container.loading .auth-btn,
-.auth-container.loading .user-profile-btn {
-  opacity: 0.2; /* Slightly visible but clearly disabled */
+/* Loading Overlay Styles */
+.auth-loading-overlay {
+  display: none; /* Hidden by default */
+  position: fixed; /* Cover the whole viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(17, 17, 17, 0.85); /* Semi-transparent dark background */
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 10000; /* Ensure it's on top of everything */
+  justify-content: center;
+  align-items: center;
+  opacity: 0; /* Start fully transparent for fade-in */
+  transition: opacity 0.3s ease-in-out; /* Smooth fade transition */
+}
+
+/* Show overlay when auth-container has .loading class */
+.auth-container.loading .auth-loading-overlay {
+  display: flex; /* Use flex to center the spinner */
+  opacity: 1; /* Fade in */
+}
+
+/* Spinner Styles (assuming you have a spinner element inside the overlay) */
+.auth-loading-overlay .spinner {
+  border: 6px solid rgba(255, 255, 255, 0.3);
+  border-top: 6px solid var(--accent-green);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Authentication loading animation */
@@ -185,10 +219,18 @@ body {
   width: 100%;
   height: 100%;
   border-radius: var(--border-radius);
-  animation: fade-in-green 1.2s forwards;
-  z-index: 10;
+  z-index: 11; /* Increased z-index */
+  opacity: 0; /* Hidden by default */
+  visibility: hidden; /* Hidden by default */
+  transition: opacity 0.4s ease-out, visibility 0.4s ease-out; /* Added visibility transition */
+  background: #00ff9d; /* Set background directly */
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.8); /* Set shadow directly */
+}
+
+/* Show overlay and play animation when loading */
+.auth-container.loading .auth-loading-overlay {
   opacity: 1;
-  transition: opacity 0.4s ease-out;
+  visibility: visible;
 }
 
 @keyframes fade-in-green {

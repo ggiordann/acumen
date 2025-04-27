@@ -134,11 +134,8 @@ $(document).ready(async function() {
         }
     });
 
-    // Create loading overlay element dynamically
-    const loadingOverlay = document.createElement('div');
-    loadingOverlay.id = 'loadingOverlay';
-    loadingOverlay.innerHTML = '<div class="spinner"></div>';
-    document.body.appendChild(loadingOverlay);
+    // Use static HTML overlay instead of dynamically creating one
+    const loadingOverlay = document.getElementById('loading-overlay');
 
     // Function to show the loading overlay
     function showLoading() {
