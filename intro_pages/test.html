@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="../acumen.ico">
     <script>
+        // Redirect mobile users
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            window.location.href = '/mobile_blocked.html';
+        }
+
         // Force scroll restoration to manual to prevent browser from restoring previous position
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
