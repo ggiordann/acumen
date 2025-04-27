@@ -5,39 +5,337 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Access Unavailable</title>
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        :root {
+            --accent-green: #00ff9d;
+            --bg-dark: #111111;
+            --card-bg-dark: #1a1a1a;
+            --text-light: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border-radius: 12px;
+        }
+        
+        * {
             margin: 0;
-            text-align: center;
-            padding: 20px;
+            padding: 0;
             box-sizing: border-box;
         }
+        
+        body {
+            font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
         .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
         }
+        
+        /* Animated background */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.2;
+            background: linear-gradient(125deg, transparent 0%, rgba(0, 255, 157, 0.1) 30%, rgba(0, 255, 157, 0.2) 50%, rgba(0, 255, 157, 0.1) 70%, transparent 100%);
+            animation: bg-shift 8s ease-in-out infinite alternate;
+        }
+        
+        /* Animated grid lines */
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 2;
+        }
+        
+        /* Logo */
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 2rem;
+            letter-spacing: -0.05em;
+            position: relative;
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        .logo::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--accent-green);
+            border-radius: 2px;
+            animation: line-pulse 3s ease-in-out infinite;
+        }
+        
+        /* Main content card */
+        .content-card {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            text-align: center;
+            max-width: 90%;
+            width: 360px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(0, 255, 157, 0.15);
+            animation: float 6s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+            z-index: 5;
+        }
+        
+        /* Glowing border effect */
+        .content-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(115deg, 
+                transparent 20%, 
+                rgba(0, 255, 157, 0.3) 40%, 
+                rgba(0, 255, 157, 0.5) 50%, 
+                rgba(0, 255, 157, 0.3) 60%, 
+                transparent 80%);
+            transform: translateX(-100%);
+            animation: border-glow 6s linear infinite;
+            z-index: -1;
+        }
+        
         h1 {
-            color: #e74c3c; /* Red color for emphasis */
+            color: #e74c3c;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+            animation: text-glow 2s ease-in-out infinite alternate;
         }
+        
         p {
-            font-size: 1.1em;
+            font-size: 1.1rem;
             line-height: 1.6;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Highlight important text */
+        .highlight {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+        
+        /* Animated dots */
+        .animated-dots {
+            display: inline-block;
+            position: relative;
+        }
+        
+        .animated-dots::after {
+            content: "...";
+            position: absolute;
+            animation: dots 2s infinite;
+        }
+        
+        /* Floating particles */
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: var(--accent-green);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-particle 10s linear infinite;
+        }
+        
+        /* Generate 15 random particles */
+        /* Particles will be created by JavaScript */
+        
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.05); 
+                opacity: 0.9;
+            }
+        }
+        
+        @keyframes line-pulse {
+            0%, 100% { 
+                width: 60px; 
+                opacity: 1;
+            }
+            50% { 
+                width: 100px; 
+                opacity: 0.6;
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px); 
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 255, 157, 0.15);
+            }
+            50% { 
+                transform: translateY(-15px);
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 255, 157, 0.2);
+            }
+        }
+        
+        @keyframes text-glow {
+            from { 
+                text-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+            }
+            to { 
+                text-shadow: 0 0 20px rgba(231, 76, 60, 0.7), 0 0 30px rgba(231, 76, 60, 0.5);
+            }
+        }
+        
+        @keyframes dots {
+            0%, 20% {
+                content: ".";
+            }
+            40% {
+                content: "..";
+            }
+            60%, 100% {
+                content: "...";
+            }
+        }
+        
+        @keyframes float-particle {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-1000%) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes border-glow {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        @keyframes bg-shift {
+            0% {
+                transform: translateX(-20%) translateY(-10%) rotate(-5deg);
+            }
+            100% {
+                transform: translateX(20%) translateY(10%) rotate(5deg);
+            }
         }
     </style>
 </head>
 <body>
+    <div class="bg-animation"></div>
+    <div class="grid-lines"></div>
+    
+    <div class="particles-container" id="particles"></div>
+    
     <div class="container">
-        <h1>Mobile Access Unavailable</h1>
-        <p>Mobile access is still under development for Acumen.</p>
-        <p>Please visit us using a desktop browser for the full experience.</p>
+        <h2 class="logo">acumen</h2>
+        <div class="content-card">
+            <h1>Mobile Access Unavailable</h1>
+            <p>We're currently optimizing Acumen for <span class="highlight">desktop devices only</span>.</p>
+            <p>For the full experience with all features and capabilities, please visit us using a laptop or desktop computer<span class="animated-dots"></span></p>
+            <p><span class="highlight">Mobile support coming soon</span></p>
+        </div>
     </div>
+
+    <script>
+        // Create floating particles
+        document.addEventListener('DOMContentLoaded', () => {
+            const particlesContainer = document.getElementById('particles');
+            
+            // Create 15 random particles
+            for (let i = 0; i < 15; i++) {
+                createParticle();
+            }
+            
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size between 3px and 8px
+                const size = Math.random() * 5 + 3;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                particle.style.left = `${left}%`;
+                particle.style.top = `${top}%`;
+                
+                // Random animation duration between 8s and 15s
+                const duration = Math.random() * 7 + 8;
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Random delay
+                const delay = Math.random() * 5;
+                particle.style.animationDelay = `${delay}s`;
+                
+                particlesContainer.appendChild(particle);
+                
+                // Remove and recreate particle after animation ends
+                setTimeout(() => {
+                    particle.remove();
+                    createParticle();
+                }, (duration + delay) * 1000);
+            }
+        });
+    </script>
 </body>
 </html>
