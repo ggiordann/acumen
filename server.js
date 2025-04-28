@@ -35,7 +35,8 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const app = express();
 // define port and base url for redirects
-const PORT = process.env.PORT || 1989;
+// Use Render's default port 10000 as fallback
+const PORT = process.env.PORT || 10000;
 const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
 
 // --- Firebase Auth Proxy Setup ---
