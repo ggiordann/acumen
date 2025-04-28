@@ -40,9 +40,9 @@ const PORT = process.env.PORT || 10000;
 const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
 
 // --- Firebase Auth Proxy Setup ---
-// Proxy requests to /__/auth/* to your Firebase project's auth handler
-// This makes the auth flow appear to come from your domain, avoiding third-party cookie issues.
-const firebaseAuthProxyTarget = 'https://acumen-2ead9.firebaseapp.com'; // Your Firebase project's default auth domain
+// Proxy requests to /__/auth/* to our Firebase project's auth handler
+// This makes the auth flow appear to come from our domain, avoiding third-party cookie issues.
+const firebaseAuthProxyTarget = 'https://acumen-2ead9.firebaseapp.com'; // our Firebase project's default auth domain
 app.use('/__/auth/', createProxyMiddleware({ // <--- Added trailing slash to match /__/auth/handler and other paths
   target: firebaseAuthProxyTarget,
   changeOrigin: true, // Important: Needed for virtual hosted sites like Firebase Hosting

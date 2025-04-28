@@ -15,7 +15,7 @@ $(document).ready(async function() {
         console.log("API Key received:", data.firebaseConfig);
         firebaseConfig = data.firebaseConfig;
         // *** IMPORTANT: Update authDomain to your actual domain for the proxy to work ***
-        // firebaseConfig.authDomain = "useacumen.co"; // Reverted: Use default authDomain from backend
+        firebaseConfig.authDomain = "useacumen.co"; // Re-enabled: Use custom domain for auth
         console.log("Using authDomain:", firebaseConfig.authDomain); // Log the domain being used
         await initialiseFirebase();
     } catch (error) {
