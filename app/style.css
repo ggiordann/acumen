@@ -421,7 +421,7 @@ h2 {
 .file-upload-container {
   position: relative;
   width: 100%;
-  margin-bottom: var(--spacing);
+  margin-bottom: -5rem;
 }
 
 input[type="file"] {
@@ -536,22 +536,27 @@ button:hover {
   color: var(--text-light); /* Keep text color */
 }
 
-/* Consistent Button Sizing */
-#connectFB, #connectEB, #connectGU, #analyzeBtn, .action-button {
+/* Button container for platform buttons */
+.platform-buttons-container {
+  display: flex;
+  flex-direction: row; /* Ensure buttons are in a row */
+  justify-content: center; /* Center buttons horizontally */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens if needed */
   width: 100%;
-  max-width: 220px; /* Shortened width */
-  margin: 0.7rem 0.5rem;
-  text-align: center;
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-hover);
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 1rem; /* Add some space between buttons */
 }
 
-#analyzeBtn:hover, .action-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card);
+/* Consistent Button Sizing & Font */
+#connectFB, #connectEB, #connectGU, #analyzeBtn, .action-button {
+  width: auto; /* Allow buttons to size based on content */
+  max-width: none; /* Remove max-width constraint */
+  margin: 0; /* Remove vertical margins, rely on gap */
+  text-align: center;
+  padding: 1rem 1.6rem; /* Increased padding further */
+  font-size: 1rem; /* Increased font size further */
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-subtle); /* Use subtle shadow */
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Create button container for horizontal alignment */
@@ -863,16 +868,14 @@ h1, h2, #analyzeBtn {
   
   /* Fix for connection buttons alignment on mobile */
   .platform-buttons-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
+    flex-direction: row;
+    justify-content: center;
   }
   
   #connectFB, #connectEB, #connectGU, #analyzeBtn, .action-button {
-    margin: 0.7rem auto;
-    width: 80%; /* Make buttons slightly wider on mobile */
-    max-width: 250px;
+    /* Adjust padding/font for very small screens if needed */
+    padding: 0.9rem 1.4rem; /* Increased mobile padding further */
+    font-size: 0.95rem; /* Increased mobile font size further */
   }
   
   .pricing-container {

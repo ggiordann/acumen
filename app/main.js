@@ -11,8 +11,16 @@ $(document).ready(function() {
     // Initialise Firebase
     let auth, firebaseConfig, db;
 
-    // Define API base URL for production
-    const apiBaseUrl = "https://useacumen.co";
+    // Define API base URL dynamically
+    let apiBaseUrl;
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        // Use the port your local Node server runs on (ensure it matches server.js)
+        apiBaseUrl = "http://localhost:1989"; 
+    } else {
+        // Use production URL
+        apiBaseUrl = "https://useacumen.co";
+    }
+    console.log("Using API Base URL:", apiBaseUrl); // Add log for debugging
 
     // tracker to avoid repeating low-credit warnings
     window.lastCredits = Infinity;
@@ -463,58 +471,179 @@ $(document).ready(function() {
         $('#upload-toast').removeClass('show');
     });
 
-    // file input handler
-    $('#fileInput').change(async function(event) {
-        let rawFiles = Array.from(event.target.files || []);
-        // convert HEIC to JPEG
-        const files = await Promise.all(rawFiles.map(async file => {
+    // Helper function to resize an image file
+    function resizeImage(file, maxWidth = 2048, maxHeight = 2048) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height = Math.round(height * (maxWidth / width));
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width = Math.round(width * (maxHeight / height));
+                            height = maxHeight;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Determine the output format (maintain original if possible, default to JPEG)
+                    let outputType = file.type;
+                    if (outputType !== 'image/jpeg' && outputType !== 'image/png' && outputType !== 'image/webp') {
+                        outputType = 'image/jpeg'; // Default to JPEG for unsupported types
+                    }
+                    let quality = outputType === 'image/jpeg' ? 0.85 : undefined; // Quality setting for JPEG
+
+                    canvas.toBlob((blob) => {
+                        if (!blob) {
+                            reject(new Error('Canvas to Blob conversion failed'));
+                            return;
+                        }
+                        // Create a new File object with a potentially modified name/type
+                        const newFileName = file.name.replace(/\.[^.]+$/, outputType === 'image/png' ? '.png' : '.jpg');
+                        const resizedFile = new File([blob], newFileName, {
+                            type: outputType,
+                            lastModified: Date.now()
+                        });
+                        resolve(resizedFile);
+                    }, outputType, quality);
+                };
+                img.onerror = (err) => {
+                    console.error("Error loading image for resizing:", err);
+                    reject(new Error('Image loading failed'));
+                };
+                img.src = event.target.result;
+            };
+            reader.onerror = (err) => {
+                console.error("Error reading file for resizing:", err);
+                reject(new Error('File reading failed'));
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Function to handle file processing (HEIC conversion, resizing, preview, upload)
+    async function processFiles(rawFiles) {
+        // 1. Convert HEIC to JPEG
+        const heicConvertedFiles = await Promise.all(rawFiles.map(async file => {
             const ext = file.name.split('.').pop().toLowerCase();
-            if (ext === 'heic' || file.type === 'image/heic') {
+            // Ensure heic2any is loaded/available
+            if ((ext === 'heic' || file.type === 'image/heic') && typeof heic2any === 'function') {
                 try {
+                    console.log(`Converting HEIC: ${file.name}`);
                     const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.8 });
-                    return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+                    const newFileName = file.name.replace(/\.[^.]+$/, '.jpg');
+                    console.log(`Converted HEIC to ${newFileName}`);
+                    return new File([blob], newFileName, { type: 'image/jpeg' });
                 } catch (e) {
                     console.error('HEIC conversion failed:', e);
-                    return file;
+                    showUploadToast(`Failed to convert HEIC file: ${file.name}`);
+                    return null; // Indicate failure
                 }
             }
             return file;
         }));
 
-        if (files.length > 10) {
-            showUploadToast('10 file upload limit exceeded');
-            $(this).val(null);
+        // Filter out failed conversions
+        const validFiles = heicConvertedFiles.filter(file => file !== null);
+
+        if (validFiles.length > 10) {
+            showUploadToast('Maximum 10 files allowed.');
+            $('#fileInput').val(null); // Clear the input
             return;
         }
 
+        // 2. Resize Images
+        const resizePromises = validFiles.map(file => {
+             // Only resize images
+            if (file.type.startsWith('image/')) {
+                 console.log(`Resizing image: ${file.name}`);
+                 return resizeImage(file).catch(err => {
+                     console.error(`Failed to resize ${file.name}:`, err);
+                     showUploadToast(`Failed to resize image: ${file.name}`);
+                     return null; // Indicate failure but continue
+                 });
+            }
+            return Promise.resolve(file); // Keep non-image files as is
+        });
+
+        const resizedFiles = (await Promise.all(resizePromises)).filter(file => file !== null);
+
+        if (resizedFiles.length === 0 && rawFiles.length > 0) {
+             showUploadToast('No valid image files could be processed.');
+             $('#fileInput').val(null);
+             return;
+        }
+
+        // 3. Generate Previews and Upload
         base64Data = '';
         previewImages = [];
-        $('#preview-container').empty();
+        $('#preview-container').empty(); // Clear previous previews
 
-        // reuse existing preview/upload logic with converted files
-        const readFilePromises = files.map((file, index) => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = e => {
-                $('#preview-container').append(`<img src="${e.target.result}" data-index="${index}" class="preview-image" />`);
-                previewImages.push(e.target.result.split(',')[1]);
-                resolve();
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
+        const readFilePromises = resizedFiles.map((file, index) => new Promise((resolve, reject) => {
+            // Only generate previews for images
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    $('#preview-container').append(`<img src="${e.target.result}" data-index="${index}" class="preview-image" />`);
+                    previewImages.push(e.target.result.split(',')[1]);
+                    resolve();
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            } else {
+                 resolve(); // Skip preview for non-images
+            }
         }));
 
-        Promise.all(readFilePromises).then(() => {
+        try {
+            await Promise.all(readFilePromises);
+
+            // Set base64Data for the first image preview for analysis
             base64Data = previewImages[0] || '';
+
+            // 4. Upload processed files
             const formData = new FormData();
-            files.forEach(f => formData.append('files', f));
-            return fetch(`${apiBaseUrl}/upload`, { method: 'POST', body: formData });
-        })
-            .then(res => res.json())
-            .then(data => console.log('Files uploaded successfully:', data))
-            .catch(err => console.error('Error reading files or uploading:', err));
+            resizedFiles.forEach(f => formData.append('files', f)); // Upload resized files
+
+            const uploadResponse = await fetch(`${apiBaseUrl}/upload`, { method: 'POST', body: formData });
+            if (!uploadResponse.ok) {
+                 throw new Error(`Upload failed with status ${uploadResponse.status}`);
+            }
+            const uploadData = await uploadResponse.json();
+            console.log('Files uploaded successfully:', uploadData);
+            showUploadToast(`${resizedFiles.length} file(s) processed and uploaded.`);
+
+        } catch (err) {
+            console.error('Error processing or uploading files:', err);
+            showUploadToast('An error occurred during file processing or upload.');
+        } finally {
+             // Clear the file input regardless of success/failure after processing
+             $('#fileInput').val(null);
+        }
+    }
+
+    // file input handler - uses processFiles
+    $('#fileInput').change(function(event) {
+        const rawFiles = Array.from(event.target.files || []);
+        if (rawFiles.length > 0) {
+             processFiles(rawFiles);
+        }
     });
 
-    // drag-and-drop support on the #dragDropArea
+    // drag-and-drop support - uses processFiles
     $('#dragDropArea')
         .on('dragover', function(e) {
             e.preventDefault();
@@ -524,10 +653,10 @@ $(document).ready(function() {
             e.preventDefault();
             $(this).removeClass('dragover');
             if (e.type === 'drop') {
-                const files = e.originalEvent.dataTransfer.files;
-                // assign dropped files to the input and trigger change
-                $('#fileInput')[0].files = files;
-                $('#fileInput').trigger('change');
+                const rawFiles = Array.from(e.originalEvent.dataTransfer.files);
+                 if (rawFiles.length > 0) {
+                     processFiles(rawFiles);
+                 }
             }
         });
 
@@ -564,6 +693,27 @@ $(document).ready(function() {
     $("#analyzeBtn").prop('disabled', true);
 
     $("#analyzeBtn").click(function() {
+        const platforms = $("input[name='platform']:checked").map(function() {
+            return $(this).val();
+        }).get();
+        const imageUploaded = !!base64Data; // Check if an image has been processed
+        const platformSelected = platforms.length > 0;
+
+        // --- Input Validation ---
+        if (!imageUploaded && !platformSelected) {
+            showUploadToast("Please upload an image and select a platform first.");
+            return;
+        }
+        if (!imageUploaded) {
+            showUploadToast("Please upload an image first.");
+            return;
+        }
+        if (!platformSelected) {
+            showUploadToast("Please select a platform first.");
+            return;
+        }
+        // --- End Input Validation ---
+
         // Prevent analysis if credit info not yet loaded
         if (typeof window.remainingCredits !== 'number') {
             showUploadToast('Loading your monthly quota, please wait...');
@@ -574,8 +724,9 @@ $(document).ready(function() {
             showUploadToast('You have no listings left this month.');
             return;
         }
+        // Redundant check, handled above, but kept for safety
         if (!base64Data) {
-            $("#analysisOutput").text("Please upload an image and select a platform first.");
+            console.error("Analysis attempted without image data."); // Log error instead of using #analysisOutput
             return;
         }
 
@@ -601,7 +752,7 @@ $(document).ready(function() {
       ">
         <div style="text-align: center;">
          <div style="
-          background: linear-gradient(120deg, #bfffea, #00ff9d); 
+          background: linear-gradient(120deg, #bfffea, #00ff9d);
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
@@ -623,27 +774,38 @@ $(document).ready(function() {
     `);
         $("body").append(loadingOverlay);
 
-        const platforms = $("input[name='platform']:checked").map(function() {
-            return $(this).val();
-        }).get();
-
         let pending = platforms.length;
+        let analysisSuccessful = true; // Flag to track overall success
 
         function checkOverlay() {
             pending--;
             if (pending <= 0) {
                 $("#loadingOverlay").remove();
-                // Deduct one listing use
-                if (window.remainingCredits > 0) {
+                // Deduct one listing use only if at least one analysis was successful
+                if (analysisSuccessful && window.remainingCredits > 0) {
                     window.remainingCredits -= 1;
-                    $('#listings-left').text(window.remainingCredits);
+                    // Update UI immediately before potential refresh
+                    updateRemainingCredits(window.remainingCredits);
                     // disable if none left
                     if (window.remainingCredits <= 0) {
                         $('#analyzeBtn').prop('disabled', true);
                     }
+                    // Record listing usage on server
+                    recordListing(auth.currentUser.uid);
                 }
-                // Record listing usage on server
-                recordListing(auth.currentUser.uid);
+
+                // Show success toast and refresh
+                if (analysisSuccessful) {
+                    showUploadToast('Analysis complete! Posting listings...');
+                    // Wait a moment for the toast to be visible before refreshing
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500); // Adjust delay as needed
+                } else {
+                    // Optionally show a different toast if there were errors
+                    showUploadToast('Analysis finished, but some posts may have failed. Check console for details.');
+                    // Don't refresh if there were errors, so user can see console
+                }
             }
         }
 
@@ -655,12 +817,13 @@ $(document).ready(function() {
             })
                 .then(res => {
                     if (!res.ok) {
+                        analysisSuccessful = false; // Mark as failed
                         throw new Error(`Analysis request failed with status ${res.status}`);
                     }
                     return res.json();
                 })
                 .then(data => {
-                    $("#analysisOutput").text("Facebook Analysis result: " + data.response);
+                    console.log("Facebook Analysis result:", data.response); // Log to console
                     try {
                         const adData = JSON.parse(data.response);
                         fetch(`${apiBaseUrl}/post-facebook`, {
@@ -668,27 +831,35 @@ $(document).ready(function() {
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(adData)
                         })
-                            .then(postRes => postRes.json())
+                            .then(postRes => {
+                                if (!postRes.ok) {
+                                    analysisSuccessful = false; // Mark as failed
+                                    throw new Error(`Facebook post failed with status ${postRes.status}`);
+                                }
+                                return postRes.json();
+                            })
                             .then(postData => {
-                                $("#analysisOutput").append("\nFacebook Post: " + JSON.stringify(postData));
+                                console.log("Facebook Post Success:", postData); // Log success
                             })
                             .catch(err => {
+                                analysisSuccessful = false; // Mark as failed
                                 console.error("Error posting to Facebook:", err);
-                                $("#analysisOutput").append("\nError posting to Facebook.");
-                                showUploadToast('Facebook post failed.');
+                                showUploadToast('Facebook post failed. Check console.');
                             })
                             .finally(() => {
                                 checkOverlay();
                             });
                     } catch (e) {
-                        console.error("Error parsing Facebook AI output:", e);
-                        $("#analysisOutput").append("\nError parsing Facebook AI output. Response was: " + data.response);
+                        analysisSuccessful = false; // Mark as failed
+                        console.error("Error parsing Facebook AI output:", e, "Raw response:", data.response);
+                        showUploadToast('Error processing Facebook analysis. Check console.');
                         checkOverlay();
                     }
                 })
                 .catch(err => {
+                    analysisSuccessful = false; // Mark as failed
                     console.error("Error calling analyze endpoint for Facebook:", err);
-                    $("#analysisOutput").text("An error occurred during Facebook analysis: " + err.message);
+                    showUploadToast('Facebook analysis failed. Check console.'); // Use toast for user feedback
                     checkOverlay();
                 });
         }
@@ -701,12 +872,13 @@ $(document).ready(function() {
             })
                 .then(res => {
                     if (!res.ok) {
+                        analysisSuccessful = false; // Mark as failed
                         throw new Error(`eBay analysis request failed with status ${res.status}`);
                     }
                     return res.json();
                 })
                 .then(data => {
-                    $("#analysisOutput").append("\neBay Analysis result: " + data.response);
+                    console.log("eBay Analysis result:", data.response); // Log to console
                     try {
                         const adData = JSON.parse(data.response);
                         fetch(`${apiBaseUrl}/post-ebay`, {
@@ -714,44 +886,54 @@ $(document).ready(function() {
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(adData)
                         })
-                            .then(postRes => postRes.json())
+                            .then(postRes => {
+                                if (!postRes.ok) {
+                                    analysisSuccessful = false; // Mark as failed
+                                    throw new Error(`eBay post failed with status ${postRes.status}`);
+                                }
+                                return postRes.json();
+                            })
                             .then(postData => {
-                                $("#analysisOutput").append("\neBay Post: " + JSON.stringify(postData));
+                                console.log("eBay Post Success:", postData); // Log success
                             })
                             .catch(err => {
+                                analysisSuccessful = false; // Mark as failed
                                 console.error("Error posting to eBay:", err);
-                                $("#analysisOutput").append("\nError posting to eBay.");
-                                showUploadToast('eBay post failed.');
+                                showUploadToast('eBay post failed. Check console.');
                             })
                             .finally(() => {
                                 checkOverlay();
                             });
                     } catch (e) {
-                        console.error("Error parsing eBay AI output:", e);
-                        $("#analysisOutput").append("\nError parsing eBay AI output. Response was: " + data.response);
+                        analysisSuccessful = false; // Mark as failed
+                        console.error("Error parsing eBay AI output:", e, "Raw response:", data.response);
+                        showUploadToast('Error processing eBay analysis. Check console.');
                         checkOverlay();
                     }
                 })
                 .catch(err => {
+                    analysisSuccessful = false; // Mark as failed
                     console.error("Error calling analyze-ebay endpoint:", err);
-                    $("#analysisOutput").append("\nAn error occurred during eBay analysis: " + err.message);
+                    showUploadToast('eBay analysis failed. Check console.');
                     checkOverlay();
                 });
         }
 
         if (platforms.includes("gumtree")) {
-            // Analyze via Gumtree AI endpoint
             fetch(`${apiBaseUrl}/analyze-gumtree`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ imageData: base64Data })
             })
                 .then(res => {
-                    if (!res.ok) throw new Error(`Gumtree analysis failed: ${res.status}`);
+                    if (!res.ok) {
+                        analysisSuccessful = false; // Mark as failed
+                        throw new Error(`Gumtree analysis failed: ${res.status}`);
+                    }
                     return res.json();
                 })
                 .then(data => {
-                    $("#analysisOutput").append("\nGumtree Analysis result: " + data.response);
+                    console.log("Gumtree Analysis result:", data.response); // Log to console
                     try {
                         const adData = JSON.parse(data.response);
                         fetch(`${apiBaseUrl}/post-gumtree`, {
@@ -759,25 +941,33 @@ $(document).ready(function() {
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(adData)
                         })
-                            .then(postRes => postRes.text())
+                            .then(postRes => {
+                                if (!postRes.ok) {
+                                    analysisSuccessful = false; // Mark as failed
+                                    throw new Error(`Gumtree post failed with status ${postRes.status}`);
+                                }
+                                return postRes.text(); // Assuming text response for Gumtree post
+                            })
                             .then(postData => {
-                                $("#analysisOutput").append("\nGumtree Post: " + postData);
+                                console.log("Gumtree Post Success:", postData); // Log success
                             })
                             .catch(err => {
+                                analysisSuccessful = false; // Mark as failed
                                 console.error("Error posting to Gumtree:", err);
-                                $("#analysisOutput").append("\nError posting to Gumtree.");
-                                showUploadToast('Gumtree post failed.');
+                                showUploadToast('Gumtree post failed. Check console.');
                             })
                             .finally(() => checkOverlay());
                     } catch (e) {
-                        console.error("Error parsing Gumtree AI output:", e);
-                        $("#analysisOutput").append("\nError parsing Gumtree AI output. Response was: " + data.response);
+                        analysisSuccessful = false; // Mark as failed
+                        console.error("Error parsing Gumtree AI output:", e, "Raw response:", data.response);
+                        showUploadToast('Error processing Gumtree analysis. Check console.');
                         checkOverlay();
                     }
                 })
                 .catch(err => {
+                    analysisSuccessful = false; // Mark as failed
                     console.error("Error calling analyze-gumtree endpoint:", err);
-                    $("#analysisOutput").append("\nAn error occurred during Gumtree analysis: " + err.message);
+                    showUploadToast('Gumtree analysis failed. Check console.');
                     checkOverlay();
                 });
         }

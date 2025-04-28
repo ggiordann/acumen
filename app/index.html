@@ -177,14 +177,22 @@
     
     <!-- Content Container for Centered Layout -->
     <div class="content-container">
-      <!-- Platform Connection Buttons -->
-      <div class="platform-buttons-container">
-        <button id="connectFB" class="action-button"><i class="fab fa-facebook-f"></i> Connect to Facebook</button>
-        <button id="connectEB" class="action-button"><i class="fab fa-ebay"></i> Connect to eBay</button>
-        <button id="connectGU" class="action-button"><i class="fas fa-store"></i> Connect to Gumtree</button>
+
+      <!-- Moved Connection Buttons Section Above Listings Counter -->
+      <div class="platform-buttons-container" style="margin-bottom: 1.5rem;">
+        <button id="connectFB" class="action-button">
+          <i class="fab fa-facebook-f" style="margin-right: 8px;"></i> Connect to Facebook
+        </button>
+        <button id="connectEB" class="action-button">
+          <i class="fab fa-ebay" style="margin-right: 8px;"></i> Connect to eBay
+        </button>
+        <button id="connectGU" class="action-button">
+          <i class="fas fa-tree" style="margin-right: 8px;"></i> Connect to Gumtree
+        </button>
       </div>
-      
-      <!-- Listings Remaining Counter - Moved here to appear below the connect buttons -->
+      <!-- End Moved Connection Buttons Section -->
+
+      <!-- Listings Remaining Counter -->
       <div class="listings-counter">
         <div class="listings-counter-content">
           <div class="listings-counter-icon"><i class="fas fa-chart-bar"></i></div>
@@ -206,11 +214,7 @@
         </label>
       </div>
 
-      <!-- Container for gallery previews -->
-      <div id="preview-container">
-        <!-- Images will be dynamically added here with wrappers -->
-      </div>
-
+      <!-- Moved Posting Options Below Upload -->
       <div class="posting-options">
         <h2>Post to:</h2>
         <div class="checkbox-container">
@@ -219,18 +223,23 @@
           <label><input type="checkbox" name="platform" value="gumtree"> Gumtree</label>
         </div>
       </div>
+      <!-- End Moved Posting Options -->
+
+      <!-- Container for gallery previews (Lightbox trigger) -->
+      <div id="preview-container">
+        <!-- Images will be dynamically added here -->
+      </div>
 
       <br><br>
 
-      <!-- trigger analyse request -->
+      <!-- trigger analyse request - Moved to the bottom -->
       <button id="analyzeBtn" class="action-button">Analyse Image</button>
 
       <br><br>
-      <!-- output -->
-      <p id="analysisOutput"></p>
+
     </div>
 
-    <!-- yuh yuh -->
+    <!-- Lightbox -->
     <div id="lightbox">
       <span id="lightbox-close">&times;</span>
       <img id="lightbox-img" src="">

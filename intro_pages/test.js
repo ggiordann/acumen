@@ -771,15 +771,7 @@ function initPricingCards() {
             // Extract plan data
             const plan = this.getAttribute('data-plan');
             console.log(`Selected plan: ${plan}`);
-            
-            // Simulate click animation
-            setTimeout(() => {
-                this.classList.remove('clicked');
-                
-                // Here you would typically handle the subscription logic
-                // For demo purposes, just show an alert
-                alert(`Thank you for choosing the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan! This would typically redirect to a checkout page.`);
-            }, 300);
+
         });
     });
 }

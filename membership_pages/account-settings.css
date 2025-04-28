@@ -152,6 +152,19 @@ body::-webkit-scrollbar-thumb {
     background-color: var(--card-highlight);
     color: var(--accent-green);
 }
+
+/* Fix for dropdown content text color */
+.dropdown-item .content .title,
+.dropdown-item .content .description {
+    color: var(--text-light) !important; /* Force white text color */
+}
+
+.dropdown-content a,
+.dropdown-content .title,
+.dropdown-content .description {
+    color: var(--text-light) !important; /* Ensure all links in dropdown are white */
+}
+
 .dropdown-arrow {
     margin-left: 0.3rem;
     transition: transform 0.2s ease;
