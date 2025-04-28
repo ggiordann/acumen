@@ -1,6 +1,6 @@
 # Use the official Microsoft Playwright image which includes Node.js and browser dependencies
-# Using a specific version tag like v1.44.0-jammy is recommended for stability
-FROM mcr.microsoft.com/playwright:v1.44.0-jammy
+# Update the version tag to match the required Playwright version (1.50.1)
+FROM mcr.microsoft.com/playwright:v1.50.1-jammy
 
 # Set the working directory inside the container
 WORKDIR /app
