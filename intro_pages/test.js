@@ -399,6 +399,9 @@ function initContentFeatures() {
     
     // Initialise pricing card interactivity
     initPricingCards();
+    
+    // Initialize dropdown menus functionality
+    initDropdowns();
 
     handleTransitionScrollPast();
 
@@ -875,6 +878,13 @@ function handleTransitionScrollPast() {
     
     // Initial check in case page is already scrolled
     scrollCheck();
+}
+
+// Initialize dropdown menu functionality
+function initDropdowns() {
+    // Function has been intentionally emptied to remove dropdown functionality
+    // This prevents the Features and Resources dropdowns from being interactive
+    console.log("Dropdown functionality disabled as requested");
 }
 
 // Check if we should immediately initialize content features

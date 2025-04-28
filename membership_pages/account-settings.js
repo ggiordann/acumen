@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', async function() {
+    // Initialize navbar dropdowns
+    initNavbarDropdowns();
+    
     // Show loading overlay until account settings are initialised
     showLoading(); // Remove message argument
     let auth, firebaseConfig, db, storage;
@@ -1026,4 +1029,55 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialise subscription management after DOM content is loaded
     initSubscriptionManagement();
+
+    // Initialize navbar dropdowns functionality
+    function initNavbarDropdowns() {
+        // Get all dropdown elements
+        const featuresDropdown = document.getElementById('features-dropdown');
+        const resourcesDropdown = document.getElementById('resources-dropdown');
+        
+        // Handle hover interactions for desktop
+        if (window.innerWidth > 768) {
+            const dropdowns = [featuresDropdown, resourcesDropdown];
+            
+            dropdowns.forEach(dropdown => {
+                if (!dropdown) return;
+                
+                // Add hover functionality
+                dropdown.addEventListener('mouseenter', () => {
+                    // Make dropdown content visible
+                    const content = dropdown.querySelector('.dropdown-content');
+                    if (content) {
+                        content.style.opacity = '1';
+                        content.style.transform = 'translateY(0)';
+                        content.style.visibility = 'visible';
+                    }
+                });
+                
+                dropdown.addEventListener('mouseleave', () => {
+                    // Hide dropdown content
+                    const content = dropdown.querySelector('.dropdown-content');
+                    if (content) {
+                        content.style.opacity = '0';
+                        content.style.transform = 'translateY(10px)';
+                        content.style.visibility = 'hidden';
+                    }
+                });
+            });
+        } else {
+            // For mobile: click functionality is handled by CSS in most cases
+        }
+        
+        // Handle window resize to adjust dropdown behavior
+        window.addEventListener('resize', () => {
+            // Reset styles when transitioning between desktop and mobile
+            if (window.innerWidth <= 768) {
+                // Mobile mode - reset desktop styles
+                const dropdownContents = document.querySelectorAll('.dropdown-content');
+                dropdownContents.forEach(content => {
+                    content.style = ''; // Clear inline styles
+                });
+            }
+        });
+    }
 });

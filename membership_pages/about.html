@@ -23,7 +23,7 @@
     <!-- Exact navbar and mobile menu from subscription.html -->
     <nav class="navbar" id="main-navbar">
       <div class="mobile-menu-toggle" id="mobile-menu-toggle"><i class="fas fa-bars"></i></div>
-      <a href="../app/index.html" class="navbar-brand" id="brand-logo">acumen</a>
+      <a href="../app/index.html" class="navbar-brand" id="brand-logo" style="color: var(--accent-green) !important;">acumen</a>
       <div class="navbar-links" id="nav-links">
         <div class="nav-item">
           <a href="../intro_pages/test.html"><span>Home</span></a>
@@ -46,7 +46,7 @@
           <div class="dropdown-content">
             <a href="../blog/blog.html" class="dropdown-item"><div class="icon"><i class="fas fa-blog"></i></div><div class="content"><span class="title">Blog</span></div></a>
             <a href="#" class="dropdown-item"><div class="icon"><i class="fas fa-info-circle"></i></div><div class="content"><span class="title">About</span></div></a>
-            <a href="#" class="dropdown-item"><div class="icon"><i class="fab fa-discord"></i></div><div class="content"><span class="title">Community Discord</span></div></a>
+            <a href="https://discord.gg/nUeMwy6x6C" class="dropdown-item"><div class="icon"><i class="fab fa-discord"></i></div><div class="content"><span class="title">Community Discord</span></div></a>
           </div>
         </div>
       </div>
@@ -63,7 +63,7 @@
         <a href="../app/index.html" class="mobile-nav-item"><div class="icon"><i class="fas fa-home"></i></div><span>Dashboard</span></a>
       </div>
       <div class="mobile-section"><div class="mobile-section-title">Features</div><a href="#" class="mobile-nav-item"><div class="icon"><i class="fas fa-search-plus"></i></div><span>Generate item specifications</span></a><a href="#" class="mobile-nav-item"><div class="icon"><i class="fas fa-balance-scale"></i></div><span>Compare item values</span></a></div>
-      <div class="mobile-section"><div class="mobile-section-title">Resources</div><a href="../blog/blog.html" class="mobile-nav-item"><div class="icon"><i class="fas fa-blog"></i></div><span>Blog</span></a><a href="#" class="mobile-nav-item"><div class="icon"><i class="fas fa-info-circle"></i></div><span>About</span></a><a href="#" class="mobile-nav-item"><div class="icon"><i class="fab fa-discord"></i></div><span>Community Discord</span></a></div>
+      <div class="mobile-section"><div class="mobile-section-title">Resources</div><a href="../blog/blog.html" class="mobile-nav-item"><div class="icon"><i class="fas fa-blog"></i></div><span>Blog</span></a><a href="#" class="mobile-nav-item"><div class="icon"><i class="fas fa-info-circle"></i></div><span>About</span></a><a href="https://discord.gg/nUeMwy6x6C" class="mobile-nav-item"><div class="icon"><i class="fab fa-discord"></i></div><span>Community Discord</span></a></div>
       <div class="mobile-section"><div class="mobile-section-title">Pricing</div><a href="subscription.html" class="mobile-nav-item"><div class="icon"><i class="fas fa-tags"></i></div><span>View Plans</span></a></div>
       <div class="mobile-section"><a href="subs.html" class="auth-btn login-btn" style="display:block;text-align:center;margin-bottom:1rem;">Log In</a><a href="subs.html" class="auth-btn signup-btn" style="display:block;text-align:center;">Sign Up</a></div>
     </div>
@@ -124,18 +124,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script>
-      (async function() {
-        const resp = await fetch('http://localhost:1989/get-api-key');
-        const data = await resp.json();
-        firebase.initializeApp(data.firebaseConfig);
-        firebase.auth().onAuthStateChanged(user => {
-          if (!user) {
-            window.location.href = 'subs.html';
-          }
-        });
-      })();
-    </script>
     <script src="../membership_pages/subscription.js"></script>
 </body>
 </html>

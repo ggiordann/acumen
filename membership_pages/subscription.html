@@ -78,7 +78,7 @@
                 <span class="title">About</span>
               </div>
             </a>
-            <a href="#" class="dropdown-item">
+            <a href="https://discord.gg/nUeMwy6x6C" class="dropdown-item">
               <div class="icon">
                 <i class="fab fa-discord"></i>
               </div>
@@ -145,7 +145,7 @@
           </div>
           <span>About</span>
         </a>
-        <a href="#" class="mobile-nav-item">
+        <a href="https://discord.gg/nUeMwy6x6C" class="mobile-nav-item">
           <div class="icon">
             <i class="fab fa-discord"></i>
           </div>
@@ -439,18 +439,10 @@
         <!-- Add Firebase SDK -->
         <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
         <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-        <!-- Add Firebase guard for authentication -->
+        <!-- Add Firebase script but remove the authentication guard to match other pages -->
         <script>
-        (async function() {
-          const resp = await fetch('/get-api-key');
-          const data = await resp.json();
-          firebase.initializeApp(data.firebaseConfig);
-          firebase.auth().onAuthStateChanged(user => {
-            if (!user) {
-              window.location.href = 'subs.html';
-            }
-          });
-        })();
+        // The page will rely on subscription.js to handle authentication
+        // No redirect needed as the subscription.js will handle the UI updates properly
         </script>
         <script src="subscription.js"></script>
 </body>

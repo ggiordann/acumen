@@ -160,6 +160,11 @@ body::-webkit-scrollbar-thumb {
     transform: rotate(180deg);
 }
 
+/* Override green text color for specific dropdown items */
+.dropdown-item .content span.title {
+    color: inherit; /* Use default text color */
+}
+
 /* Auth Button Styles */
 .auth-container {
     display: flex;
@@ -313,6 +318,11 @@ body::-webkit-scrollbar-thumb {
 .mobile-nav-item:hover .icon {
     background-color: rgba(0, 255, 157, 0.2);
     transform: scale(1.1);
+}
+
+/* Ensure "Community Discord" text stays on one line */
+.mobile-nav-item span {
+    white-space: nowrap;
 }
 
 .mobile-overlay {

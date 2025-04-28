@@ -821,6 +821,7 @@ p {
 .testimonials-section {
     padding: 8rem 2rem;
     position: relative;
+    background-color: var(--bg-darker);
 }
 
 .testimonials-section::before,
@@ -839,57 +840,83 @@ p {
 }
 
 .testimonial-card {
-    background: var(--card-bg-dark);
-    border-radius: var(--border-radius);
-    padding: 2.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    background: linear-gradient(145deg, var(--card-bg-dark), var(--bg-darker));
+    border-radius: 18px;
+    padding: 2.2rem 2.2rem 0 2.2rem; /* Removed bottom padding completely */
+    transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), 
+                box-shadow 0.4s cubic-bezier(0.19, 1, 0.22, 1);
     height: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }
 
 .testimonial-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-card);
-    border-color: rgba(0, 255, 157, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 255, 157, 0.1);
+    border: 1px solid rgba(0, 255, 157, 0.2);
 }
 
 .testimonial-content {
     position: relative;
-    flex-grow: 1;
-    margin-bottom: 2rem;
+    padding: 0.5rem 0.2rem;
+    z-index: 1;
+    margin-bottom: 0; /* Keep reduced spacing */
 }
 
+/* Add back the quotation mark */
 .testimonial-content::before {
-    content: '"';
-    font-size: 5rem;
+    content: '\201C'; /* Unicode for left double quotation mark */
+    font-size: 6rem; /* Slightly smaller than before */
     position: absolute;
     left: -10px;
     top: -40px;
-    color: rgba(0, 255, 157, 0.1);
+    color: rgba(0, 255, 157, 0.07);
     font-family: Georgia, serif;
+    line-height: 1;
+    z-index: 0;
+    display: block; /* Show the quotation mark */
 }
 
 .testimonial-content p {
     position: relative;
-    z-index: 2;
-    font-style: italic;
-    color: var(--text-secondary);
-    line-height: 1.7;
+    z-index: 1;
+    font-style: normal;
+    font-size: 1.05rem;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 0; /* Keep removed bottom margin */
 }
 
 .testimonial-author {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.9rem;
+    margin-top: 0.5rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0; /* No padding at bottom */
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 1;
+    position: relative;
+    margin-bottom: 0;
 }
 
 .author-avatar {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     overflow: hidden;
+    border: 2px solid rgba(0, 255, 157, 0.2);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.testimonial-card:hover .author-avatar {
+    border-color: rgba(0, 255, 157, 0.5);
+    transform: scale(1.05);
 }
 
 .author-avatar img {
@@ -899,13 +926,17 @@ p {
 }
 
 .author-info h4 {
-    margin-bottom: 0.2rem;
+    margin: 0;
     font-size: 1.1rem;
     font-weight: 600;
+    color: var(--accent-green);
+    opacity: 0.9;
+    letter-spacing: -0.01em;
 }
 
 .author-info p {
     margin: 0;
+    padding: 0;
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
@@ -1076,7 +1107,8 @@ p {
 /* FAQ Section */
 .faq-section {
     padding: 8rem 2rem;
-    background-color: var(--bg-dark); /* solid black */
+    background-color: var(--bg-darker);
+    position: relative;
 }
 
 .faq-container {
@@ -1089,49 +1121,63 @@ p {
     background: var(--card-bg-dark);
     border-radius: var(--border-radius);
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.faq-item:hover {
-    border-color: rgba(0, 255, 157, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
     box-shadow: var(--shadow-subtle);
 }
 
+.faq-item:hover {
+    border-color: rgba(0, 255, 157, 0.3);
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.faq-item.active {
+    border-color: var(--accent-green);
+    background: rgba(0, 255, 157, 0.03);
+}
+
 .faq-question {
-    padding: 1.5rem;
+    padding: 1.5rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.faq-item.active .faq-question {
+    background-color: rgba(0, 255, 157, 0.05);
 }
 
 .faq-question h3 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 600;
+    color: var(--text-light);
 }
 
 .faq-question i {
     color: var(--accent-green);
-    transition: transform 0.3s ease;
-}
-
-.faq-item.active .faq-question i {
-    transform: rotate(180deg);
+    transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    font-size: 1.1rem;
 }
 
 .faq-answer {
-    padding: 0 1.5rem;
+    padding: 0 2rem;
     max-height: 0;
     overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: max-height 0.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                padding 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.7;
 }
 
 .faq-item.active .faq-answer {
-    padding-bottom: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 2rem;
     max-height: 500px;
 }
-
 
 .cta-content {
     text-align: center;

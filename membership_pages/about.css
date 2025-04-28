@@ -193,3 +193,7 @@ nav#main-navbar .nav-item > a:active,
 .navbar-links .nav-item > a:active {
     color: var(--accent-green) !important;
 }
+
+.brand-logo{
+    color: green;
+}

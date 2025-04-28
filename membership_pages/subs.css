@@ -43,6 +43,9 @@
     box-sizing: border-box;
     margin-bottom: 2rem;
   }
+
+  /* Hide redundant top nav links */
+  .navbar-links { display: none !important; }
   
   .navbar-brand {
     font-size: clamp(1.8rem, 3vw, 2.2rem);
@@ -329,4 +332,27 @@
 /* Ensure other content is below the overlay */
 body.loading-active {
   overflow: hidden; /* Prevent scrolling while loading */
+}
+
+/* Bottom bar for Home/Dashboard links */
+.mobile-menu {
+  display: flex !important;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--bg-darker);
+  padding: 0.75rem 0;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+.mobile-menu .mobile-nav-item {
+  flex: 1;
+  text-align: center;
+  color: var(--text-light);
+  text-decoration: none;
+  padding: 0.5rem 0;
 }

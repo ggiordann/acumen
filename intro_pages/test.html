@@ -40,18 +40,19 @@
                     <a href="#" class="navbar-brand" id="brand-logo">acumen</a>
                     <div class="navbar-links" id="nav-links">
                         <div class="nav-item">
-                            <a href="../intro_pages/test.html" style="color: inherit; text-decoration: none;"><span>Home</span></a>
-                        </div>
-                        <div class="nav-item">
                             <a href="../app/index.html" style="color: inherit; text-decoration: none;"><span>Dashboard</span></a>
                         </div>
-                        <!-- Features Dropdown -->
-                        <div class="nav-item" id="features-dropdown">
-                            <a href="#features">Features</a>
+                        <div class="nav-item">
+                            <a href="#features" style="color: inherit; text-decoration: none;"><span>Features</span></a>
                         </div>
-                        <div class="nav-item"><a href="#benefits">Benefits</a></div>
+                        <div class="nav-item">
+                            <a href="../blog/blog.html" style="color: inherit; text-decoration: none;"><span>Blog</span></a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="../membership_pages/about.html" style="color: inherit; text-decoration: none;"><span>About</span></a>
+                        </div>
                         <div class="nav-item"><a href="#pricing">Pricing</a></div>
-                        <div class="nav-item"><a href="#faq">FAQ</a></div>
+                        <div class="nav-item"><a href="#faq-section">FAQ</a></div>
                     </div>
                     <div class="auth-container">
                         <!-- Log In / Sign Up Buttons (will be hidden when logged in) -->
@@ -97,9 +98,8 @@
                 <div class="mobile-section">
                     <div class="mobile-section-title">Navigation</div>
                     <a href="#features" class="mobile-nav-item">Features</a>
-                    <a href="#benefits" class="mobile-nav-item">Benefits</a>
                     <a href="#pricing" class="mobile-nav-item">Pricing</a>
-                    <a href="#faq" class="mobile-nav-item">FAQ</a>
+                    <a href="#faq-section" class="mobile-nav-item">FAQ</a>
                 </div>
                 <div class="mobile-section">
                     <div class="mobile-section-title">Account</div>
@@ -123,6 +123,29 @@
                         <a href="#" id="mobile-logout-button-intro" class="mobile-nav-item">Logout</a>
                     </div>
                 </div>
+                <div class="mobile-section">
+                    <div class="mobile-section-title">Resources</div>
+                    <a href="../blog/blog.html" class="mobile-nav-item">
+                        <div class="icon"><i class="fas fa-blog"></i></div>
+                        <span>Blog</span>
+                    </a>
+                    <a href="../membership_pages/about.html" class="mobile-nav-item">
+                        <div class="icon"><i class="fas fa-info-circle"></i></div>
+                        <span>About</span>
+                    </a>
+                    <a href="https://discord.gg/nUeMwy6x6C" class="mobile-nav-item">
+                        <div class="icon"><i class="fab fa-discord"></i></div>
+                        <span>Community Discord</span>
+                    </a>
+                    <a href="../membership_pages/terms-of-service.html" class="mobile-nav-item">
+                        <div class="icon"><i class="fas fa-file-alt"></i></div>
+                        <span>Terms of Service</span>
+                    </a>
+                    <a href="../membership_pages/privacy-policy.html" class="mobile-nav-item">
+                        <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                        <span>Privacy Policy</span>
+                    </a>
+                </div>
             </div>
             <div class="mobile-overlay"></div>
 
@@ -132,8 +155,8 @@
                     <h1 class="hero-title">Revolutionise Your <span class="accent">Online Selling</span></h1>
                     <p class="hero-subtitle">AI-powered platform that transforms product photos into professional marketplace listings in seconds</p>
                     <div class="hero-cta">
-                        <a href="../membership_pages/subs.html" class="btn-primary">Get Started</a>
-                        <a href="#features" class="btn-secondary">Explore Features</a>
+                        <a href="../app/index.html" class="btn-primary">Get Started</a>
+                        <a href="../membership_pages/about.html" class="btn-secondary">Explore Features</a>
                     </div>
                 </div>
                 <div class="hero-stats reveal-element">
@@ -238,7 +261,7 @@
                         </div>
                         <div class="testimonial-author">
                             <div class="author-avatar">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Ricky Ye">
+                                <img src="imagetestimonial/ricky.jpg" alt="Ricky Ye">
                             </div>
                             <div class="author-info">
                                 <h4>Ricky Ye</h4>
@@ -252,21 +275,21 @@
                         </div>
                         <div class="testimonial-author">
                             <div class="author-avatar">
-                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson">
+                                <img src="imagetestimonial/jermaine.jpg" alt="Jermaine Lascala">
                             </div>
                             <div class="author-info">
-                                <h4>Sarah Johnson</h4>
+                                <h4>Jermaine Lascala</h4>
                                 <p>Small Business Owner</p>
                             </div>
                         </div>
                     </div>
                     <div class="testimonial-card reveal-element" data-delay="400">
                         <div class="testimonial-content">
-                            <p>"As someone who struggled with writing compelling product descriptions, Acumen has been a lifesaver. The AI understands what makes products sell and creates descriptions that actually convert to sales."</p>
+                            <p>"As someone who struggled with writing product descriptions, Acumen has been a lifesaver. The AI understands what makes products sell and creates descriptions that actually convert to sales."</p>
                         </div>
                         <div class="testimonial-author">
                             <div class="author-avatar">
-                                <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Marcus Chen">
+                                <img src="imagetestimonial/marcus.jpg" alt="Marcus Chen">
                             </div>
                             <div class="author-info">
                                 <h4>Marcus Chen</h4>
@@ -320,7 +343,7 @@
                                     <span>Bulk Listing Options</span>
                                 </div>
                             </div>
-                            <button class="plan-button" data-plan="free" onclick="window.location.href='../membership_pages/subs.html'">
+                            <button class="plan-button" data-plan="free" onclick="window.location.href='../membership_pages/subscription.html'">
                                 <span>Get Started</span>
                             </button>
                         </div>
@@ -363,7 +386,7 @@
                                     <span>Bulk Listing Options</span>
                                 </div>
                             </div>
-                            <button class="plan-button" data-plan="plus" onclick="window.location.href='../membership_pages/subs.html'">
+                            <button class="plan-button" data-plan="plus" onclick="window.location.href='../membership_pages/subscription.html'">
                                 <span>Choose Plan</span>
                             </button>
                         </div>
@@ -407,7 +430,7 @@
                                     <span>Bulk Listing Options</span>
                                 </div>
                             </div>
-                            <button class="plan-button" data-plan="pro" onclick="window.location.href='../membership_pages/subs.html'">
+                            <button class="plan-button" data-plan="pro" onclick="window.location.href='../membership_pages/subscription.html'">
                                 <span>Choose Plan</span>
                             </button>
                         </div>
@@ -451,7 +474,7 @@
                                     <span>Advanced Bulk Operations</span>
                                 </div>
                             </div>
-                            <button class="plan-button" data-plan="premium" onclick="window.location.href='../membership_pages/subs.html'">
+                            <button class="plan-button" data-plan="premium" onclick="window.location.href='../membership_pages/subscription.html'">
                                 <span>Choose Plan</span>
                             </button>
                         </div>
@@ -460,7 +483,7 @@
             </section>
 
             <!-- FAQ Section -->
-            <section class="faq-section">
+            <section id="faq-section" class="faq-section">
                 <h2 class="section-title reveal-element">Frequently Asked <span class="accent">Questions</span></h2>
                 <div class="faq-container">
                     <div class="faq-item reveal-element">
@@ -498,7 +521,7 @@
                 <div class="cta-content reveal-element">
                     <h2>Ready to <span class="accent">Transform</span> Your Online Selling?</h2>
                     <p>Join thousands of sellers who are saving time and increasing profits with Acumen</p>
-                    <a href="../membership_pages/subs.html" class="btn-primary pulse-animation">Get Started Today</a>
+                    <a href="../app/index.html" class="btn-primary pulse-animation">Get Started Today</a>
                 </div>
                 <div class="cta-pattern"></div>
             </section>
@@ -523,13 +546,13 @@
                             <ul>
                                 <li><a href="../blog/blog.html">Blog</a></li>
                                 <li><a href="#">Documentation</a></li>
-                                <li><a href="#">Support</a></li>
+                                <li><a href="#faq-section">Support / FAQ</a></li> <!-- Changed href -->
                             </ul>
                         </div>
                         <div class="footer-nav-column">
                             <h4>Company</h4>
                             <ul>
-                                <li><a href="#">About</a></li>
+                                <li><a href="../membership_pages/about.html">About</a></li> <!-- Changed href -->
                                 <li><a href="#">Careers</a></li>
                                 <li><a href="#">Contact</a></li>
                             </ul>

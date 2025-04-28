@@ -12,6 +12,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Define API base URL for production
     const apiBaseUrl = "https://useacumen.co";
 
+    // Helper function to remove loading overlay for public pages
+    function removeLoadingOverlay() {
+        if ($('.auth-container').length) {
+            setTimeout(function() {
+                $(".auth-loading-overlay").css("opacity", "0");
+                setTimeout(function() {
+                    $(".auth-container").removeClass("loading");
+                    $(".auth-loading-overlay").remove();
+                }, 500);
+            }, 300);
+        }
+    }
+
     //function to initialise firebase
     async function initFirebase() {
         try {
@@ -45,8 +58,40 @@ document.addEventListener('DOMContentLoaded', async function() {
                     });
                 } else {
                     console.log("No user is signed in");
-                    // Redirect to login/subscription page if not authenticated
-                    window.location.href = 'subs.html?redirect=about';
+                    
+                    // Whitelist of public pages that don't require authentication
+                    const publicPages = [
+                        'blog.html',
+                        'about.html',
+                        'terms-of-service.html',
+                        'privacy-policy.html'
+                    ];
+                    
+                    // Get current page filename
+                    const fullPath = window.location.pathname;
+                    const currentPage = fullPath.split('/').pop();
+                    
+                    // Check if current page is in the whitelist
+                    const isPublicPage = publicPages.some(page => 
+                        currentPage.toLowerCase().includes(page.toLowerCase())
+                    );
+                    
+                    // For debugging
+                    console.log("Current page:", currentPage);
+                    console.log("Is public page:", isPublicPage);
+                    
+                    // Also check if we're directly accessing about.html
+                    const isAboutPage = fullPath.toLowerCase().includes('about.html');
+                    
+                    // Only redirect to login if not on a public page
+                    if (!isPublicPage && !isAboutPage) {
+                        // Redirect to login/subscription page if not authenticated
+                        window.location.href = 'subs.html?redirect=' + currentPage;
+                    } else {
+                        // For public pages, still update the UI for signed-out state
+                        console.log("Public page - no redirect needed");
+                        removeLoadingOverlay();
+                    }
                 }
             });
         } catch (error) {
@@ -468,14 +513,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Remove loading overlay only after full page load
     window.addEventListener('load', function() {
-        // delay slightly after load before fading out overlay
+        // keep pulse overlay visible for 10s before fading out
         setTimeout(function() {
-            // fade out overlay
             $(".auth-loading-overlay").css("opacity", "0");
+            // wait 0.5s (just after fade) before cleanup
             setTimeout(function() {
                 $(".auth-container").removeClass("loading");
                 $(".auth-loading-overlay").remove();
-            }, 600);
-        }, 400); // little delay to ensure page content settles
+            }, 500); // Reduced from 2000ms
+        }, 1600);
     });
 });
