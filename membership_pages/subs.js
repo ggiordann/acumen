@@ -14,9 +14,9 @@ $(document).ready(async function() {
         const data = await response.json();
         console.log("API Key received:", data.firebaseConfig);
         firebaseConfig = data.firebaseConfig;
-        // *** IMPORTANT: Update authDomain to your actual domain for the proxy to work ***
-        firebaseConfig.authDomain = "useacumen.co"; // Re-enabled: Use custom domain for auth
-        console.log("Using authDomain:", firebaseConfig.authDomain); // Log the domain being used
+        // *** Let Firebase SDK use the default authDomain from the backend config ***
+        // firebaseConfig.authDomain = "useacumen.co"; // REMOVED: Don't override authDomain
+        console.log("Using authDomain:", firebaseConfig.authDomain); // Log the domain being used (should be firebaseapp.com)
         await initialiseFirebase();
     } catch (error) {
         console.error("Error fetching API key:", error);
