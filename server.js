@@ -352,13 +352,14 @@ app.post('/post-facebook', async (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    exec(`xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
+    const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_post.spec.js \'${adDataStr}\' 2>&1'`;
+    console.log(`Executing command: ${command}`);
+    exec(command, (error, stdout, stderr) => {
+      console.log(`Output from command: ${stdout}`);
       if (error) {
-        console.error(`Error executing fb_post.spec.js: ${error}`);
-        console.error(`stderr from fb_post.spec.js: ${stderr}`);
-        return res.status(500).json({ error: stderr });
+        console.error(`Error executing command: ${error}`);
+        return res.status(500).json({ error: stdout || error.message });
       }
-      console.log(`stdout from fb_post.spec.js: ${stdout}`);
       return res.json({ message: stdout });
     });
   } catch (error) {
@@ -371,13 +372,14 @@ app.post('/post-ebay', async (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    exec(`xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
+    const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_post.spec.js \'${adDataStr}\' 2>&1'`;
+    console.log(`Executing command: ${command}`);
+    exec(command, (error, stdout, stderr) => {
+      console.log(`Output from command: ${stdout}`);
       if (error) {
-         console.error(`Error executing ebay_post.spec.js: ${error}`);
-         console.error(`stderr from ebay_post.spec.js: ${stderr}`);
-         return res.status(500).send(stderr);
+         console.error(`Error executing command: ${error}`);
+         return res.status(500).send(stdout || error.message);
       }
-      console.log(`stdout from ebay_post.spec.js: ${stdout}`);
       return res.send(stdout);
     });
   } catch (error) {
@@ -390,13 +392,14 @@ app.post('/post-gumtree', (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    exec(`xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
+    const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_post.spec.js \'${adDataStr}\' 2>&1'`;
+    console.log(`Executing command: ${command}`);
+    exec(command, (error, stdout, stderr) => {
+      console.log(`Output from command: ${stdout}`);
       if (error) {
-        console.error(`Error executing gumtree_post.spec.js: ${error}`);
-        console.error(`stderr from gumtree_post.spec.js: ${stderr}`);
-        return res.status(500).send(stderr);
+        console.error(`Error executing command: ${error}`);
+        return res.status(500).send(stdout || error.message);
       }
-      console.log(`stdout from gumtree_post.spec.js: ${stdout}`);
       res.send(stdout);
     });
   } catch (error) {
@@ -406,37 +409,40 @@ app.post('/post-gumtree', (req, res) => {
 });
 
 app.get('/run-fb-login', (req, res) => {
-  exec('xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_login.spec.js', (error, stdout, stderr) => {
+  const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_login.spec.js 2>&1'`;
+  console.log(`Executing command: ${command}`);
+  exec(command, (error, stdout, stderr) => {
+    console.log(`Output from command: ${stdout}`);
     if (error) {
-      console.error(`Error executing fb_login.spec.js: ${error}`);
-      console.error(`stderr from fb_login.spec.js: ${stderr}`);
-      return res.status(500).send(stderr);
+      console.error(`Error executing command: ${error}`);
+      return res.status(500).send(stdout || error.message);
     }
-    console.log(`stdout from fb_login.spec.js: ${stdout}`);
     res.send(stdout);
   });
 });
 
 app.get('/run-ebay-login', (req, res) => {
-  exec('xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_login.spec.js', (error, stdout, stderr) => {
+  const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_login.spec.js 2>&1'`;
+  console.log(`Executing command: ${command}`);
+  exec(command, (error, stdout, stderr) => {
+    console.log(`Output from command: ${stdout}`);
     if (error) {
-      console.error(`Error executing ebay_login.spec.js: ${error}`);
-      console.error(`stderr from ebay_login.spec.js: ${stderr}`);
-      return res.status(500).send(stderr);
+      console.error(`Error executing command: ${error}`);
+      return res.status(500).send(stdout || error.message);
     }
-    console.log(`stdout from ebay_login.spec.js: ${stdout}`);
     res.send(stdout);
   });
 });
 
 app.get('/run-gumtree-login', (req, res) => {
-  exec('xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_login.spec.js', (error, stdout, stderr) => {
+  const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_login.spec.js 2>&1'`;
+  console.log(`Executing command: ${command}`);
+  exec(command, (error, stdout, stderr) => {
+    console.log(`Output from command: ${stdout}`);
     if (error) {
-      console.error(`Error executing gumtree_login.spec.js: ${error}`);
-      console.error(`stderr from gumtree_login.spec.js: ${stderr}`);
-      return res.status(500).send(stderr);
+      console.error(`Error executing command: ${error}`);
+      return res.status(500).send(stdout || error.message);
     }
-    console.log(`stdout from gumtree_login.spec.js: ${stdout}`);
     res.send(stdout);
   });
 });
