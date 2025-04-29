@@ -18,5 +18,5 @@ RUN npm install --omit=dev
 # Expose the port the app runs on. Render will set the PORT env variable automatically.
 EXPOSE 10000
 
-# Command to run the application using xvfb-run
-CMD ["xvfb-run", "node", "server.js"]
+# Command to run the application using xvfb-run # "xvfb-run", 
+CMD ["node", "server.js"]
