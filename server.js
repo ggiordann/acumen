@@ -35,14 +35,13 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const app = express();
 // define port and base url for redirects
-// Use Render's default port 10000 as fallback
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 1989;
 const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
 
 // --- Firebase Auth Proxy Setup ---
-// Proxy requests to /__/auth/* to our Firebase project's auth handler
-// This makes the auth flow appear to come from our domain, avoiding third-party cookie issues.
-const firebaseAuthProxyTarget = 'https://acumen-2ead9.firebaseapp.com'; // our Firebase project's default auth domain
+// Proxy requests to /__/auth/* to your Firebase project's auth handler
+// This makes the auth flow appear to come from your domain, avoiding third-party cookie issues.
+const firebaseAuthProxyTarget = 'https://acumen-2ead9.firebaseapp.com'; // Your Firebase project's default auth domain
 app.use('/__/auth/', createProxyMiddleware({ // <--- Added trailing slash to match /__/auth/handler and other paths
   target: firebaseAuthProxyTarget,
   changeOrigin: true, // Important: Needed for virtual hosted sites like Firebase Hosting
@@ -593,24 +592,14 @@ app.post("/save-user", verifyToken, async (req, res) => {
 });
 
 app.get("/get-api-key", async(req, res) => {
-    console.log("Firebase config requested"); // Changed log message
+    console.log("Firebase config sent");
     try {
-        const firebaseConfigString = process.env.FIREBASE_API.replace(/\'/g, '"');
+        const firebaseConfigString = process.env.FIREBASE_API.replace(/'/g, '"');
         const firebaseConfig = JSON.parse(firebaseConfigString);
-
-        // *** Ensure authDomain is included ***
-        if (!firebaseConfig.authDomain) {
-            // Use the project's default auth domain
-            firebaseConfig.authDomain = `${firebaseConfig.projectId}.firebaseapp.com`; 
-            console.log(`Added missing authDomain: ${firebaseConfig.authDomain}`);
-        }
-
-        console.log("Sending Firebase config WITH authDomain:", firebaseConfig); // Log modified config
-
         res.json({ firebaseConfig: firebaseConfig });
     } catch (error) {
-        console.error("Error processing or sending Firebase config:", error); // Improved error log
-        res.status(500).send("Error processing Firebase configuration"); // Changed error message slightly
+        console.error("Error with Firebase config:", error);
+        res.status(500).send("Error with Firebase configuration");
     }
 });
 
@@ -1015,7 +1004,7 @@ app.post('/record-listing', verifyToken, async (req, res) => {
     }
 });
 
-// Start the server on defined PORT and bind to 0.0.0.0
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server listening on host 0.0.0.0, port ${PORT}`);
+// Start the server on defined PORT
+app.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`);
 });

@@ -14,14 +14,10 @@ $(document).ready(async function() {
         const data = await response.json();
         console.log("API Key received:", data.firebaseConfig);
         firebaseConfig = data.firebaseConfig;
-        // *** Let Firebase SDK use the default authDomain from the backend config ***
-        // firebaseConfig.authDomain = "useacumen.co"; // REMOVED: Don't override authDomain
-        console.log("Using authDomain:", firebaseConfig.authDomain); // Log the domain being used (should be firebaseapp.com)
-
-        // <<< ADDING DETAILED LOG HERE >>>
-        console.log("Firebase config BEFORE initializeApp:", JSON.stringify(firebaseConfig));
-
-        await initialiseFirebase(); // initialiseFirebase now uses the config logged above
+        // *** IMPORTANT: Update authDomain to your actual domain for the proxy to work ***
+        // firebaseConfig.authDomain = "useacumen.co"; // Reverted: Use default authDomain from backend
+        console.log("Using authDomain:", firebaseConfig.authDomain); // Log the domain being used
+        await initialiseFirebase();
     } catch (error) {
         console.error("Error fetching API key:", error);
         return;
@@ -31,8 +27,7 @@ $(document).ready(async function() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
     async function initialiseFirebase() {
-        // <<< MOVING initializeApp HERE >>>
-        firebase.initializeApp(firebaseConfig); // Initialize using the config passed in
+        firebase.initializeApp(firebaseConfig);
         auth = firebase.auth();
         provider = new firebase.auth.GoogleAuthProvider();
         
