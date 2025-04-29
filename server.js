@@ -598,9 +598,14 @@ app.get("/get-api-key", async(req, res) => {
         const firebaseConfigString = process.env.FIREBASE_API.replace(/\'/g, '"');
         const firebaseConfig = JSON.parse(firebaseConfigString);
 
-        // <<< CHANGE: Explicitly remove authDomain before sending to client >>>
-        delete firebaseConfig.authDomain;
-        console.log("Sending Firebase config WITHOUT authDomain:", firebaseConfig); // Log modified config
+        // *** Ensure authDomain is included ***
+        if (!firebaseConfig.authDomain) {
+            // Use the project's default auth domain
+            firebaseConfig.authDomain = `${firebaseConfig.projectId}.firebaseapp.com`; 
+            console.log(`Added missing authDomain: ${firebaseConfig.authDomain}`);
+        }
+
+        console.log("Sending Firebase config WITH authDomain:", firebaseConfig); // Log modified config
 
         res.json({ firebaseConfig: firebaseConfig });
     } catch (error) {
