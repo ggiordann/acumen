@@ -593,14 +593,19 @@ app.post("/save-user", verifyToken, async (req, res) => {
 });
 
 app.get("/get-api-key", async(req, res) => {
-    console.log("Firebase config sent");
+    console.log("Firebase config requested"); // Changed log message
     try {
-        const firebaseConfigString = process.env.FIREBASE_API.replace(/'/g, '"');
+        const firebaseConfigString = process.env.FIREBASE_API.replace(/\'/g, '"');
         const firebaseConfig = JSON.parse(firebaseConfigString);
+
+        // <<< CHANGE: Explicitly remove authDomain before sending to client >>>
+        delete firebaseConfig.authDomain;
+        console.log("Sending Firebase config WITHOUT authDomain:", firebaseConfig); // Log modified config
+
         res.json({ firebaseConfig: firebaseConfig });
     } catch (error) {
-        console.error("Error with Firebase config:", error);
-        res.status(500).send("Error with Firebase configuration");
+        console.error("Error processing or sending Firebase config:", error); // Improved error log
+        res.status(500).send("Error processing Firebase configuration"); // Changed error message slightly
     }
 });
 
