@@ -1005,6 +1005,6 @@ app.post('/record-listing', verifyToken, async (req, res) => {
 });
 
 // Start the server on defined PORT
-aapp.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server listening on host 0.0.0.0, port ${PORT}`);
 });
