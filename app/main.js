@@ -15,7 +15,7 @@ $(document).ready(function() {
     let apiBaseUrl;
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use the port your local Node server runs on (ensure it matches server.js)
-        apiBaseUrl = "http://localhost:1989"; 
+        apiBaseUrl = "http://localhost:10000"; 
     } else {
         // Use production URL
         apiBaseUrl = "https://useacumen.co";

@@ -35,7 +35,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const app = express();
 // define port and base url for redirects
-const PORT = process.env.PORT || 1989;
+const PORT = process.env.PORT || 10000;
 const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
 
 // --- Firebase Auth Proxy Setup ---
@@ -1005,6 +1005,6 @@ app.post('/record-listing', verifyToken, async (req, res) => {
 });
 
 // Start the server on defined PORT
-app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
+aapp.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server listening on host 0.0.0.0, port ${PORT}`);
 });
