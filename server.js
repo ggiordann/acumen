@@ -352,7 +352,7 @@ app.post('/post-facebook', async (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    exec(`node fb_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
+    exec(`xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing fb_post.spec.js: ${error}`);
         return res.status(500).json({ error: stderr });
@@ -369,7 +369,7 @@ app.post('/post-ebay', async (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    exec(`node ebay_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
+    exec(`xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
       if (error) {
          console.error(`Error executing ebay_post.spec.js: ${error}`);
          return res.status(500).send(stderr);
@@ -386,7 +386,7 @@ app.post('/post-gumtree', (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    exec(`node gumtree_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
+    exec(`xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_post.spec.js '${adDataStr}'`, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing gumtree_post.spec.js: ${error}`);
         return res.status(500).send(stderr);
@@ -400,7 +400,7 @@ app.post('/post-gumtree', (req, res) => {
 });
 
 app.get('/run-fb-login', (req, res) => {
-  exec('node fb_login.spec.js', (error, stdout, stderr) => {
+  exec('xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_login.spec.js', (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing fb_login.spec.js: ${error}`);
       return res.status(500).send(stderr);
@@ -410,7 +410,7 @@ app.get('/run-fb-login', (req, res) => {
 });
 
 app.get('/run-ebay-login', (req, res) => {
-  exec('node ebay_login.spec.js', (error, stdout, stderr) => {
+  exec('xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_login.spec.js', (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing ebay_login.spec.js: ${error}`);
       return res.status(500).send(stderr);
@@ -420,7 +420,7 @@ app.get('/run-ebay-login', (req, res) => {
 });
 
 app.get('/run-gumtree-login', (req, res) => {
-  exec('node gumtree_login.spec.js', (error, stdout, stderr) => {
+  exec('xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_login.spec.js', (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing gumtree_login.spec.js: ${error}`);
       return res.status(500).send(stderr);

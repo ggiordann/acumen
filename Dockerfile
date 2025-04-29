@@ -5,6 +5,9 @@ FROM mcr.microsoft.com/playwright:v1.50.1-jammy
 # Set the working directory inside the container
 WORKDIR /app
 
+# Install xvfb for running headed browsers in a headless environment
+RUN apt-get update && apt-get install -y xvfb && rm -rf /var/lib/apt/lists/*
+
 # Copy package.json AND package-lock.json first
 COPY package*.json ./
 
