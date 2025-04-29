@@ -352,15 +352,16 @@ app.post('/post-facebook', async (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_post.spec.js \'${adDataStr}\' 2>&1'`;
-    console.log(`Executing command: ${command}`);
-    exec(command, (error, stdout, stderr) => {
-      console.log(`Output from command: ${stdout}`);
+    const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_post.spec.js`;
+    console.log(`Executing command: ${command} with AD_DATA env var`);
+    exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
+      const output = stdout + stderr;
+      console.log(`Output from command: ${output}`); 
       if (error) {
         console.error(`Error executing command: ${error}`);
-        return res.status(500).json({ error: stdout || error.message });
+        return res.status(500).json({ error: output || error.message }); 
       }
-      return res.json({ message: stdout });
+      return res.json({ message: output });
     });
   } catch (error) {
     console.error('Error posting Facebook listing:', error);
@@ -372,15 +373,16 @@ app.post('/post-ebay', async (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_post.spec.js \'${adDataStr}\' 2>&1'`;
-    console.log(`Executing command: ${command}`);
-    exec(command, (error, stdout, stderr) => {
-      console.log(`Output from command: ${stdout}`);
+    const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_post.spec.js`;
+    console.log(`Executing command: ${command} with AD_DATA env var`);
+    exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
+      const output = stdout + stderr;
+      console.log(`Output from command: ${output}`);
       if (error) {
          console.error(`Error executing command: ${error}`);
-         return res.status(500).send(stdout || error.message);
+         return res.status(500).send(output || error.message);
       }
-      return res.send(stdout);
+      return res.send(output);
     });
   } catch (error) {
     console.error('Error posting eBay listing:', error);
@@ -392,15 +394,16 @@ app.post('/post-gumtree', (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_post.spec.js \'${adDataStr}\' 2>&1'`;
-    console.log(`Executing command: ${command}`);
-    exec(command, (error, stdout, stderr) => {
-      console.log(`Output from command: ${stdout}`);
+    const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_post.spec.js`;
+    console.log(`Executing command: ${command} with AD_DATA env var`);
+    exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
+      const output = stdout + stderr;
+      console.log(`Output from command: ${output}`);
       if (error) {
         console.error(`Error executing command: ${error}`);
-        return res.status(500).send(stdout || error.message);
+        return res.status(500).send(output || error.message);
       }
-      res.send(stdout);
+      res.send(output);
     });
   } catch (error) {
     console.error('Error posting to Gumtree:', error);

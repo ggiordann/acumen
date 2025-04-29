@@ -2,19 +2,13 @@ import { chromium } from 'playwright';
 import path from 'path';
 import fs from 'fs';
 
-const inputArg = process.argv[2];
-if (!inputArg) {
-  console.error("no ad data provided, JSON is not being passed");
+// Read JSON data from environment variable AD_DATA
+const adDataStr = process.env.AD_DATA;
+if (!adDataStr) {
+  console.error('Error: AD_DATA environment variable not set.');
   process.exit(1);
 }
-
-let adData;
-try {
-  adData = JSON.parse(inputArg);
-} catch (e) {
-  console.error("Invalid JSON input:", e);
-  process.exit(1);
-}
+const adData = JSON.parse(adDataStr);
 
 async function postListingFacebookMarketplace(adData) {
     const savePath = path.join(process.cwd(), 'facebook_session.json');

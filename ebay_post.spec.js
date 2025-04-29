@@ -1,4 +1,3 @@
-
 // STILL NEED TO DO SOMETHING REGARDING IMAGE UPLOAD //
 
 import { chromium } from 'playwright';
@@ -6,6 +5,14 @@ import path from 'path';
 
 const __dirname = process.cwd();
 const savePath = path.join(__dirname, 'ebay_session.json');
+
+// Read JSON data from environment variable AD_DATA
+const adDataStr = process.env.AD_DATA;
+if (!adDataStr) {
+  console.error('Error: AD_DATA environment variable not set.');
+  process.exit(1);
+}
+const adData = JSON.parse(adDataStr);
 
 async function postItemToEbayMarketplace(adData) {
   const browser = await chromium.launch({ headless: false });
@@ -53,20 +60,6 @@ async function postItemToEbayMarketplace(adData) {
   await page.waitForTimeout(5000);
   await browser.close();
   return "eBay Listing posted successfully";
-}
-
-const inputArg = process.argv[2];
-if (!inputArg) {
-  console.error("No ad data provided. Please pass JSON string as argument.");
-  process.exit(1);
-}
-
-let adData;
-try {
-  adData = JSON.parse(inputArg);
-} catch (e) {
-  console.error("Invalid JSON input:", e);
-  process.exit(1);
 }
 
 postItemToEbayMarketplace(adData)
