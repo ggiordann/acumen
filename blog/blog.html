@@ -261,8 +261,32 @@
         </div>
     </div>
 
+    <!-- Loading Overlay HTML (copied from subs.html) -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
     <!-- JavaScript for mobile menu toggle and authentication -->
     <script>
+        // Use static HTML overlay instead of dynamically creating one
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        // Function to show the loading overlay
+        function showLoading() {
+          if (loadingOverlay) {
+            loadingOverlay.classList.add('visible');
+            document.body.classList.add('loading-active'); // Optional: prevent body scroll
+          }
+        }
+
+        // Function to hide the loading overlay (might not be needed for navigation, but good practice)
+        function hideLoading() {
+          if (loadingOverlay) {
+            loadingOverlay.classList.remove('visible');
+            document.body.classList.remove('loading-active'); // Optional: allow body scroll
+          }
+        }
+
         $(document).ready(function() {
             // Add loading state as soon as the page loads
             $(".auth-container").addClass("loading");
@@ -298,8 +322,18 @@
             document.querySelectorAll('.blog-card').forEach(card => {
                 card.style.cursor = 'pointer';
                 card.addEventListener('click', e => {
+                    // Prevent default if clicking directly on the link inside
+                    if (e.target.tagName === 'A' || e.target.closest('a')) {
+                        e.preventDefault();
+                    }
+                    
                     const targetLink = card.querySelector('.blog-read-more');
-                    if (targetLink) window.location.href = targetLink.href;
+                    if (targetLink && targetLink.href) {
+                        showLoading(); // Show loading animation
+                        // Navigate after a short delay to allow animation to show
+                        // Although often, the browser takes over quickly enough
+                        window.location.href = targetLink.href; 
+                    }
                 });
             });
         });

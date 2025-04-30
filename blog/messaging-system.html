@@ -8,6 +8,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="../acumen.ico">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Simple Toast Notification Style */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .toast-notification.show {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
     <!-- NAVBAR with static links; auth-container will be populated by subscription.js -->
@@ -128,8 +147,8 @@
                     <h3>Want early access?</h3>
                     <p>We're expanding our beta testing program. Sign up below to be considered for early access.</p>
                     <div class="beta-signup">
-                        <input type="email" placeholder="Your email address" class="beta-input">
-                        <button class="beta-button">Join Beta</button>
+                        <input type="email" placeholder="Your email address" class="beta-input" id="messaging-beta-email">
+                        <button class="beta-button" id="messaging-beta-button">Join Beta</button>
                     </div>
                 </div>
             </div>
@@ -146,5 +165,71 @@
 
     <!-- include subscription script to initialise navbar/auth -->
     <script src="../membership_pages/subscription.js"></script>
+    <script>
+        // Function to show toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.className = 'toast-notification';
+            document.body.appendChild(toast);
+
+            // Trigger reflow to enable transition
+            toast.offsetHeight; 
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 500); // Wait for fade out transition
+            }, 3000); // Show toast for 3 seconds
+        }
+
+        // Basic email validation function
+        function validateEmail(email) {
+            if (!email) {
+                return 'Email cannot be empty';
+            }
+            const atIndex = email.indexOf('@');
+            if (atIndex === -1) {
+                return 'Invalid email: Missing \'@\' symbol';
+            }
+            const dotIndex = email.indexOf('.', atIndex);
+            if (dotIndex === -1) {
+                return 'Invalid email: Missing \'.\' after \'@\'';
+            }
+            // Basic check: ensure dot is not immediately after @ and there's something after the dot
+            if (dotIndex === atIndex + 1 || dotIndex === email.length - 1) {
+                 return 'Invalid email format';
+            }
+            return null; // Indicates valid email
+        }
+
+        // Beta signup form handler
+        const betaButton = document.getElementById('messaging-beta-button');
+        const betaEmailInput = document.getElementById('messaging-beta-email');
+
+        if (betaButton && betaEmailInput) {
+            betaButton.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent potential form submission
+                const email = betaEmailInput.value.trim();
+                const validationError = validateEmail(email);
+
+                if (validationError) {
+                    showToast(`❌ ${validationError}`);
+                } else {
+                    // In a real scenario, you would send the email to your backend here
+                    console.log('Beta signup attempt:', email); 
+
+                    // Show success toast notification
+                    showToast('✅ Successfully Joined Beta'); // Use actual tick
+
+                    // Clear the email input
+                    betaEmailInput.value = '';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

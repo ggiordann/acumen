@@ -645,3 +645,47 @@ body {
 .pulse {
     animation-duration: 3s;
 }
+
+/* Loading Overlay Styles (copied from subs.css) */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+    backdrop-filter: blur(5px); /* Optional: Add a blur effect */
+    display: none; /* Start hidden */
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Ensure it's on top */
+    opacity: 0; /* Start hidden */
+    visibility: hidden; /* Prevent interaction when invisible */
+    transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s; /* Delay visibility change */
+}
+
+#loading-overlay.visible {
+    display: flex; /* Set display to flex only when visible */
+    opacity: 1; /* Fade in when visible */
+    visibility: visible; /* Make it visible */
+    transition: opacity 0.3s ease-in-out, visibility 0s linear 0s; /* Reset visibility transition */
+}
+
+#loading-overlay .spinner {
+    border: 6px solid rgba(255, 255, 255, 0.3);
+    border-top: 6px solid var(--accent-green);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Ensure other content is below the overlay */
+body.loading-active {
+  overflow: hidden; /* Prevent scrolling while loading */
+}
