@@ -359,6 +359,12 @@ app.post('/post-facebook', async (req, res) => {
       console.log(`Output from command: ${output}`); 
       if (error) {
         console.error(`Error executing command: ${error}`);
+        // Check if it's a session error from the script's stdout
+        if (output.startsWith('SESSION_ERROR:')) {
+          // Send 401 Unauthorized with the specific message
+          return res.status(401).json({ error: output.replace('SESSION_ERROR: ', '') });
+        }
+        // Otherwise, send a generic 500 error
         return res.status(500).json({ error: output || error.message }); 
       }
       return res.json({ message: output });
@@ -380,6 +386,12 @@ app.post('/post-ebay', async (req, res) => {
       console.log(`Output from command: ${output}`);
       if (error) {
          console.error(`Error executing command: ${error}`);
+         // Check if it's a session error from the script's stdout
+         if (output.startsWith('SESSION_ERROR:')) {
+           // Send 401 Unauthorized with the specific message
+           return res.status(401).send(output.replace('SESSION_ERROR: ', ''));
+         }
+         // Otherwise, send a generic 500 error
          return res.status(500).send(output || error.message);
       }
       return res.send(output);
@@ -401,6 +413,12 @@ app.post('/post-gumtree', (req, res) => {
       console.log(`Output from command: ${output}`);
       if (error) {
         console.error(`Error executing command: ${error}`);
+        // Check if it's a session error from the script's stdout
+        if (output.startsWith('SESSION_ERROR:')) {
+          // Send 401 Unauthorized with the specific message
+          return res.status(401).send(output.replace('SESSION_ERROR: ', ''));
+        }
+        // Otherwise, send a generic 500 error
         return res.status(500).send(output || error.message);
       }
       res.send(output);
@@ -412,41 +430,44 @@ app.post('/post-gumtree', (req, res) => {
 });
 
 app.get('/run-fb-login', (req, res) => {
-  const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_login.spec.js 2>&1'`;
+  const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_login.spec.js`;
   console.log(`Executing command: ${command}`);
   exec(command, (error, stdout, stderr) => {
-    console.log(`Output from command: ${stdout}`);
+    const output = stdout + stderr;
+    console.log(`Output from command: ${output}`);
     if (error) {
       console.error(`Error executing command: ${error}`);
-      return res.status(500).send(stdout || error.message);
+      return res.status(500).send(output || error.message); 
     }
-    res.send(stdout);
+    res.send(output);
   });
 });
 
 app.get('/run-ebay-login', (req, res) => {
-  const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_login.spec.js 2>&1'`;
+  const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_login.spec.js`;
   console.log(`Executing command: ${command}`);
   exec(command, (error, stdout, stderr) => {
-    console.log(`Output from command: ${stdout}`);
+    const output = stdout + stderr;
+    console.log(`Output from command: ${output}`);
     if (error) {
       console.error(`Error executing command: ${error}`);
-      return res.status(500).send(stdout || error.message);
+      return res.status(500).send(output || error.message);
     }
-    res.send(stdout);
+    res.send(output);
   });
 });
 
 app.get('/run-gumtree-login', (req, res) => {
-  const command = `sh -c 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_login.spec.js 2>&1'`;
+  const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_login.spec.js`;
   console.log(`Executing command: ${command}`);
   exec(command, (error, stdout, stderr) => {
-    console.log(`Output from command: ${stdout}`);
+    const output = stdout + stderr;
+    console.log(`Output from command: ${output}`);
     if (error) {
       console.error(`Error executing command: ${error}`);
-      return res.status(500).send(stdout || error.message);
+      return res.status(500).send(output || error.message);
     }
-    res.send(stdout);
+    res.send(output);
   });
 });
 

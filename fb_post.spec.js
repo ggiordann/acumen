@@ -12,6 +12,15 @@ const adData = JSON.parse(adDataStr);
 
 async function postListingFacebookMarketplace(adData) {
     const savePath = path.join(process.cwd(), 'facebook_session.json');
+
+    // Check if the session file exists before trying to load it
+    if (!fs.existsSync(savePath)) {
+      // Output specific error message to stdout for server to catch
+      console.log('SESSION_ERROR: Facebook session file not found. Please connect to Facebook first.');
+      process.exit(1); // Exit if session file is missing
+    }
+    console.log(`Session file found at ${savePath}. Attempting to load...`);
+
     const browser = await chromium.launch({ headless: false });
     const context = await browser.newContext({ storageState: savePath });
     const page = await context.newPage();

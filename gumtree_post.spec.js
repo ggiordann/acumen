@@ -12,6 +12,15 @@ const adData = JSON.parse(adDataStr);
 
 async function postListingGumtree(adData) {
   const savePath = path.join(process.cwd(), 'gumtree_session.json');
+
+  // Check if the session file exists before trying to load it
+  if (!fs.existsSync(savePath)) {
+    // Output specific error message to stdout for server to catch
+    console.log('SESSION_ERROR: Gumtree session file not found. Please connect to Gumtree first.');
+    process.exit(1); // Exit if session file is missing
+  }
+  console.log(`Session file found at ${savePath}. Attempting to load...`);
+
   // launch WebKit with UI, DevTools, and slowMo for visibility
   const browser = await webkit.launch({ headless: false, devtools: true, slowMo: 100 });
   const context = await browser.newContext({ storageState: savePath });

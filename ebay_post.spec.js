@@ -2,6 +2,7 @@
 
 import { chromium } from 'playwright';
 import path from 'path';
+import fs from 'fs';
 
 const __dirname = process.cwd();
 const savePath = path.join(__dirname, 'ebay_session.json');
@@ -15,6 +16,14 @@ if (!adDataStr) {
 const adData = JSON.parse(adDataStr);
 
 async function postItemToEbayMarketplace(adData) {
+  // Check if the session file exists before trying to load it
+  if (!fs.existsSync(savePath)) {
+    // Output specific error message to stdout for server to catch
+    console.log('SESSION_ERROR: eBay session file not found. Please connect to eBay first.');
+    process.exit(1); // Exit if session file is missing
+  }
+  console.log(`Session file found at ${savePath}. Attempting to load...`);
+
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext({ storageState: savePath });
   const page = await context.newPage();
