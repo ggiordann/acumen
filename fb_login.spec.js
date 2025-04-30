@@ -1,7 +1,10 @@
 import { chromium } from 'playwright';
 import path from 'path';
+// ESM doesn't have __dirname by default, use import.meta.url
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const __dirname = import.meta.dirname;
 const savePath = path.join(__dirname, 'facebook_session.json');
 
 async function loginandsaveState() {
@@ -9,7 +12,17 @@ async function loginandsaveState() {
   let browser;
   try {
     console.log('Launching browser...');
-    browser = await chromium.launch({ headless: false });
+    browser = await chromium.launch({
+        headless: false, // Keep headless: false as required
+        args: [ // Add recommended args for container/xvfb environments
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage', // Often needed in Docker
+            '--disable-gpu', // Can help in virtualized environments
+        ],
+        // Optional: Increase timeout if launch is still slow on Render instance
+        // timeout: 300000 // 5 minutes
+    });
     console.log('Browser launched.');
 
     console.log('Creating new browser context...');
