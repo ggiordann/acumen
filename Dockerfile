@@ -1,25 +1,49 @@
-# Use the official Microsoft Playwright image which includes Node.js and browser dependencies
-# Update the version tag to match the required Playwright version (1.50.1)
-FROM mcr.microsoft.com/playwright:v1.50.1-jammy
+# Use the official Playwright image which includes browsers and xvfb
+FROM mcr.microsoft.com/playwright:v1.44.0-jammy
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Install xvfb for running headed browsers in a headless environment
-RUN apt-get update && apt-get install -y xvfb && rm -rf /var/lib/apt/lists/*
+# Environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DISPLAY=:99
+ENV VNC_PASSWORD=yourpassword 
+# CHANGE THIS or use Render secrets
 
-# Copy package.json AND package-lock.json first
-COPY package*.json ./
+# Switch to root to install system packages
+USER root
 
-# Copy the rest of your application code into the container
-COPY . .
+# Install VNC components, window manager, and utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb \
+    x11vnc \
+    novnc \
+    fluxbox \
+    net-tools \
+    # Add any other dependencies your script might need
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Run npm install AFTER copying all code to ensure all dependencies are met
-# using the final package.json and package-lock.json
-RUN npm install --omit=dev
+# Switch back to the non-root user 'pwuser' created by the base image
+USER pwuser
 
-# Expose the port the app runs on. Render will set the PORT env variable automatically.
-EXPOSE 10000
+# Set home directory for pwuser (needed for .vnc password file)
+ENV HOME=/home/pwuser
+WORKDIR $HOME
 
-# Command to run the application using xvfb-run # "xvfb-run", 
-CMD ["node", "server.js"]
+# Copy package files first for layer caching
+COPY --chown=pwuser:pwuser package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+# Copy the rest of the application code
+COPY --chown=pwuser:pwuser . .
+
+# Make the entrypoint script executable
+RUN chmod +x $HOME/entrypoint.sh
+
+# Expose the port noVNC will listen on (Render uses $PORT automatically)
+# EXPOSE 6080 # Not strictly needed for Render, but good practice
+
+# Set the entrypoint script as the command to run
+ENTRYPOINT ["/home/pwuser/entrypoint.sh"]
+# CMD ["/home/pwuser/entrypoint.sh"]
+# Keep CMD commented or removed
