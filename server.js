@@ -371,7 +371,7 @@ const server = http.createServer(app);
 const wsService = new WebSocketService(server);
 
 // Express app listens on PORT
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Express server listening on port ${PORT}`);
 });
 
