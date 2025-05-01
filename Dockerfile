@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/playwright:latest AS builder
+FROM mcr.microsoft.com/playwright:v1.50.1-jammy AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci && npx playwright install --with-deps
 
-FROM mcr.microsoft.com/playwright:latest
+FROM mcr.microsoft.com/playwright:v1.50.1-jammy
 WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY . .
