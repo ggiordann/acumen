@@ -789,6 +789,7 @@ $(document).ready(function() {
             showUploadToast('Loading your monthly quota, please wait...', 'info');
             return;
         }
+
         // Prevent analysis if no listings left
         if (window.remainingCredits <= 0) {
             showUploadToast('You have no listings left this month.', 'error');
@@ -844,26 +845,34 @@ $(document).ready(function() {
             let filesToUploadCount = 0;
             imageFilesState.forEach(item => {
                 if (item.resizedFile) {
-                    formData.append('files', item.resizedFile, item.resizedFile.name); // Use resized file
+                    formData.append('files', item.resizedFile, item.resizedFile.name);
                     filesToUploadCount++;
                 }
             });
 
-            if (filesToUploadCount > 0) {
-                const uploadResponse = await fetch(`${apiBaseUrl}/upload`, { method: 'POST', body: formData });
-                if (!uploadResponse.ok) {
-                     throw new Error(`Upload failed with status ${uploadResponse.status}`);
-                }
-                const uploadData = await uploadResponse.json();
-                console.log('Files uploaded successfully:', uploadData);
-                $('#loadingStatus').text('Analyzing image...'); // Update status
-            } else {
-                console.log("No files to upload, proceeding to analysis.");
-                 $('#loadingStatus').text('Analyzing image...'); // Update status
+            if (filesToUploadCount === 0) {
+                 throw new Error("No images available to upload.");
             }
 
-            // --- Step 2: Analyze (using the first image's base64Data) ---
-            const analysisResponse = await fetch(`${apiBaseUrl}/analyze`, {
+            $('#loadingStatus').text(`Uploading ${filesToUploadCount} image(s)...`);
+            // Corrected endpoint from /upload-multiple to /upload
+            const uploadResponse = await fetch(`${apiBaseUrl}/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error(`Image upload failed with status ${uploadResponse.status}`);
+            }
+            const uploadResult = await uploadResponse.json();
+            console.log('Upload successful:', uploadResult);
+
+            // --- Step 2: Analyze Image (using the first image) ---
+            $('#loadingStatus').text('Analysing image...');
+            // Use a single analysis endpoint (e.g., eBay's, assuming it's general enough)
+            const analysisUrl = `${apiBaseUrl}/analyze-ebay`; // Changed from platform-specific
+
+            const analysisResponse = await fetch(analysisUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ imageData: base64Data }) // Send only the first image data
@@ -874,28 +883,94 @@ $(document).ready(function() {
             }
 
             const analysisData = await analysisResponse.json();
-            $('#analysisOutput').text(analysisData.response || 'No response from analysis.');
+            console.log("AI Analysis Response:", analysisData.response); // Log the raw response
+            $('#analysisOutput').text(analysisData.response || 'No response from analysis.'); // Display raw response for now
 
-            // --- Step 3: Record Listing Usage ---
-            if (window.currentUserUID) {
-                await fetch(`${apiBaseUrl}/record-listing`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}`
-                    },
-                    body: JSON.stringify({ uid: window.currentUserUID })
-                });
-                // Decrement local counter and update UI
-                window.remainingCredits = Math.max(0, window.remainingCredits - 1);
-                updateListingsCounter(window.remainingCredits, window.totalCredits);
+            // --- Step 3: Parse Analysis Response ---
+            let adData;
+            try {
+                // Attempt to remove potential markdown formatting like ```json ... ```
+                const cleanedResponse = analysisData.response.replace(/^```json\s*|```$/g, '').trim();
+                adData = JSON.parse(cleanedResponse);
+                console.log("Parsed Ad Data:", adData);
+            } catch (parseError) {
+                console.error("Failed to parse analysis JSON:", parseError, "Raw response:", analysisData.response);
+                throw new Error("Failed to understand AI response. Please check the format.");
             }
 
-            showUploadToast('Analysis complete!', 'success');
+
+            // --- Step 4: Post to Selected Platforms ---
+            let postSuccessCount = 0;
+            for (const platform of platforms) {
+                $('#loadingStatus').text(`Posting to ${platform}...`);
+                let postUrl = '';
+                switch (platform.toLowerCase()) {
+                    case 'facebook':
+                        postUrl = `${apiBaseUrl}/post-facebook`;
+                        break;
+                    case 'ebay':
+                        postUrl = `${apiBaseUrl}/post-ebay`;
+                        break;
+                    case 'gumtree':
+                        postUrl = `${apiBaseUrl}/post-gumtree`;
+                        break;
+                    default:
+                        console.warn(`Unsupported platform selected: ${platform}`);
+                        showUploadToast(`Posting to ${platform} is not supported yet.`, 'error');
+                        continue; // Skip to next platform
+                }
+
+                try {
+                    const postResponse = await fetch(postUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(adData) // Send parsed ad data
+                    });
+
+                    const postResultText = await postResponse.text(); // Get text response first
+
+                    if (!postResponse.ok) {
+                         // Check for specific session errors (401)
+                         if (postResponse.status === 401) {
+                             showUploadToast(`Session expired for ${platform}. Please reconnect via Account Settings.`, 'error');
+                         } else {
+                             throw new Error(`Posting to ${platform} failed: ${postResultText || postResponse.statusText}`);
+                         }
+                    } else {
+                        console.log(`Posting to ${platform} successful:`, postResultText);
+                        showUploadToast(`Successfully posted to ${platform}!`, 'success');
+                        postSuccessCount++;
+                    }
+                } catch (postError) {
+                    console.error(`Error posting to ${platform}:`, postError);
+                    showUploadToast(`Error posting to ${platform}: ${postError.message}`, 'error');
+                    // Don't stop the process, try other platforms
+                }
+            }
+
+
+            // --- Step 5: Record Listing Usage (only if at least one post was attempted) ---
+            if (platforms.length > 0 && window.currentUserUID) {
+                 // Record usage *after* successful analysis and *attempted* posts
+                 recordListing(window.currentUserUID); // Use helper function
+
+                 // Decrement local counter and update UI immediately
+                 window.remainingCredits = Math.max(0, window.remainingCredits - 1);
+                 updateRemainingCredits(window.remainingCredits); // Update UI
+            }
+
+            if (postSuccessCount === platforms.length) {
+                 showUploadToast('All listings posted successfully!', 'success');
+            } else if (postSuccessCount > 0) {
+                 showUploadToast(`Successfully posted to ${postSuccessCount} out of ${platforms.length} platforms.`, 'info');
+            } else if (platforms.length > 0) {
+                 showUploadToast('Failed to post to any selected platforms.', 'error');
+            }
+
 
         } catch (error) {
-            console.error('Error during analysis or upload:', error);
-            $('#analysisOutput').text(`Error: ${error.message}`);
+            console.error('Error during analysis or posting:', error);
+            $('#analysisOutput').text(`Error: ${error.message}`); // Show error in output area
             showUploadToast(`Error: ${error.message}`, 'error');
         } finally {
             // Hide loading overlay
@@ -963,6 +1038,10 @@ $(document).ready(function() {
 
     // Record listing usage on server
     function recordListing(uid) {
+        if (!uid) {
+            console.warn("Cannot record listing: UID is missing.");
+            return; // Don't proceed if UID is not available
+        }
         auth.currentUser.getIdToken().then(token => {
             fetch(`${apiBaseUrl}/record-listing`, {
                 method: 'POST',
@@ -971,7 +1050,17 @@ $(document).ready(function() {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ uid: uid })
-            }).catch(err => console.warn('Error recording listing on server:', err));
+            })
+            .then(response => {
+                if (!response.ok) {
+                    response.text().then(text => {
+                         console.warn('Error recording listing on server:', response.status, text);
+                    });
+                } else {
+                    console.log("Listing recorded successfully on server.");
+                }
+            })
+            .catch(err => console.warn('Network error recording listing on server:', err));
         });
     }
 });
