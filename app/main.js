@@ -1,4 +1,6 @@
-let base64Data = "";
+let imageFilesState = []; // Stores { id, rawFile, resizedFile, previewDataUrl, element }
+let nextImageId = 0;
+let base64Data = ''; // Still needed for analysis, will point to the first image
 let previewImages = [];
 let currentImageIndex = 0;
 
@@ -459,11 +461,26 @@ $(document).ready(function() {
     }
 
     // helper to show upload‑limit toast
-    function showUploadToast(msg) {
-        const t = $('#upload-toast');
-        t.find('.toast-message').text(msg);
-        t.addClass('show');
-        setTimeout(() => t.removeClass('show'), 3000);
+    function showUploadToast(msg, type = 'info') { // Added type parameter
+        const toast = $('#upload-toast');
+        const icon = toast.find('.toast-icon i');
+        toast.removeClass('success error info').addClass(type); // Add type class
+        toast.find('.toast-message').text(msg);
+
+        // Adjust icon based on type
+        if (type === 'success') {
+            icon.removeClass('fa-exclamation-circle fa-times-circle').addClass('fa-check-circle');
+        } else if (type === 'error') {
+            icon.removeClass('fa-exclamation-circle fa-check-circle').addClass('fa-times-circle');
+        } else { // info or default
+            icon.removeClass('fa-times-circle fa-check-circle').addClass('fa-exclamation-circle');
+        }
+
+        toast.addClass('show');
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            toast.removeClass('show');
+        }, 5000);
     }
 
     // clear toast on close
@@ -534,106 +551,146 @@ $(document).ready(function() {
         });
     }
 
-    // Function to handle file processing (HEIC conversion, resizing, preview, upload)
+    // Function to handle file processing (HEIC conversion, resizing, preview) - Upload moved to analyzeBtn click
     async function processFiles(rawFiles) {
         // 1. Convert HEIC to JPEG
         const heicConvertedFiles = await Promise.all(rawFiles.map(async file => {
             const ext = file.name.split('.').pop().toLowerCase();
-            // Ensure heic2any is loaded/available
             if ((ext === 'heic' || file.type === 'image/heic') && typeof heic2any === 'function') {
                 try {
                     console.log(`Converting HEIC: ${file.name}`);
                     const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.8 });
                     const newFileName = file.name.replace(/\.[^.]+$/, '.jpg');
                     console.log(`Converted HEIC to ${newFileName}`);
-                    return new File([blob], newFileName, { type: 'image/jpeg' });
+                    return { originalFile: file, convertedFile: new File([blob], newFileName, { type: 'image/jpeg' }) };
                 } catch (e) {
                     console.error('HEIC conversion failed:', e);
-                    showUploadToast(`Failed to convert HEIC file: ${file.name}`);
-                    return null; // Indicate failure
+                    showUploadToast(`Failed to convert HEIC file: ${file.name}`, 'error');
+                    return { originalFile: file, convertedFile: null }; // Indicate failure
                 }
             }
-            return file;
+            return { originalFile: file, convertedFile: file }; // Pass through non-HEIC files
         }));
 
         // Filter out failed conversions
-        const validFiles = heicConvertedFiles.filter(file => file !== null);
+        const validFiles = heicConvertedFiles.filter(f => f.convertedFile !== null);
 
-        if (validFiles.length > 10) {
-            showUploadToast('Maximum 10 files allowed.');
+        // Check total count including existing images
+        if (imageFilesState.length + validFiles.length > 10) {
+            showUploadToast('Maximum 10 files allowed.', 'error');
             $('#fileInput').val(null); // Clear the input
             return;
         }
 
         // 2. Resize Images
-        const resizePromises = validFiles.map(file => {
-             // Only resize images
-            if (file.type.startsWith('image/')) {
-                 console.log(`Resizing image: ${file.name}`);
-                 return resizeImage(file).catch(err => {
-                     console.error(`Failed to resize ${file.name}:`, err);
-                     showUploadToast(`Failed to resize image: ${file.name}`);
-                     return null; // Indicate failure but continue
-                 });
+        const resizePromises = validFiles.map(filePair => {
+            const fileToResize = filePair.convertedFile;
+            if (fileToResize.type.startsWith('image/')) {
+                console.log(`Resizing image: ${fileToResize.name}`);
+                return resizeImage(fileToResize).then(resizedFile => ({
+                    ...filePair,
+                    resizedFile: resizedFile
+                })).catch(err => {
+                    console.error(`Failed to resize ${fileToResize.name}:`, err);
+                    showUploadToast(`Failed to resize image: ${fileToResize.name}`, 'error');
+                    return { ...filePair, resizedFile: null }; // Indicate failure
+                });
             }
-            return Promise.resolve(file); // Keep non-image files as is
+            return Promise.resolve({ ...filePair, resizedFile: fileToResize }); // Keep non-image files as is (though unlikely here)
         });
 
-        const resizedFiles = (await Promise.all(resizePromises)).filter(file => file !== null);
+        const processedFilePairs = (await Promise.all(resizePromises)).filter(pair => pair.resizedFile !== null);
 
-        if (resizedFiles.length === 0 && rawFiles.length > 0) {
-             showUploadToast('No valid image files could be processed.');
+        if (processedFilePairs.length === 0 && rawFiles.length > 0) {
+             showUploadToast('No valid image files could be processed.', 'error');
              $('#fileInput').val(null);
              return;
         }
 
-        // 3. Generate Previews and Upload
-        base64Data = '';
-        previewImages = [];
-        $('#preview-container').empty(); // Clear previous previews
-
-        const readFilePromises = resizedFiles.map((file, index) => new Promise((resolve, reject) => {
-            // Only generate previews for images
+        // 3. Generate Previews and Update State
+        let filesAddedCount = 0;
+        const readFilePromises = processedFilePairs.map(async (filePair) => {
+            const file = filePair.resizedFile; // Use the resized file for preview
             if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    $('#preview-container').append(`<img src="${e.target.result}" data-index="${index}" class="preview-image" />`);
-                    previewImages.push(e.target.result.split(',')[1]);
-                    resolve();
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            } else {
-                 resolve(); // Skip preview for non-images
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const previewDataUrl = e.target.result;
+                        const imageId = nextImageId++;
+
+                        // Create DOM Element
+                        const previewElement = $(`
+                            <div class="preview-image-wrapper" data-id="${imageId}">
+                                <img src="${previewDataUrl}" class="preview-image" />
+                                <button class="delete-preview-btn" data-id="${imageId}" title="Remove image">&times;</button>
+                            </div>
+                        `);
+
+                        // Append to container
+                        $('#preview-container').append(previewElement);
+
+                        // Add to state
+                        imageFilesState.push({
+                            id: imageId,
+                            rawFile: filePair.originalFile, // Keep original for reference if needed
+                            resizedFile: filePair.resizedFile,
+                            previewDataUrl: previewDataUrl,
+                            element: previewElement
+                        });
+
+                        filesAddedCount++;
+                        resolve();
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file); // Read the resized file for preview
+                });
             }
-        }));
+            return Promise.resolve(); // Skip preview for non-images
+        });
 
         try {
             await Promise.all(readFilePromises);
 
-            // Set base64Data for the first image preview for analysis
-            base64Data = previewImages[0] || '';
+            // Update base64Data for the first image in the state for analysis
+            const firstValidImage = imageFilesState.find(item => item.previewDataUrl);
+            base64Data = firstValidImage ? firstValidImage.previewDataUrl.split(',')[1] : '';
 
-            // 4. Upload processed files
-            const formData = new FormData();
-            resizedFiles.forEach(f => formData.append('files', f)); // Upload resized files
-
-            const uploadResponse = await fetch(`${apiBaseUrl}/upload`, { method: 'POST', body: formData });
-            if (!uploadResponse.ok) {
-                 throw new Error(`Upload failed with status ${uploadResponse.status}`);
+            if (filesAddedCount > 0) {
+                showUploadToast(`${filesAddedCount} file(s) added.`, 'success');
             }
-            const uploadData = await uploadResponse.json();
-            console.log('Files uploaded successfully:', uploadData);
-            showUploadToast(`${resizedFiles.length} file(s) processed and uploaded.`);
 
         } catch (err) {
-            console.error('Error processing or uploading files:', err);
-            showUploadToast('An error occurred during file processing or upload.');
+            console.error('Error generating previews:', err);
+            showUploadToast('An error occurred generating previews.', 'error');
         } finally {
-             // Clear the file input regardless of success/failure after processing
+             // Clear the file input after processing
              $('#fileInput').val(null);
         }
     }
+
+    // --- Delete Image Logic ---
+    $('#preview-container').on('click', '.delete-preview-btn', function() {
+        const idToDelete = parseInt($(this).data('id'));
+
+        // Find index in state
+        const indexToDelete = imageFilesState.findIndex(item => item.id === idToDelete);
+
+        if (indexToDelete !== -1) {
+            // Remove element from DOM
+            imageFilesState[indexToDelete].element.remove();
+            // Remove entry from state
+            imageFilesState.splice(indexToDelete, 1);
+
+            // Update base64Data to the new first image, if any
+            const firstValidImage = imageFilesState.find(item => item.previewDataUrl);
+            base64Data = firstValidImage ? firstValidImage.previewDataUrl.split(',')[1] : '';
+
+            console.log(`Image ${idToDelete} removed. Remaining: ${imageFilesState.length}`);
+            showUploadToast('Image removed.', 'info');
+        } else {
+            console.warn(`Could not find image with id ${idToDelete} to delete.`);
+        }
+    });
 
     // file input handler - uses processFiles
     $('#fileInput').change(function(event) {
@@ -655,14 +712,22 @@ $(document).ready(function() {
             if (e.type === 'drop') {
                 const rawFiles = Array.from(e.originalEvent.dataTransfer.files);
                  if (rawFiles.length > 0) {
-                     processFiles(rawFiles);
+                     processFiles(rawFiles); // Process dropped files
                  }
             }
         });
 
+    // Lightbox functionality remains largely the same, but needs to use imageFilesState
     $("#preview-container").on("click", "img.preview-image", function() {
-        currentImageIndex = parseInt($(this).attr("data-index"));
-        openLightbox(currentImageIndex);
+        // Find the clicked image in the state by its preview src or ID
+        const wrapper = $(this).closest('.preview-image-wrapper');
+        const clickedId = parseInt(wrapper.data('id'));
+        const clickedIndexInState = imageFilesState.findIndex(item => item.id === clickedId);
+
+        if (clickedIndexInState !== -1) {
+            currentImageIndex = clickedIndexInState; // Update global index for lightbox nav
+            openLightbox(currentImageIndex);
+        }
     });
 
     $("#lightbox-close").click(function() {
@@ -670,306 +735,171 @@ $(document).ready(function() {
     });
 
     $("#lightbox-prev").click(function() {
-        currentImageIndex = (currentImageIndex > 0) ? currentImageIndex - 1 : previewImages.length - 1;
+        currentImageIndex = (currentImageIndex > 0) ? currentImageIndex - 1 : imageFilesState.length - 1;
         updateLightboxImage(currentImageIndex);
     });
 
     $("#lightbox-next").click(function() {
-        currentImageIndex = (currentImageIndex < previewImages.length - 1) ? currentImageIndex + 1 : 0;
+        currentImageIndex = (currentImageIndex < imageFilesState.length - 1) ? currentImageIndex + 1 : 0;
         updateLightboxImage(currentImageIndex);
     });
 
     function openLightbox(index) {
-        updateLightboxImage(index);
-        $("#lightbox").css("display", "flex"); // force display as flex to vertically center
+        if (index >= 0 && index < imageFilesState.length) {
+            updateLightboxImage(index);
+            $("#lightbox").css("display", "flex"); // force display as flex to vertically center
+        }
     }
 
     function updateLightboxImage(index) {
-        const src = "data:image/jpeg;base64," + previewImages[index];
-        $("#lightbox-img").attr("src", src);
+        if (index >= 0 && index < imageFilesState.length) {
+            const src = imageFilesState[index].previewDataUrl; // Use Data URL from state
+            $("#lightbox-img").attr("src", src);
+        }
     }
 
     // Initially disable analyse until subscription data arrives
     $("#analyzeBtn").prop('disabled', true);
 
-    $("#analyzeBtn").click(function() {
+    // Modified Analyze Button Click Handler
+    $("#analyzeBtn").click(async function() { // Added async
         const platforms = $("input[name='platform']:checked").map(function() {
             return $(this).val();
         }).get();
-        const imageUploaded = !!base64Data; // Check if an image has been processed
+        const imagesAvailable = imageFilesState.length > 0; // Check state array
         const platformSelected = platforms.length > 0;
 
         // --- Input Validation ---
-        if (!imageUploaded && !platformSelected) {
-            showUploadToast("Please upload an image and select a platform first.");
+        if (!imagesAvailable && !platformSelected) {
+            showUploadToast("Please add an image and select a platform first.", 'error');
             return;
         }
-        if (!imageUploaded) {
-            showUploadToast("Please upload an image first.");
+        if (!imagesAvailable) {
+            showUploadToast("Please add an image first.", 'error');
             return;
         }
         if (!platformSelected) {
-            showUploadToast("Please select a platform first.");
+            showUploadToast("Please select a platform first.", 'error');
             return;
         }
         // --- End Input Validation ---
 
         // Prevent analysis if credit info not yet loaded
         if (typeof window.remainingCredits !== 'number') {
-            showUploadToast('Loading your monthly quota, please wait...');
+            showUploadToast('Loading your monthly quota, please wait...', 'info');
             return;
         }
         // Prevent analysis if no listings left
         if (window.remainingCredits <= 0) {
-            showUploadToast('You have no listings left this month.');
+            showUploadToast('You have no listings left this month.', 'error');
             return;
         }
-        // Redundant check, handled above, but kept for safety
+
+        // Ensure base64Data is set (should be the first image's data)
+        const firstValidImage = imageFilesState.find(item => item.previewDataUrl);
+        base64Data = firstValidImage ? firstValidImage.previewDataUrl.split(',')[1] : '';
         if (!base64Data) {
-            console.error("Analysis attempted without image data."); // Log error instead of using #analysisOutput
+            console.error("Analysis attempted without image data after filtering state.");
+            showUploadToast('No valid image available for analysis.', 'error');
             return;
         }
 
+        // Show loading overlay
         const loadingOverlay = $(`
-      <div id="loadingOverlay" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px);
-        z-index: 10000;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-size: 36px;
-        font-family: 'Roboto', sans-serif;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-      ">
-        <div style="text-align: center;">
-         <div style="
-          background: linear-gradient(120deg, #bfffea, #00ff9d);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          animation: pulse 2s infinite ease-in-out;
-         ">Analysing</div>
-         <style>
-           @keyframes pulse {
-           0% { opacity: 0.8; }
-           50% { opacity: 1; }
-           100% { opacity: 0.8; }
-           }
-         </style>
-         <div class="spinner" style="
-          margin: 36px auto 0;
-          display: block;
-         "></div>
-        </div>
-      </div>
-    `);
-        $("body").append(loadingOverlay);
+          <div id="loadingOverlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px; /* Reduced font size */
+            text-align: center; /* Center text */
+          ">
+            <div class="spinner" style="
+              border: 6px solid rgba(255, 255, 255, 0.3);
+              border-top: 6px solid var(--accent-green);
+              border-radius: 50%;
+              width: 50px;
+              height: 50px;
+              animation: spin 1s linear infinite;
+              margin-bottom: 20px; /* Add space below spinner */
+            "></div>
+            <p id="loadingStatus">Uploading images...</p> <!-- Status message -->
+          </div>
+        `);
+        $('body').append(loadingOverlay);
+        $('#loadingOverlay').css('display', 'flex'); // Show overlay
 
-        let pending = platforms.length;
-        let analysisSuccessful = true; // Flag to track overall success
-
-        function checkOverlay() {
-            pending--;
-            if (pending <= 0) {
-                $("#loadingOverlay").remove();
-                // Deduct one listing use only if at least one analysis was successful
-                if (analysisSuccessful && window.remainingCredits > 0) {
-                    window.remainingCredits -= 1;
-                    // Update UI immediately before potential refresh
-                    updateRemainingCredits(window.remainingCredits);
-                    // disable if none left
-                    if (window.remainingCredits <= 0) {
-                        $('#analyzeBtn').prop('disabled', true);
-                    }
-                    // Record listing usage on server
-                    recordListing(auth.currentUser.uid);
+        try {
+            // --- Step 1: Upload ALL Staged Images ---
+            const formData = new FormData();
+            let filesToUploadCount = 0;
+            imageFilesState.forEach(item => {
+                if (item.resizedFile) {
+                    formData.append('files', item.resizedFile, item.resizedFile.name); // Use resized file
+                    filesToUploadCount++;
                 }
+            });
 
-                // Show success toast and refresh
-                if (analysisSuccessful) {
-                    showUploadToast('Analysis complete! Posting listings...');
-                    // Wait a moment for the toast to be visible before refreshing
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500); // Adjust delay as needed
-                } else {
-                    // Optionally show a different toast if there were errors
-                    showUploadToast('Analysis finished, but some posts may have failed. Check console for details.');
-                    // Don't refresh if there were errors, so user can see console
+            if (filesToUploadCount > 0) {
+                const uploadResponse = await fetch(`${apiBaseUrl}/upload`, { method: 'POST', body: formData });
+                if (!uploadResponse.ok) {
+                     throw new Error(`Upload failed with status ${uploadResponse.status}`);
                 }
+                const uploadData = await uploadResponse.json();
+                console.log('Files uploaded successfully:', uploadData);
+                $('#loadingStatus').text('Analyzing image...'); // Update status
+            } else {
+                console.log("No files to upload, proceeding to analysis.");
+                 $('#loadingStatus').text('Analyzing image...'); // Update status
             }
-        }
 
-        if (platforms.includes("facebook")) {
-            fetch(`${apiBaseUrl}/analyze`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ imageData: base64Data })
-            })
-                .then(res => {
-                    if (!res.ok) {
-                        analysisSuccessful = false; // Mark as failed
-                        throw new Error(`Analysis request failed with status ${res.status}`);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    console.log("Facebook Analysis result:", data.response); // Log to console
-                    try {
-                        const adData = JSON.parse(data.response);
-                        fetch(`${apiBaseUrl}/post-facebook`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(adData)
-                        })
-                            .then(postRes => {
-                                if (!postRes.ok) {
-                                    analysisSuccessful = false; // Mark as failed
-                                    throw new Error(`Facebook post failed with status ${postRes.status}`);
-                                }
-                                return postRes.json();
-                            })
-                            .then(postData => {
-                                console.log("Facebook Post Success:", postData); // Log success
-                            })
-                            .catch(err => {
-                                analysisSuccessful = false; // Mark as failed
-                                console.error("Error posting to Facebook:", err);
-                                showUploadToast('Facebook post failed. Check console.');
-                            })
-                            .finally(() => {
-                                checkOverlay();
-                            });
-                    } catch (e) {
-                        analysisSuccessful = false; // Mark as failed
-                        console.error("Error parsing Facebook AI output:", e, "Raw response:", data.response);
-                        showUploadToast('Error processing Facebook analysis. Check console.');
-                        checkOverlay();
-                    }
-                })
-                .catch(err => {
-                    analysisSuccessful = false; // Mark as failed
-                    console.error("Error calling analyze endpoint for Facebook:", err);
-                    showUploadToast('Facebook analysis failed. Check console.'); // Use toast for user feedback
-                    checkOverlay();
-                });
-        }
+            // --- Step 2: Analyze (using the first image's base64Data) ---
+            const analysisResponse = await fetch(`${apiBaseUrl}/analyze`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageData: base64Data }) // Send only the first image data
+            });
 
-        if (platforms.includes("ebay")) {
-            fetch(`${apiBaseUrl}/analyze-ebay`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ imageData: base64Data })
-            })
-                .then(res => {
-                    if (!res.ok) {
-                        analysisSuccessful = false; // Mark as failed
-                        throw new Error(`eBay analysis request failed with status ${res.status}`);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    console.log("eBay Analysis result:", data.response); // Log to console
-                    try {
-                        const adData = JSON.parse(data.response);
-                        fetch(`${apiBaseUrl}/post-ebay`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(adData)
-                        })
-                            .then(postRes => {
-                                if (!postRes.ok) {
-                                    analysisSuccessful = false; // Mark as failed
-                                    throw new Error(`eBay post failed with status ${postRes.status}`);
-                                }
-                                return postRes.json();
-                            })
-                            .then(postData => {
-                                console.log("eBay Post Success:", postData); // Log success
-                            })
-                            .catch(err => {
-                                analysisSuccessful = false; // Mark as failed
-                                console.error("Error posting to eBay:", err);
-                                showUploadToast('eBay post failed. Check console.');
-                            })
-                            .finally(() => {
-                                checkOverlay();
-                            });
-                    } catch (e) {
-                        analysisSuccessful = false; // Mark as failed
-                        console.error("Error parsing eBay AI output:", e, "Raw response:", data.response);
-                        showUploadToast('Error processing eBay analysis. Check console.');
-                        checkOverlay();
-                    }
-                })
-                .catch(err => {
-                    analysisSuccessful = false; // Mark as failed
-                    console.error("Error calling analyze-ebay endpoint:", err);
-                    showUploadToast('eBay analysis failed. Check console.');
-                    checkOverlay();
-                });
-        }
+            if (!analysisResponse.ok) {
+                throw new Error(`Analysis failed with status ${analysisResponse.status}`);
+            }
 
-        if (platforms.includes("gumtree")) {
-            fetch(`${apiBaseUrl}/analyze-gumtree`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ imageData: base64Data })
-            })
-                .then(res => {
-                    if (!res.ok) {
-                        analysisSuccessful = false; // Mark as failed
-                        throw new Error(`Gumtree analysis failed: ${res.status}`);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    console.log("Gumtree Analysis result:", data.response); // Log to console
-                    try {
-                        const adData = JSON.parse(data.response);
-                        fetch(`${apiBaseUrl}/post-gumtree`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(adData)
-                        })
-                            .then(postRes => {
-                                if (!postRes.ok) {
-                                    analysisSuccessful = false; // Mark as failed
-                                    throw new Error(`Gumtree post failed with status ${postRes.status}`);
-                                }
-                                return postRes.text(); // Assuming text response for Gumtree post
-                            })
-                            .then(postData => {
-                                console.log("Gumtree Post Success:", postData); // Log success
-                            })
-                            .catch(err => {
-                                analysisSuccessful = false; // Mark as failed
-                                console.error("Error posting to Gumtree:", err);
-                                showUploadToast('Gumtree post failed. Check console.');
-                            })
-                            .finally(() => checkOverlay());
-                    } catch (e) {
-                        analysisSuccessful = false; // Mark as failed
-                        console.error("Error parsing Gumtree AI output:", e, "Raw response:", data.response);
-                        showUploadToast('Error processing Gumtree analysis. Check console.');
-                        checkOverlay();
-                    }
-                })
-                .catch(err => {
-                    analysisSuccessful = false; // Mark as failed
-                    console.error("Error calling analyze-gumtree endpoint:", err);
-                    showUploadToast('Gumtree analysis failed. Check console.');
-                    checkOverlay();
+            const analysisData = await analysisResponse.json();
+            $('#analysisOutput').text(analysisData.response || 'No response from analysis.');
+
+            // --- Step 3: Record Listing Usage ---
+            if (window.currentUserUID) {
+                await fetch(`${apiBaseUrl}/record-listing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}`
+                    },
+                    body: JSON.stringify({ uid: window.currentUserUID })
                 });
+                // Decrement local counter and update UI
+                window.remainingCredits = Math.max(0, window.remainingCredits - 1);
+                updateListingsCounter(window.remainingCredits, window.totalCredits);
+            }
+
+            showUploadToast('Analysis complete!', 'success');
+
+        } catch (error) {
+            console.error('Error during analysis or upload:', error);
+            $('#analysisOutput').text(`Error: ${error.message}`);
+            showUploadToast(`Error: ${error.message}`, 'error');
+        } finally {
+            // Hide loading overlay
+            $('#loadingOverlay').remove();
         }
     });
 

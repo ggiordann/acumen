@@ -352,7 +352,9 @@ app.post('/post-facebook', async (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_post.spec.js`;
+    const fbCmd = 'node fb_post.spec.js';
+    const prefix = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
+    const command = `${prefix}${fbCmd}`;
     console.log(`Executing command: ${command} with AD_DATA env var`);
     exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
       const output = stdout + stderr;
@@ -379,7 +381,9 @@ app.post('/post-ebay', async (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_post.spec.js`;
+    const ebayCmd = 'node ebay_post.spec.js';
+    const prefixE = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
+    const command = `${prefixE}${ebayCmd}`;
     console.log(`Executing command: ${command} with AD_DATA env var`);
     exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
       const output = stdout + stderr;
@@ -406,7 +410,9 @@ app.post('/post-gumtree', (req, res) => {
   const adData = req.body;
   try {
     const adDataStr = JSON.stringify(adData);
-    const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_post.spec.js`;
+    const gumCmd = 'node gumtree_post.spec.js';
+    const prefixG = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
+    const command = `${prefixG}${gumCmd}`;
     console.log(`Executing command: ${command} with AD_DATA env var`);
     exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
       const output = stdout + stderr;
@@ -430,7 +436,9 @@ app.post('/post-gumtree', (req, res) => {
 });
 
 app.get('/run-fb-login', (req, res) => {
-  const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node fb_login.spec.js`;
+  const loginFbCmd = 'node fb_login.spec.js';
+  const prefixLf = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
+  const command = `${prefixLf}${loginFbCmd}`;
   console.log(`Executing command: ${command}`);
   exec(command, (error, stdout, stderr) => {
     const output = stdout + stderr;
@@ -444,7 +452,9 @@ app.get('/run-fb-login', (req, res) => {
 });
 
 app.get('/run-ebay-login', (req, res) => {
-  const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node ebay_login.spec.js`;
+  const loginEbCmd = 'node ebay_login.spec.js';
+  const prefixLe = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
+  const command = `${prefixLe}${loginEbCmd}`;
   console.log(`Executing command: ${command}`);
   exec(command, (error, stdout, stderr) => {
     const output = stdout + stderr;
@@ -458,7 +468,9 @@ app.get('/run-ebay-login', (req, res) => {
 });
 
 app.get('/run-gumtree-login', (req, res) => {
-  const command = `xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node gumtree_login.spec.js`;
+  const loginGCmd = 'node gumtree_login.spec.js';
+  const prefixLg = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
+  const command = `${prefixLg}${loginGCmd}`;
   console.log(`Executing command: ${command}`);
   exec(command, (error, stdout, stderr) => {
     const output = stdout + stderr;
