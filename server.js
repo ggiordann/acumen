@@ -17,6 +17,9 @@ import { fileURLToPath } from "url";
 import { Buffer } from "buffer";
 import Stripe from 'stripe';
 import { createProxyMiddleware } from 'http-proxy-middleware'; // Import the proxy middleware
+import { browserPool } from './services/browserPool.js';
+import http from 'http';
+import WebSocketService from './services/websocketService.js';
 
 // server.js: main express app that handles routes for file uploads, ai analysis, auth, stripe payments, and webhooks
 // - loads env vars (dotenv) for secure secret management
@@ -348,9 +351,41 @@ app.post('/analyze-gumtree', async (req, res) => {
   }
 });
 
+const BROWSER_POOL_SIZE = process.env.BROWSER_POOL_SIZE || 3;
+
+// Initialize browser pool when server starts
+browserPool.initialize(BROWSER_POOL_SIZE)
+    .catch(err => console.error('Failed to initialize browser pool:', err));
+
+// Cleanup on server shutdown
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received, cleaning up...');
+    await browserPool.cleanup();
+    process.exit(0);
+});
+
+// Create HTTP server instance
+const server = http.createServer(app);
+
+// Initialize WebSocket service with server instance
+const wsService = new WebSocketService(server);
+
+// Modify server startup to use HTTP server instance
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+  console.log(`WebSocket server is running on ws://localhost:${PORT}`);
+});
+
 app.post('/post-facebook', async (req, res) => {
   const adData = req.body;
   try {
+    const browser = await browserPool.getBrowser(req.user.uid);
+    // Send status update through WebSocket
+    wsService.sendToUser(req.user.uid, { 
+      status: 'starting',
+      message: 'Initializing Facebook posting...'
+    });
+
     const adDataStr = JSON.stringify(adData);
     const fbCmd = 'node fb_post.spec.js';
     const prefix = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
@@ -358,6 +393,10 @@ app.post('/post-facebook', async (req, res) => {
     console.log(`Executing command: ${command} with AD_DATA env var`);
     exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
       const output = stdout + stderr;
+      wsService.sendToUser(req.user.uid, { 
+        status: 'progress',
+        message: output
+      });
       console.log(`Output from command: ${output}`); 
       if (error) {
         console.error(`Error executing command: ${error}`);
@@ -372,6 +411,10 @@ app.post('/post-facebook', async (req, res) => {
       return res.json({ message: output });
     });
   } catch (error) {
+    wsService.sendToUser(req.user.uid, {
+      status: 'error',
+      message: error.toString()
+    });
     console.error('Error posting Facebook listing:', error);
     res.status(500).json({ error: error.toString() });
   }
@@ -1056,9 +1099,4 @@ app.post('/record-listing', verifyToken, async (req, res) => {
         console.error('Error recording listing:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
-});
-
-// Start the server on defined PORT
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
 });

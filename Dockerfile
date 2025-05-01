@@ -1,20 +1,12 @@
-# Use the official Playwright image which includes browsers and the correct Node.js version
-FROM mcr.microsoft.com/playwright:v1.50.1-jammy
-
-# Set the working directory inside the container (default user is pwuser)
+FROM mcr.microsoft.com/playwright:latest AS builder
 WORKDIR /app
-
-# Copy package.json and package-lock.json first for layer caching
 COPY package.json package-lock.json ./
+RUN npm ci && npx playwright install --with-deps
 
-# Install production dependencies
-RUN npm ci --omit=dev
-
-# Copy the rest of your application code from acumen-1 into the container's /app directory
+FROM mcr.microsoft.com/playwright:latest
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
 COPY . .
-
-# Expose the port the app runs on (Render uses $PORT env var, but EXPOSE is good practice)
+RUN apt-get update && apt-get install -y xvfb xauth && rm -rf /var/lib/apt/lists/*
 EXPOSE 10000
-
-# Command to run the application (using the default npm start script: node server.js)
-CMD ["npm", "start"]
+CMD ["xvfb-run", "--server-args=-screen 0 1280x720x24", "node", "ws-server.js"]
