@@ -370,10 +370,14 @@ const server = http.createServer(app);
 // Initialize WebSocket service with server instance
 const wsService = new WebSocketService(server);
 
-// Modify server startup to use HTTP server instance
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-  console.log(`WebSocket server is running on ws://localhost:${PORT}`);
+// Express app listens on PORT
+app.listen(PORT, () => {
+  console.log(`Express server listening on port ${PORT}`);
+});
+
+// HTTP/WebSocket server listens on PORT + 1
+server.listen(PORT + 1, () => {
+  console.log(`HTTP/WebSocket server running on port ${PORT + 1}`);
 });
 
 app.post('/post-facebook', async (req, res) => {
