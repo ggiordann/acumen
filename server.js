@@ -382,7 +382,7 @@ app.post('/post-facebook', verifyToken, async (req, res) => {
     // Send status update through WebSocket
     wsService.sendToUser(req.user.uid, { 
       status: 'starting',
-      message: 'Initializing Facebook posting...'
+      message: 'Initialising Facebook posting'
     });
 
     const adDataStr = JSON.stringify(adData);

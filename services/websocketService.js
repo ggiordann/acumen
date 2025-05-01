@@ -1,8 +1,8 @@
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws'; // <-- Import both default and WebSocketServer
 
 class WebSocketService {
     constructor(server) {
-        this.wss = new WebSocket.Server({ server });
+        this.wss = new WebSocketServer({ server }); // <-- Use WebSocketServer
         this.connections = new Map(); // Store user connections
         this.setupWebSocket();
     }
@@ -59,7 +59,7 @@ class WebSocketService {
     // Send message to specific user
     sendToUser(userId, message) {
         const ws = this.connections.get(userId);
-        if (ws && ws.readyState === WebSocket.OPEN) {
+        if (ws && ws.readyState === WebSocket.OPEN) { // <-- Keep WebSocket.OPEN (from default import)
             ws.send(JSON.stringify(message));
         }
     }
