@@ -48,10 +48,21 @@ async function postItemToEbayMarketplace(adData) {
   // click "Continue to listing"
   await page.getByRole('button', { name: 'Continue to listing' }).click();
 
-  // set attributes (fixed steps) this only works for calculator???
-  // await page.locator('button[name="attributes\\.Type"]').click(); // ts
-  // await page.locator('.filter-menu__checkbox').first().click();
-  // await page.locator('div:nth-child(2) > .filter-menu__checkbox').first().click(); //idk
+  // --- Start: Image Upload Logic ---
+  const uploadDir = path.join(__dirname, 'uploads');
+  const files = fs.readdirSync(uploadDir).map(filename => path.join(uploadDir, filename));
+  if (files.length === 0) {
+    console.error('No files found in uploads directory');
+    process.exit(1);
+  }
+  const [fileChooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByRole('button', { name: 'Upload from computer' }).click()
+  ]);
+  await fileChooser.setFiles(files);
+  // give upload some time to process
+  await page.waitForTimeout(10000);
+  // --- End: Image Upload Logic ---
 
   // check the HTML editor checkbox
   await page.getByRole('checkbox', { name: 'Show HTML editor' }).check();

@@ -64,6 +64,8 @@ $(document).ready(function() {
             }, 500); // Extended from 300ms to 500ms for longer initial delay
 
             if (user) {
+                // Store current user UID for recording listing usage
+                window.currentUserUID = user.uid;
                 console.log("User is signed in:", user.displayName);
                 updateUIForSignedInUser(user);
                 // If we have cached remaining credits, render immediately without recomputing
@@ -989,6 +991,19 @@ $(document).ready(function() {
                     // Decrement local counter and update UI immediately
                     window.remainingCredits = Math.max(0, window.remainingCredits - 1);
                     updateRemainingCredits(window.remainingCredits); // Update UI
+                    // Persist updated subscription data to sessionStorage
+                    try {
+                        const stored = JSON.parse(sessionStorage.getItem('acumen_user_subscription') || '{}');
+                        if (stored && typeof stored.remainingCredits === 'number') {
+                            stored.remainingCredits = window.remainingCredits;
+                            if (typeof stored.usedThisMonth === 'number') {
+                                stored.usedThisMonth += 1;
+                            }
+                            sessionStorage.setItem('acumen_user_subscription', JSON.stringify(stored));
+                        }
+                    } catch (e) {
+                        console.warn('Failed to update subscription in sessionStorage:', e);
+                    }
                 } catch (recordError) {
                     console.warn("Failed to record listing usage:", recordError);
                 }

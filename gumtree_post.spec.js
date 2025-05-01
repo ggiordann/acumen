@@ -73,8 +73,7 @@ async function postListingGumtree(adData) {
     await page.getByRole('radio', { name: adData.Condition }).click();
   }
   // click the first Post ad button, wait for it, and confirm navigation
-  // no post!!
- // const postBtn = page.getByRole('button', { name: 'Post ad' }).first();
+  //const postBtn = page.getByRole('button', { name: 'Post ad' }).first();
   await postBtn.waitFor({ state: 'visible', timeout: 60000 });
   await postBtn.click();
   await page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 });
