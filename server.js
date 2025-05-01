@@ -370,17 +370,12 @@ const server = http.createServer(app);
 // Initialize WebSocket service with server instance
 const wsService = new WebSocketService(server);
 
-// Express app listens on PORT
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Express server listening on port ${PORT}`);
+// HTTP/WebSocket server listens on PORT and host 0.0.0.0
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`HTTP/WebSocket server running on port ${PORT}`);
 });
 
-// HTTP/WebSocket server listens on PORT + 1
-server.listen(PORT + 1, () => {
-  console.log(`HTTP/WebSocket server running on port ${PORT + 1}`);
-});
-
-app.post('/post-facebook', async (req, res) => {
+app.post('/post-facebook', verifyToken, async (req, res) => {
   const adData = req.body;
   try {
     const browser = await browserPool.getBrowser(req.user.uid);
