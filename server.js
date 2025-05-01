@@ -375,10 +375,73 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`HTTP/WebSocket server running on port ${PORT}`);
 });
 
+// Initialize browser pool when auth state changes
+app.post('/save-user', verifyToken, async (req, res) => {
+    try {
+        ({ uid, email, fullName } = req.user);
+
+        if (!uid) {
+            return res.status(400).json({ error: "Invalid request: UID is missing" });
+        }
+
+        console.log("Db thing trying");
+        const userDocRef = db.collection('users').doc(uid);
+        const userDoc = await userDocRef.get();
+
+        console.log("Db thing done");
+
+        if (!userDoc.exists) {
+            console.log("New user detected, saving to Firestore...");
+             
+            // Create a Stripe customer for the new user
+            let stripeCustomerId = null;
+            try {
+                const customer = await stripe.customers.create({
+                    email: email,
+                    name: fullName || "Unknown",
+                    metadata: {
+                        firebaseUID: uid
+                    }
+                });
+                stripeCustomerId = customer.id;
+                console.log(`Created Stripe customer: ${stripeCustomerId} for user: ${uid}`);
+            } catch (stripeError) {
+                console.error("Error creating Stripe customer:", stripeError);
+                // Continue even if Stripe customer creation fails
+            }
+            
+            // Save new user to Firestore with Stripe customer ID
+            await userDocRef.set({
+                email,
+                name: fullName || "Unknown", // If Google OAuth doesn't return a name
+                createdAt: new Date(),
+                stripeCustomerId: stripeCustomerId,
+                subscription: {
+                  subscriptionLevel:"free",
+                  status: "none",
+                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                },
+            });
+            return res.json({ message: "New user created", email, uid });
+        }
+
+        // Initialize browser pool for new user session
+        await browserPool.initialize();
+        
+        console.log("Existing user Logged in");
+        return res.json({ message: "Existing user", email, uid });
+
+    } catch (error) {
+        console.log("Error: " + error.message);
+        res.status(500).send(error.message);
+    }
+});
+
+// Update post endpoints to use browser contexts
 app.post('/post-facebook', verifyToken, async (req, res) => {
   const adData = req.body;
   try {
-    const browser = await browserPool.getBrowser(req.user.uid);
+    const context = await browserPool.getContext(req.user.uid, 'facebook');
     // Send status update through WebSocket
     wsService.sendToUser(req.user.uid, { 
       status: 'starting',
@@ -419,6 +482,42 @@ app.post('/post-facebook', verifyToken, async (req, res) => {
   }
 });
 
+// Similar updates for Gumtree endpoint
+app.post('/post-gumtree', verifyToken, async (req, res) => {
+  const adData = req.body;
+  try {
+    const context = await browserPool.getContext(req.user.uid, 'gumtree');
+    wsService.sendToUser(req.user.uid, {
+      status: 'starting',
+      message: 'Initializing Gumtree posting'
+    });
+
+    const adDataStr = JSON.stringify(adData);
+    const gumCmd = 'node gumtree_post.spec.js';
+    const prefixG = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
+    const command = `${prefixG}${gumCmd}`;
+    console.log(`Executing command: ${command} with AD_DATA env var`);
+    exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
+      const output = stdout + stderr;
+      console.log(`Output from command: ${output}`);
+      if (error) {
+        console.error(`Error executing command: ${error}`);
+        // Check if it's a session error from the script's stdout
+        if (output.startsWith('SESSION_ERROR:')) {
+          // Send 401 Unauthorized with the specific message
+          return res.status(401).send(output.replace('SESSION_ERROR: ', ''));
+        }
+        // Otherwise, send a generic 500 error
+        return res.status(500).send(output || error.message);
+      }
+      res.send(output);
+    });
+  } catch (error) {
+    console.error('Error posting to Gumtree:', error);
+    res.status(500).json({ error: error.toString() });
+  }
+});
+
 app.post('/post-ebay', async (req, res) => {
   const adData = req.body;
   try {
@@ -444,35 +543,6 @@ app.post('/post-ebay', async (req, res) => {
     });
   } catch (error) {
     console.error('Error posting eBay listing:', error);
-    res.status(500).json({ error: error.toString() });
-  }
-});
-
-app.post('/post-gumtree', (req, res) => {
-  const adData = req.body;
-  try {
-    const adDataStr = JSON.stringify(adData);
-    const gumCmd = 'node gumtree_post.spec.js';
-    const prefixG = process.platform === 'darwin' ? '' : 'xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" ';
-    const command = `${prefixG}${gumCmd}`;
-    console.log(`Executing command: ${command} with AD_DATA env var`);
-    exec(command, { env: { ...process.env, AD_DATA: adDataStr } }, (error, stdout, stderr) => {
-      const output = stdout + stderr;
-      console.log(`Output from command: ${output}`);
-      if (error) {
-        console.error(`Error executing command: ${error}`);
-        // Check if it's a session error from the script's stdout
-        if (output.startsWith('SESSION_ERROR:')) {
-          // Send 401 Unauthorized with the specific message
-          return res.status(401).send(output.replace('SESSION_ERROR: ', ''));
-        }
-        // Otherwise, send a generic 500 error
-        return res.status(500).send(output || error.message);
-      }
-      res.send(output);
-    });
-  } catch (error) {
-    console.error('Error posting to Gumtree:', error);
     res.status(500).json({ error: error.toString() });
   }
 });
