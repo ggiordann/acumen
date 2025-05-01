@@ -833,7 +833,7 @@ $(document).ready(function() {
               animation: spin 1s linear infinite;
               margin-bottom: 20px; /* Add space below spinner */
             "></div>
-            <p id="loadingStatus">Uploading images...</p> <!-- Status message -->
+            <p id="loadingStatus">Uploading images</p> <!-- Status message -->
           </div>
         `);
         $('body').append(loadingOverlay);
