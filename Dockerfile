@@ -8,8 +8,16 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
+# Set the timezone to Australia/Sydney
+ENV TZ=Australia/Sydney
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install Xvfb and additional dependencies for headed browsers
 RUN apt-get update && apt-get install -y \
+    tzdata \
     xvfb \
     xauth \
     x11vnc \
