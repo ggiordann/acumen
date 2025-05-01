@@ -464,8 +464,9 @@ app.post('/post-facebook', verifyToken, async (req, res) => {
         console.error(`Error executing command: ${error}`);
         // Check if it's a session error from the script's stdout
         if (output.startsWith('SESSION_ERROR:')) {
-          // Send 401 Unauthorized with the specific message
-          return res.status(401).json({ error: output.replace('SESSION_ERROR: ', '') });
+          // Send 401 Unauthorized with a more specific message
+          const specificError = output.replace('SESSION_ERROR: ', '').trim();
+          return res.status(401).json({ error: `Facebook session error: ${specificError}. Please try logging into Facebook again via Acumen.` });
         }
         // Otherwise, send a generic 500 error
         return res.status(500).json({ error: output || error.message }); 

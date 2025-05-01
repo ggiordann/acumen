@@ -927,9 +927,16 @@ $(document).ready(function() {
 
                     // --- Post to the current platform ---
                     $('#loadingStatus').text(`Posting to ${platformName}`);
+                    
+                    // Get the Firebase ID token before making the request
+                    const idToken = await firebase.auth().currentUser.getIdToken();
+                    
                     const postResponse = await fetch(postUrl, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${idToken}` // Add the Authorization header
+                        },
                         body: JSON.stringify(adData) // Send the platform-specific parsed data
                     });
 
@@ -940,8 +947,18 @@ $(document).ready(function() {
                         showUploadToast(`Successfully posted to ${platformName}!`, 'success');
                         postSuccessCount++;
                     } else if (postResponse.status === 401) {
-                        console.error(`Session error posting to ${platformName}: ${responseBody}`);
-                        showUploadToast(`Connection error for ${platformName}. Please connect your account again.`, 'error');
+                        // Try to parse the JSON error from the backend
+                        let errorMessage = `Connection error for ${platformName}. Please connect your account again.`;
+                        try {
+                            const errorJson = JSON.parse(responseBody);
+                            if (errorJson.error) {
+                                errorMessage = errorJson.error; // Use the specific error from the backend
+                            }
+                        } catch (e) {
+                            // If parsing fails, use the default message and log the raw body
+                            console.error(`Session error posting to ${platformName} (raw response): ${responseBody}`);
+                        }
+                        showUploadToast(errorMessage, 'error');
                     } else {
                         console.error(`Failed to post to ${platformName} (${postResponse.status}): ${responseBody}`);
                         throw new Error(`Failed to post to ${platformName}. Error: ${responseBody || postResponse.statusText}`);
