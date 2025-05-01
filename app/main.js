@@ -762,7 +762,7 @@ $(document).ready(function() {
     $("#analyzeBtn").prop('disabled', true);
 
     // Modified Analyze Button Click Handler
-    $("#analyzeBtn").click(async function() { // Added async
+    $("#analyzeBtn").click(async function() {
         const platforms = $("input[name='platform']:checked").map(function() {
             return $(this).val();
         }).get();
@@ -839,8 +839,11 @@ $(document).ready(function() {
         $('body').append(loadingOverlay);
         $('#loadingOverlay').css('display', 'flex'); // Show overlay
 
+        let postSuccessCount = 0; // Track successful posts across all platforms
+        let analysisPerformed = false; // Track if at least one analysis was done
+
         try {
-            // --- Step 1: Upload ALL Staged Images ---
+            // --- Step 1: Upload ALL Staged Images (if needed) ---
             const formData = new FormData();
             let filesToUploadCount = 0;
             imageFilesState.forEach(item => {
@@ -855,7 +858,6 @@ $(document).ready(function() {
             }
 
             $('#loadingStatus').text(`Uploading ${filesToUploadCount} image(s)...`);
-            // Corrected endpoint from /upload-multiple to /upload
             const uploadResponse = await fetch(`${apiBaseUrl}/upload`, {
                 method: 'POST',
                 body: formData
@@ -867,114 +869,133 @@ $(document).ready(function() {
             const uploadResult = await uploadResponse.json();
             console.log('Upload successful:', uploadResult);
 
-            // --- Step 2: Analyze Image (using the first image) ---
-            $('#loadingStatus').text('Analysing image...');
-            // Use a single analysis endpoint (e.g., eBay's, assuming it's general enough)
-            const analysisUrl = `${apiBaseUrl}/analyze-ebay`; // Changed from platform-specific
-
-            const analysisResponse = await fetch(analysisUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageData: base64Data }) // Send only the first image data
-            });
-
-            if (!analysisResponse.ok) {
-                throw new Error(`Analysis failed with status ${analysisResponse.status}`);
-            }
-
-            const analysisData = await analysisResponse.json();
-            console.log("AI Analysis Response:", analysisData.response); // Log the raw response
-            $('#analysisOutput').text(analysisData.response || 'No response from analysis.'); // Display raw response for now
-
-            // --- Step 3: Parse Analysis Response ---
-            let adData;
-            try {
-                // Attempt to remove potential markdown formatting like ```json ... ```
-                const cleanedResponse = analysisData.response.replace(/^```json\s*|```$/g, '').trim();
-                adData = JSON.parse(cleanedResponse);
-                console.log("Parsed Ad Data:", adData);
-            } catch (parseError) {
-                console.error("Failed to parse analysis JSON:", parseError, "Raw response:", analysisData.response);
-                throw new Error("Failed to understand AI response. Please check the format.");
-            }
-
-
-            // --- Step 4: Post to Selected Platforms ---
-            let postSuccessCount = 0;
+            // --- Step 2 & 3: Analyze and Post for EACH Selected Platform ---
             for (const platform of platforms) {
-                $('#loadingStatus').text(`Posting to ${platform}...`);
+                const currentPlatform = platform.toLowerCase();
+                let analysisUrl = '';
                 let postUrl = '';
-                switch (platform.toLowerCase()) {
+                let platformName = currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1);
+
+                // Determine Analysis URL
+                switch (currentPlatform) {
                     case 'facebook':
+                        analysisUrl = `${apiBaseUrl}/analyze`;
                         postUrl = `${apiBaseUrl}/post-facebook`;
                         break;
                     case 'ebay':
+                        analysisUrl = `${apiBaseUrl}/analyze-ebay`;
                         postUrl = `${apiBaseUrl}/post-ebay`;
                         break;
                     case 'gumtree':
+                        analysisUrl = `${apiBaseUrl}/analyze-gumtree`;
                         postUrl = `${apiBaseUrl}/post-gumtree`;
                         break;
                     default:
                         console.warn(`Unsupported platform selected: ${platform}`);
-                        showUploadToast(`Posting to ${platform} is not supported yet.`, 'error');
+                        showUploadToast(`Platform '${platform}' not supported yet.`, 'error');
                         continue; // Skip to next platform
                 }
 
+                let adData = null; // Reset adData for each platform
+
                 try {
+                    // --- Analyze for the current platform ---
+                    $('#loadingStatus').text(`Generating listing details for ${platformName}`);
+                    const analysisResponse = await fetch(analysisUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ imageData: base64Data })
+                    });
+
+                    if (!analysisResponse.ok) {
+                        throw new Error(`Analysis for ${platformName} failed (${analysisResponse.status})`);
+                    }
+                    analysisPerformed = true; // Mark that at least one analysis was attempted
+
+                    const analysisResult = await analysisResponse.json();
+                    console.log(`Raw AI Analysis Output for ${platformName}:`, analysisResult.response);
+
+                    // --- Parse Analysis Response ---
+                    try {
+                        const cleanedResponse = analysisResult.response.replace(/\`\`\`json\n?|\`\`\`/g, '').trim();
+                        adData = JSON.parse(cleanedResponse);
+                        console.log(`Parsed Ad Data for ${platformName}:`, adData);
+                    } catch (parseError) {
+                        console.error(`Failed to parse AI response for ${platformName}:`, parseError);
+                        throw new Error(`Failed to understand listing details from AI for ${platformName}.`);
+                    }
+
+                    // --- Post to the current platform ---
+                    $('#loadingStatus').text(`Posting to ${platformName}`);
                     const postResponse = await fetch(postUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(adData) // Send parsed ad data
+                        body: JSON.stringify(adData) // Send the platform-specific parsed data
                     });
 
-                    const postResultText = await postResponse.text(); // Get text response first
+                    const responseBody = await postResponse.text();
 
-                    if (!postResponse.ok) {
-                         // Check for specific session errors (401)
-                         if (postResponse.status === 401) {
-                             showUploadToast(`Session expired for ${platform}. Please reconnect via Account Settings.`, 'error');
-                         } else {
-                             throw new Error(`Posting to ${platform} failed: ${postResultText || postResponse.statusText}`);
-                         }
-                    } else {
-                        console.log(`Posting to ${platform} successful:`, postResultText);
-                        showUploadToast(`Successfully posted to ${platform}!`, 'success');
+                    if (postResponse.ok) {
+                        console.log(`Successfully posted to ${platformName}: ${responseBody}`);
+                        showUploadToast(`Successfully posted to ${platformName}!`, 'success');
                         postSuccessCount++;
+                    } else if (postResponse.status === 401) {
+                        console.error(`Session error posting to ${platformName}: ${responseBody}`);
+                        showUploadToast(`Connection error for ${platformName}. Please connect your account again.`, 'error');
+                    } else {
+                        console.error(`Failed to post to ${platformName} (${postResponse.status}): ${responseBody}`);
+                        throw new Error(`Failed to post to ${platformName}. Error: ${responseBody || postResponse.statusText}`);
                     }
-                } catch (postError) {
-                    console.error(`Error posting to ${platform}:`, postError);
-                    showUploadToast(`Error posting to ${platform}: ${postError.message}`, 'error');
-                    // Don't stop the process, try other platforms
+
+                } catch (platformError) {
+                    console.error(`Error processing platform ${platformName}:`, platformError);
+                    showUploadToast(`Error with ${platformName}: ${platformError.message}`, 'error');
+                    // Continue to the next platform even if one fails
+                }
+            } // End of platform loop
+
+            // --- Step 4: Record Listing Usage (if at least one analysis was performed) ---
+            // Record usage if analysis was attempted, regardless of posting success,
+            // as the AI analysis is the main resource consumed.
+            if (analysisPerformed && window.currentUserUID) {
+                 $('#loadingStatus').text('Finalizing...');
+                try {
+                    await fetch(`${apiBaseUrl}/record-listing`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}`
+                        },
+                        body: JSON.stringify({ uid: window.currentUserUID })
+                    });
+                    console.log("Listing recorded successfully.");
+                    // Decrement local counter and update UI immediately
+                    window.remainingCredits = Math.max(0, window.remainingCredits - 1);
+                    updateRemainingCredits(window.remainingCredits); // Update UI
+                } catch (recordError) {
+                    console.warn("Failed to record listing usage:", recordError);
                 }
             }
 
-
-            // --- Step 5: Record Listing Usage (only if at least one post was attempted) ---
-            if (platforms.length > 0 && window.currentUserUID) {
-                 // Record usage *after* successful analysis and *attempted* posts
-                 recordListing(window.currentUserUID); // Use helper function
-
-                 // Decrement local counter and update UI immediately
-                 window.remainingCredits = Math.max(0, window.remainingCredits - 1);
-                 updateRemainingCredits(window.remainingCredits); // Update UI
-            }
-
-            if (postSuccessCount === platforms.length) {
+            // Final status message based on success count
+            if (postSuccessCount === platforms.length && platforms.length > 0) {
                  showUploadToast('All listings posted successfully!', 'success');
             } else if (postSuccessCount > 0) {
                  showUploadToast(`Successfully posted to ${postSuccessCount} out of ${platforms.length} platforms.`, 'info');
             } else if (platforms.length > 0) {
-                 showUploadToast('Failed to post to any selected platforms.', 'error');
+                 showUploadToast('Posting failed for all selected platforms.', 'error');
             }
 
 
-        } catch (error) {
-            console.error('Error during analysis or posting:', error);
-            $('#analysisOutput').text(`Error: ${error.message}`); // Show error in output area
+        } catch (error) { // Catch errors from image upload or other setup steps
+            console.error('Error during initial setup or upload:', error);
+            $('#loadingStatus').text(`Error: ${error.message}`);
             showUploadToast(`Error: ${error.message}`, 'error');
         } finally {
-            // Hide loading overlay
-            $('#loadingOverlay').remove();
+            // Hide loading overlay after a short delay
+            setTimeout(() => {
+                 $('#loadingOverlay').remove();
+            }, 1500);
         }
     });
 
