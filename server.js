@@ -759,14 +759,21 @@ app.post("/save-user", verifyToken, async (req, res) => {
 });
 
 app.get("/get-api-key", async(req, res) => {
-    console.log("Firebase config sent");
+    console.log("Firebase config requested"); // Modified log
     try {
         const firebaseConfigString = process.env.FIREBASE_API.replace(/'/g, '"');
         const firebaseConfig = JSON.parse(firebaseConfigString);
+
+        // *** FIX: Always use the default Firebase auth domain for the client SDK ***
+        // The server-side proxy will handle routing correctly for local development.
+        // In production (on useacumen.co), Firebase Hosting handles __/auth automatically.
+        firebaseConfig.authDomain = "acumen-2ead9.firebaseapp.com"; 
+        
+        console.log("Sending Firebase config with authDomain:", firebaseConfig.authDomain); // Log the domain being sent
         res.json({ firebaseConfig: firebaseConfig });
     } catch (error) {
-        console.error("Error with Firebase config:", error);
-        res.status(500).send("Error with Firebase configuration");
+        console.error("Error processing Firebase config:", error); // Modified log
+        res.status(500).send("Error processing Firebase configuration"); // Modified log
     }
 });
 

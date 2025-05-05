@@ -24,6 +24,9 @@ async function postListingFacebookMarketplace(adData) {
     const browser = await chromium.launch({ headless: false });
     const context = await browser.newContext({ storageState: savePath });
     const page = await context.newPage();
+    // Disable all timeouts to keep the tab open until manually closed
+    await page.setDefaultTimeout(0);
+    await page.setDefaultNavigationTimeout(0);
     
     await page.evaluate(() => {
       Object.defineProperty(navigator, 'webdriver', { get: () => false });
@@ -87,6 +90,7 @@ async function postListingFacebookMarketplace(adData) {
 
     // await page.getByRole('button', { name: 'Next' }).click(); // THIS IS THE ONE THAT POSTS THE ACTUAL LISTING
     await page.waitForTimeout(5000);
+    await page.waitForTimeout(300000);
     await browser.close();
     console.log("Listing posted successfully");
     files.forEach(file => {

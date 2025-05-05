@@ -553,7 +553,7 @@ $(document).ready(function() {
         });
     }
 
-    // Function to handle file processing (HEIC conversion, resizing, preview) - Upload moved to analyzeBtn click
+    // Function to handle file processing (HEIC conversion, resizing, preview) - Upload moved to analyseBtn click
     async function processFiles(rawFiles) {
         // 1. Convert HEIC to JPEG
         const heicConvertedFiles = await Promise.all(rawFiles.map(async file => {
@@ -902,7 +902,7 @@ $(document).ready(function() {
 
                 try {
                     // --- Analyze for the current platform ---
-                    $('#loadingStatus').text(`Generating listing details for ${platformName}`);
+                    $('#loadingStatus').text(`Generating Listing Details For ${platformName}`);
                     const analysisResponse = await fetch(analysisUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

@@ -78,6 +78,7 @@ async function postItemToEbayMarketplace(adData) {
   await page.getByRole('button', { name: 'List it' }).click();
 
   await page.waitForTimeout(5000);
+  await page.waitForTimeout(300000);
   await browser.close();
   return "eBay Listing posted successfully";
 }

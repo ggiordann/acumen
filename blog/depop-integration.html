@@ -235,15 +235,15 @@
                 event.preventDefault(); // Prevent potential form submission
                 const email = betaEmailInput.value.trim();
                 const validationError = validateEmail(email);
-
+                
                 if (validationError) {
-                    showToast(`✗ ${validationError}`);
+                    showToast(`❌ ${validationError}`);
                 } else {
                     // In a real scenario, you would send the email to your backend here
                     console.log('Beta signup attempt:', email); 
 
                     // Show success toast notification
-                    showToast('✓ Successfully Joined Beta'); // Use actual tick
+                    showToast('✅ Successfully Joined Beta'); // Use actual tick
 
                     // Clear the email input
                     betaEmailInput.value = '';

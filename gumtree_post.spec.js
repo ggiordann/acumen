@@ -72,17 +72,13 @@ async function postListingGumtree(adData) {
   if (adData.Condition) {
     await page.getByRole('radio', { name: adData.Condition }).click();
   }
-  // click the first Post ad button, wait for it, and confirm navigation
-  //const postBtn = page.getByRole('button', { name: 'Post ad' }).first();
-  await postBtn.waitFor({ state: 'visible', timeout: 60000 });
-  await postBtn.click();
-  await page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 });
 
-  console.log('Ad posted, confirmation page loaded');
-
+  // Skipping post button click on Gumtree as per user request
+  console.log('Form filled; skipping actual post button click');
   await page.waitForTimeout(5000);
+  await page.waitForTimeout(300000);
   await browser.close();
-  console.log('Listing posted successfully');
+  console.log('Skipped posting and closed browser');
 
   // cleanup uploaded files
   files.forEach(f => fs.unlinkSync(f));

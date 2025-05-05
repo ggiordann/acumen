@@ -5,8 +5,10 @@ $(document).ready(async function() {
     const redirect = urlParams.get('redirect');
     console.log("Redirect parameter:", redirect);
     
-    // Define API base URL - use useacumen.co for production
-    const apiBaseUrl = "https://useacumen.co";
+    // Define API base URL dynamically
+    let apiBaseUrl = "http://localhost:10000";
+    
+    console.log("Using API Base URL:", apiBaseUrl); // Add log for debugging
     
     console.log("before fetch");
     try {
@@ -121,13 +123,43 @@ $(document).ready(async function() {
         } catch (error) {
             console.error('Authentication error:', error);
             hideLoading();
-            // Handle specific errors like popup blocked if needed
-            if (error.code === 'auth/popup-blocked') {
-                alert('Popup blocked. Please allow popups for this site and try again.');
-            } else if (error.code === 'auth/cancelled-popup-request') {
-                console.log('Popup closed by user.');
-            } else {
-                alert(`Login failed: ${error.message}`);
+
+            // Check if it's a Firebase auth error (has a 'code' property)
+            if (error.code) {
+                if (error.code === 'auth/popup-blocked') {
+                    alert('Popup blocked. Please allow popups for this site and try again.');
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    console.log('Popup closed by user.');
+                } else {
+                    // General Firebase auth error
+                    alert(`Login failed: ${error.message}`);
+                }
+            }
+            // Check if it's a jQuery AJAX error (has 'readyState', 'status', etc.)
+            else if (typeof error.readyState !== 'undefined' && typeof error.status !== 'undefined') {
+                let alertMessage = 'Login failed: Could not save user data.';
+                if (error.status === 0) {
+                    alertMessage = 'Login failed: Network error. Please check your connection.';
+                } else if (error.responseText) {
+                    try {
+                        const responseJson = JSON.parse(error.responseText);
+                        if (responseJson.error) {
+                            alertMessage = `Login failed: ${responseJson.error}`;
+                        } else {
+                             alertMessage = `Login failed: Server error (${error.status}). ${error.responseText}`;
+                        }
+                    } catch (parseError) {
+                         alertMessage = `Login failed: Server error (${error.status}). ${error.responseText}`;
+                    }
+                } else {
+                    alertMessage = `Login failed: Server error (${error.status} ${error.statusText})`;
+                }
+                console.error('AJAX Error Details:', { status: error.status, statusText: error.statusText, responseText: error.responseText });
+                alert(alertMessage);
+            }
+            // Fallback for other unexpected errors
+            else {
+                alert(`An unexpected error occurred during login: ${error.message || error}`);
             }
         } finally {
             hideLoading();
