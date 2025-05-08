@@ -48,7 +48,7 @@ Acumen is a web application designed to help users create marketplace listings a
 
 5. Launch `index.html` using a Live Server extension.
 
-6. Open your web browser and go to `http://127.0.0.1:5500/app/index.html` to access the application.
+6. Open your web browser and go to `http://localhost:10000` to access the application.
 
 ## Contributing
 
