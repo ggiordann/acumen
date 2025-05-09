@@ -41,6 +41,32 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
 
+// =============== MAINTENANCE MODE CONFIGURATION ===============
+// MAINTENANCE MODE: When true, all traffic will be redirected to the maintenance.html page
+// To disable maintenance mode, change this to false and restart the server
+const MAINTENANCE_MODE = true; 
+const MAINTENANCE_START_DATE = new Date('May 10, 2025');
+const MAINTENANCE_END_DATE = new Date('June 10, 2025');
+
+// Check if we're in the maintenance period
+const isMaintenancePeriod = () => {
+  const now = new Date();
+  return MAINTENANCE_MODE && now >= MAINTENANCE_START_DATE && now <= MAINTENANCE_END_DATE;
+};
+
+// Maintenance mode middleware - must be applied before other routes
+app.use((req, res, next) => {
+  // Skip maintenance mode for webhook and API endpoints that need to remain functional
+  if (isMaintenancePeriod() && 
+      !req.path.startsWith('/webhook') && 
+      !req.path.startsWith('/api/') &&
+      req.path !== '/maintenance.html') {
+    console.log(`Maintenance mode active: Redirecting ${req.path} to maintenance page`);
+    return res.sendFile(path.join(__dirname, 'maintenance.html'));
+  }
+  next();
+});
+
 // --- Firebase Auth Proxy Setup ---
 // Proxy requests to /__/auth/* to your Firebase project's auth handler
 // This makes the auth flow appear to come from your domain, avoiding third-party cookie issues.
