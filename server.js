@@ -45,8 +45,8 @@ const BASE_URL = process.env.DOMAIN || `http://localhost:${PORT}`;
 // MAINTENANCE MODE: When true, all traffic will be redirected to the maintenance.html page
 // To disable maintenance mode, change this to false and restart the server
 const MAINTENANCE_MODE = true; 
-const MAINTENANCE_START_DATE = new Date('May 10, 2025');
-const MAINTENANCE_END_DATE = new Date('June 10, 2025');
+const MAINTENANCE_START_DATE = new Date('June 2, 2025');
+const MAINTENANCE_END_DATE = new Date('July 2, 2025');
 
 // Check if we're in the maintenance period
 const isMaintenancePeriod = () => {
